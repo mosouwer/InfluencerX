@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#667eea">
 <title>InfluenceX — Creator Marketplace</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com"></script>
@@ -11,11 +12,11 @@
 <body class="bg-gray-50">
 
 <!-- Login Modal -->
-<div id="loginModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-  <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8 mx-4">
+<div id="loginModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+  <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 sm:p-8 mx-auto">
     <div class="text-center mb-6">
-      <h1 class="text-3xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">InfluenceX</h1>
-      <p class="text-gray-500 mt-2">Creator Marketplace</p>
+      <h1 class="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">InfluenceX</h1>
+      <p class="text-gray-500 mt-2 text-sm">Creator Marketplace</p>
     </div>
     <div class="space-y-4">
       <div>
@@ -29,7 +30,7 @@
       <button onclick="window.auth.login()" class="w-full py-2 rounded-lg gradient-bg text-white font-semibold hover:opacity-90 transition">Login</button>
     </div>
     <div class="mt-6 text-center text-sm text-gray-500">
-      <p class="font-medium mb-1">Demo Accounts:</p>
+      <p class="font-medium mb-1 text-xs sm:text-sm">Demo Accounts:</p>
       <p class="text-xs">👑 Admin: admin@influencex.com / admin123</p>
       <p class="text-xs">💼 Brand: ravi@store.com / demo123</p>
       <p class="text-xs">🌟 Influencer: priya@demo.com / demo123</p>
@@ -39,34 +40,34 @@
 
 <!-- Edit Rates Modal -->
 <div id="editRatesModal" class="modal">
-  <div class="modal-content p-6">
+  <div class="modal-content p-5 sm:p-6">
     <div class="flex justify-between items-center mb-4">
-      <h2 class="text-xl font-bold">Edit Your Rates</h2>
+      <h2 class="text-lg sm:text-xl font-bold">Edit Your Rates</h2>
       <button onclick="window.influencer.closeEditRatesModal()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
     </div>
-    <div class="space-y-4">
-      <div><label class="block text-sm font-medium text-gray-700 mb-1">Instagram Story (₹)</label><input type="number" id="editRateStory" class="w-full px-4 py-2 border border-gray-300 rounded-lg"></div>
-      <div><label class="block text-sm font-medium text-gray-700 mb-1">Instagram Reel (₹)</label><input type="number" id="editRateReel" class="w-full px-4 py-2 border border-gray-300 rounded-lg"></div>
-      <div><label class="block text-sm font-medium text-gray-700 mb-1">Feed Post (₹)</label><input type="number" id="editRatePost" class="w-full px-4 py-2 border border-gray-300 rounded-lg"></div>
-      <div><label class="block text-sm font-medium text-gray-700 mb-1">YouTube Integration (₹)</label><input type="number" id="editRateYoutube" class="w-full px-4 py-2 border border-gray-300 rounded-lg"></div>
-      <button onclick="window.influencer.saveRates()" class="w-full py-2 rounded-lg gradient-bg text-white font-semibold hover:opacity-90 transition mt-4">Save Changes</button>
+    <div class="space-y-3 sm:space-y-4">
+      <div><label class="block text-sm font-medium text-gray-700 mb-1">Instagram Story (₹)</label><input type="number" id="editRateStory" class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg"></div>
+      <div><label class="block text-sm font-medium text-gray-700 mb-1">Instagram Reel (₹)</label><input type="number" id="editRateReel" class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg"></div>
+      <div><label class="block text-sm font-medium text-gray-700 mb-1">Feed Post (₹)</label><input type="number" id="editRatePost" class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg"></div>
+      <div><label class="block text-sm font-medium text-gray-700 mb-1">YouTube Integration (₹)</label><input type="number" id="editRateYoutube" class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg"></div>
+      <button onclick="window.influencer.saveRates()" class="w-full py-2 rounded-lg gradient-bg text-white font-semibold hover:opacity-90 transition mt-2 sm:mt-4">Save Changes</button>
     </div>
   </div>
 </div>
 
 <!-- Create Campaign Modal -->
 <div id="createCampaignModal" class="modal">
-  <div class="modal-content p-6">
+  <div class="modal-content p-5 sm:p-6">
     <div class="flex justify-between items-center mb-4">
-      <h2 class="text-xl font-bold">Create New Campaign</h2>
+      <h2 class="text-lg sm:text-xl font-bold">Create New Campaign</h2>
       <button onclick="window.brand.closeCreateCampaignModal()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
     </div>
-    <div class="space-y-4">
-      <div><label class="block text-sm font-medium text-gray-700 mb-1">Campaign Name</label><input type="text" id="campaignName" class="w-full px-4 py-2 border border-gray-300 rounded-lg"></div>
-      <div><label class="block text-sm font-medium text-gray-700 mb-1">Select Influencer</label><select id="campaignInfluencer" class="w-full px-4 py-2 border border-gray-300 rounded-lg"></select></div>
-      <div><label class="block text-sm font-medium text-gray-700 mb-1">Content Type</label><select id="campaignType" class="w-full px-4 py-2 border border-gray-300 rounded-lg"><option>Instagram Reel</option><option>Instagram Story</option><option>Feed Post</option><option>YouTube Video</option></select></div>
-      <div><label class="block text-sm font-medium text-gray-700 mb-1">Budget (₹)</label><input type="number" id="campaignAmount" class="w-full px-4 py-2 border border-gray-300 rounded-lg"></div>
-      <div><label class="block text-sm font-medium text-gray-700 mb-1">Deadline</label><input type="date" id="campaignDeadline" class="w-full px-4 py-2 border border-gray-300 rounded-lg"></div>
+    <div class="space-y-3 sm:space-y-4">
+      <div><label class="block text-sm font-medium text-gray-700 mb-1">Campaign Name</label><input type="text" id="campaignName" class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg"></div>
+      <div><label class="block text-sm font-medium text-gray-700 mb-1">Select Influencer</label><select id="campaignInfluencer" class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg"></select></div>
+      <div><label class="block text-sm font-medium text-gray-700 mb-1">Content Type</label><select id="campaignType" class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg"><option>Instagram Reel</option><option>Instagram Story</option><option>Feed Post</option><option>YouTube Video</option></select></div>
+      <div><label class="block text-sm font-medium text-gray-700 mb-1">Budget (₹)</label><input type="number" id="campaignAmount" class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg"></div>
+      <div><label class="block text-sm font-medium text-gray-700 mb-1">Deadline</label><input type="date" id="campaignDeadline" class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg"></div>
       <button onclick="window.brand.createCampaign()" class="w-full py-2 rounded-lg gradient-bg text-white font-semibold hover:opacity-90 transition">Create Campaign</button>
     </div>
   </div>
@@ -74,42 +75,65 @@
 
 <!-- Confirm Modal -->
 <div id="confirmModal" class="confirm-modal">
-  <div class="confirm-modal-content">
-    <div class="confirm-modal-header"><span id="confirmIcon" style="font-size: 24px;">⚠️</span><h3 id="confirmTitle" class="font-bold text-lg">Confirm Action</h3></div>
-    <div id="confirmMessage" class="confirm-modal-body">Are you sure?</div>
-    <div class="confirm-modal-footer">
-      <button class="confirm-btn confirm-btn-cancel" onclick="window.ui.hideConfirmModal()">Cancel</button>
-      <button id="confirmActionBtn" class="confirm-btn confirm-btn-confirm" onclick="window.ui.executeConfirm()">Confirm</button>
+  <div class="confirm-modal-content w-[90%] max-w-[400px]">
+    <div class="confirm-modal-header p-4 sm:p-5"><span id="confirmIcon" style="font-size: 24px;">⚠️</span><h3 id="confirmTitle" class="font-bold text-base sm:text-lg">Confirm Action</h3></div>
+    <div id="confirmMessage" class="confirm-modal-body p-4 sm:p-5 text-sm">Are you sure?</div>
+    <div class="confirm-modal-footer p-3 sm:p-4">
+      <button class="confirm-btn confirm-btn-cancel px-3 py-1.5 sm:px-4 sm:py-2" onclick="window.ui.hideConfirmModal()">Cancel</button>
+      <button id="confirmActionBtn" class="confirm-btn confirm-btn-confirm px-3 py-1.5 sm:px-4 sm:py-2" onclick="window.ui.executeConfirm()">Confirm</button>
     </div>
   </div>
 </div>
 
 <!-- Toast -->
-<div id="toast" class="toast"><span class="toast-icon" id="toastIcon">✓</span><span class="toast-message" id="toastMessage">Success!</span></div>
+<div id="toast" class="toast fixed bottom-4 right-4 left-4 sm:left-auto sm:right-4 max-w-[calc(100%-2rem)] sm:max-w-sm">
+  <span class="toast-icon" id="toastIcon">✓</span>
+  <span class="toast-message flex-1 text-sm" id="toastMessage">Success!</span>
+</div>
 
 <!-- Main App -->
 <div id="app" style="display: none;">
+  <!-- Mobile Menu Button -->
+  <button id="mobileMenuBtn" class="fixed bottom-4 left-4 z-50 bg-purple-600 text-white p-3 rounded-full shadow-lg lg:hidden">
+    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+    </svg>
+  </button>
+  
+  <!-- Mobile Overlay -->
+  <div id="mobileOverlay" class="fixed inset-0 bg-black/50 z-40 hidden lg:hidden" onclick="closeMobileSidebar()"></div>
+
   <nav class="bg-white border-b border-gray-200 fixed w-full z-30 top-0 shadow-sm">
-    <div class="px-6 py-3 flex justify-between items-center">
-      <div class="flex items-center gap-8">
-        <h1 id="mainLogo" class="text-xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">InfluenceX</h1>
-        <div id="modeSwitcher" class="flex gap-2 bg-gray-100 rounded-lg p-1">
-          <button onclick="window.app.switchMode('brand')" id="brandModeBtn" class="px-4 py-1.5 rounded-md text-sm font-medium">💼 Business</button>
-          <button onclick="window.app.switchMode('influencer')" id="infModeBtn" class="px-4 py-1.5 rounded-md text-sm font-medium">🌟 Influencer</button>
+    <div class="px-4 sm:px-6 py-3 flex justify-between items-center">
+      <div class="flex items-center gap-3 sm:gap-8">
+        <h1 id="mainLogo" class="text-lg sm:text-xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">InfluenceX</h1>
+        <div id="modeSwitcher" class="hidden sm:flex gap-2 bg-gray-100 rounded-lg p-1">
+          <button onclick="window.app.switchMode('brand')" id="brandModeBtn" class="px-3 sm:px-4 py-1.5 rounded-md text-xs sm:text-sm font-medium">💼 Business</button>
+          <button onclick="window.app.switchMode('influencer')" id="infModeBtn" class="px-3 sm:px-4 py-1.5 rounded-md text-xs sm:text-sm font-medium">🌟 Influencer</button>
         </div>
       </div>
-      <div class="flex items-center gap-4">
-        <button onclick="window.app.toggleNotifications()" class="relative p-2">🔔<span id="notifBadge" class="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full hidden"></span></button>
-        <div id="userAvatar" class="w-8 h-8 rounded-full gradient-bg flex items-center justify-center text-white text-sm font-bold"></div>
-        <span id="userName" class="text-sm font-medium"></span>
-        <button onclick="window.auth.logout()" class="text-sm text-gray-500 hover:text-gray-700">Logout</button>
+      <div class="flex items-center gap-2 sm:gap-4">
+        <button onclick="window.app.toggleNotifications()" class="relative p-1.5 sm:p-2">
+          <span class="text-lg sm:text-xl">🔔</span>
+          <span id="notifBadge" class="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full hidden"></span>
+        </button>
+        <div id="userAvatar" class="w-7 h-7 sm:w-8 sm:h-8 rounded-full gradient-bg flex items-center justify-center text-white text-xs sm:text-sm font-bold"></div>
+        <span id="userName" class="text-xs sm:text-sm font-medium hidden sm:inline">User</span>
+        <button onclick="window.auth.logout()" class="text-xs sm:text-sm text-gray-500 hover:text-gray-700">Logout</button>
       </div>
     </div>
   </nav>
-  <div id="adminModeIndicator" class="fixed top-20 right-4 z-40 hidden"><div class="bg-red-500 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg">👑 Admin Mode</div></div>
+  
+  <div id="adminModeIndicator" class="fixed top-14 right-4 z-40 hidden"><div class="bg-red-500 text-white px-2 py-0.5 sm:px-3 sm:py-1 rounded-full text-[10px] sm:text-xs font-bold shadow-lg">👑 Admin Mode</div></div>
+  
   <div class="flex pt-16">
-    <aside id="sidebar" class="w-64 bg-white border-r border-gray-200 min-h-screen fixed left-0 top-16 bottom-0 overflow-y-auto"></aside>
-    <main id="mainContent" class="ml-64 flex-1 p-6"></main>
+    <!-- Sidebar - Mobile responsive -->
+    <aside id="sidebar" class="fixed left-0 top-16 bottom-0 w-64 bg-white border-r border-gray-200 transform -translate-x-full transition-transform duration-300 ease-in-out z-40 overflow-y-auto lg:translate-x-0 lg:w-64">
+      <!-- Sidebar content loaded dynamically -->
+    </aside>
+    <main id="mainContent" class="flex-1 p-3 sm:p-4 md:p-6 w-full lg:ml-64 min-h-screen">
+      <!-- Main content loaded dynamically -->
+    </main>
   </div>
 </div>
 
@@ -123,5 +147,62 @@
 <script src="/js/brand.js"></script>
 <script src="/js/influencer.js"></script>
 <script src="/js/app.js"></script>
+
+<script>
+// Mobile sidebar toggle
+let mobileSidebarOpen = false;
+
+function toggleMobileSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('mobileOverlay');
+  
+  if (mobileSidebarOpen) {
+    sidebar.style.transform = 'translateX(-100%)';
+    overlay.classList.add('hidden');
+    mobileSidebarOpen = false;
+  } else {
+    sidebar.style.transform = 'translateX(0)';
+    overlay.classList.remove('hidden');
+    mobileSidebarOpen = true;
+  }
+}
+
+function closeMobileSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('mobileOverlay');
+  sidebar.style.transform = 'translateX(-100%)';
+  overlay.classList.add('hidden');
+  mobileSidebarOpen = false;
+}
+
+// Mobile menu button
+const mobileBtn = document.getElementById('mobileMenuBtn');
+if (mobileBtn) {
+  mobileBtn.addEventListener('click', toggleMobileSidebar);
+}
+
+// Close sidebar on window resize if screen becomes large
+window.addEventListener('resize', function() {
+  if (window.innerWidth >= 1024 && mobileSidebarOpen) {
+    closeMobileSidebar();
+  }
+});
+
+// Override renderSidebar to add close on mobile after click
+const originalRenderSidebar = window.renderSidebar;
+if (originalRenderSidebar) {
+  window.renderSidebar = function() {
+    originalRenderSidebar();
+    // Add click handlers to close sidebar on mobile
+    document.querySelectorAll('.sidebar-item').forEach(item => {
+      item.addEventListener('click', () => {
+        if (window.innerWidth < 1024) {
+          closeMobileSidebar();
+        }
+      });
+    });
+  };
+}
+</script>
 </body>
 </html>

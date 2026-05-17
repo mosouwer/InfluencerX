@@ -581,6 +581,176 @@ button:active:not(:disabled) {
   font-weight: 600;
 }
 
+/* Mobile Responsive Styles */
+@media (max-width: 768px) {
+  /* Stats grid - 2 columns on mobile */
+  .stats-row, .grid-cols-4 {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 12px !important;
+  }
+  
+  /* Tables - make scrollable horizontally */
+  .overflow-x-auto {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  table {
+    min-width: 600px;
+  }
+  
+  /* Cards padding reduction */
+  .stat-card, .bg-white.rounded-xl {
+    padding: 12px !important;
+  }
+  
+  .stat-value {
+    font-size: 1.5rem !important;
+  }
+  
+  /* Influencer grid - single column on mobile */
+  .influencer-grid, .grid-cols-3 {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+  
+  /* Main side layout - stacked on mobile */
+  .main-side {
+    display: block !important;
+  }
+  
+  .main-side > div {
+    margin-bottom: 16px;
+  }
+  
+  /* Filter pills - wrap and smaller */
+  .filter-pill {
+    padding: 6px 12px !important;
+    font-size: 0.7rem !important;
+  }
+  
+  /* Chart area */
+  .chart-area {
+    height: 160px !important;
+  }
+  
+  /* Budget card */
+  .budget-amount {
+    font-size: 1.5rem !important;
+  }
+  
+  /* Earnings banner */
+  .earnings-amount {
+    font-size: 1.5rem !important;
+  }
+  
+  .earnings-banner {
+    padding: 16px !important;
+  }
+  
+  .earnings-banner .flex {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  /* Activity feed */
+  .activity-item {
+    padding: 10px 0 !important;
+  }
+  
+  /* Performance cards */
+  .performer-item {
+    padding: 8px 0 !important;
+  }
+  
+  .performer-name {
+    font-size: 0.8rem !important;
+  }
+  
+  .performer-rate {
+    font-size: 0.75rem !important;
+  }
+  
+  /* Buttons */
+  button {
+    font-size: 0.75rem !important;
+    padding: 8px 12px !important;
+  }
+  
+  /* Headers */
+  h1 {
+    font-size: 1.5rem !important;
+  }
+  
+  h2 {
+    font-size: 1.25rem !important;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Single column for stats */
+  .stats-row, .grid-cols-4 {
+    grid-template-columns: 1fr !important;
+  }
+  
+  /* Smaller padding */
+  .p-6 {
+    padding: 12px !important;
+  }
+  
+  .p-4 {
+    padding: 8px !important;
+  }
+  
+  /* Text sizes */
+  .text-sm {
+    font-size: 0.75rem !important;
+  }
+  
+  .text-xs {
+    font-size: 0.65rem !important;
+  }
+}
+
+/* Sidebar mobile animation */
+#sidebar {
+  transition: transform 0.3s ease-in-out;
+}
+
+@media (min-width: 1024px) {
+  #sidebar {
+    transform: translateX(0) !important;
+  }
+}
+
+/* Mobile menu button */
+#mobileMenuBtn {
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+#mobileMenuBtn:active {
+  transform: scale(0.95);
+}
+
+/* Toast on mobile */
+@media (max-width: 640px) {
+  .toast {
+    bottom: 16px;
+    right: 16px;
+    left: 16px;
+    max-width: calc(100% - 32px);
+  }
+}
+
+/* Modal on mobile */
+@media (max-width: 640px) {
+  .modal-content, .confirm-modal-content {
+    width: 95%;
+    margin: 0 auto;
+  }
+}
+
 /* Modal */
 .modal {
   display: none;
