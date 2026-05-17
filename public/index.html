@@ -4,506 +4,35 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>InfluenceX — Creator Marketplace</title>
-<script src="https://cdn.tailwindcss.com"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0,1" rel="stylesheet">
-<style>
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  background: #f7f9fb;
-}
-
-.gradient-bg {
-  background: linear-gradient(135deg, #1f108e 0%, #4b41e1 100%);
-}
-
-.gradient-bg-admin {
-  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-}
-
-.page-transition {
-  animation: fadeIn 0.3s ease-out;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.status-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 2px 8px;
-  border-radius: 9999px;
-  font-size: 0.7rem;
-  font-weight: 600;
-}
-
-.status-active { background: rgba(16, 185, 129, 0.1); color: #10b981; }
-.status-review { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
-.status-pending { background: rgba(59, 130, 246, 0.1); color: #3b82f6; }
-.status-completed { background: rgba(139, 92, 246, 0.1); color: #8b5cf6; }
-.status-dispute { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
-
-.progress-bar {
-  height: 4px;
-  background: #e5e7eb;
-  border-radius: 9999px;
-  overflow: hidden;
-}
-
-.progress-fill {
-  height: 100%;
-  border-radius: 9999px;
-  background: linear-gradient(90deg, #1f108e, #4b41e1);
-}
-
-.verified-badge {
-  display: inline-flex;
-  background: rgba(16, 185, 129, 0.1);
-  color: #10b981;
-  padding: 2px 8px;
-  border-radius: 9999px;
-  font-size: 0.7rem;
-  font-weight: 600;
-}
-
-/* Modal */
-.modal {
-  display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(4px);
-  z-index: 1000;
-  justify-content: center;
-  align-items: center;
-}
-
-.modal-content {
-  background: white;
-  border-radius: 20px;
-  max-width: 500px;
-  width: 90%;
-  animation: slideIn 0.3s ease-out;
-}
-
-@keyframes slideIn {
-  from { opacity: 0; transform: translateY(-50px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-/* Toast */
-.toast {
-  position: fixed;
-  bottom: 24px;
-  right: 24px;
-  background: white;
-  border-radius: 12px;
-  padding: 14px 20px;
-  min-width: 260px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  z-index: 10001;
-  transform: translateX(450px);
-  transition: transform 0.3s ease-out;
-}
-
-.toast.show {
-  transform: translateX(0);
-}
-
-.toast-success { border-left: 4px solid #10b981; }
-.toast-error { border-left: 4px solid #ef4444; }
-.toast-info { border-left: 4px solid #3b82f6; }
-.toast-warning { border-left: 4px solid #f59e0b; }
-
-.toast-icon { font-size: 20px; }
-.toast-message { color: #374151; font-size: 14px; font-weight: 500; }
-
-/* Confirm Modal */
-.confirm-modal {
-  display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(4px);
-  z-index: 10000;
-  justify-content: center;
-  align-items: center;
-}
-
-.confirm-modal-content {
-  background: white;
-  border-radius: 24px;
-  max-width: 420px;
-  width: 90%;
-  animation: modalSlideIn 0.2s ease-out;
-}
-
-@keyframes modalSlideIn {
-  from { opacity: 0; transform: scale(0.95) translateY(-20px); }
-  to { opacity: 1; transform: scale(1) translateY(0); }
-}
-
-.confirm-modal-header {
-  padding: 20px 24px;
-  border-bottom: 1px solid #e5e7eb;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.confirm-modal-body {
-  padding: 20px 24px;
-  color: #6b7280;
-  line-height: 1.5;
-}
-
-.confirm-modal-footer {
-  padding: 16px 24px;
-  border-top: 1px solid #e5e7eb;
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-}
-
-.confirm-btn {
-  padding: 8px 20px;
-  border-radius: 10px;
-  font-weight: 600;
-  font-size: 14px;
-  cursor: pointer;
-  border: none;
-  transition: all 0.2s;
-}
-
-.confirm-btn-cancel {
-  background: #f3f4f6;
-  color: #6b7280;
-}
-
-.confirm-btn-cancel:hover {
-  background: #e5e7eb;
-}
-
-.confirm-btn-confirm {
-  background: #ef4444;
-  color: white;
-}
-
-.confirm-btn-confirm:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
-}
-
-.confirm-btn-success {
-  background: #10b981;
-  color: white;
-}
-
-.confirm-btn-success:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
-}
-
-/* Sidebar */
-.sidebar-item {
-  transition: all 0.2s;
-  cursor: pointer;
-}
-
-.sidebar-item.active {
-  background: linear-gradient(135deg, rgba(31, 16, 142, 0.1), rgba(75, 65, 225, 0.1));
-  border-left: 3px solid #1f108e;
-}
-
-.sidebar-item.admin-active {
-  background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(220, 38, 38, 0.1));
-  border-left: 3px solid #ef4444;
-}
-
-.sidebar-item:hover:not(.active) {
-  background: #f3f4f6;
-}
-
-/* Cards */
-.influencer-card {
-  transition: all 0.2s ease;
-  cursor: pointer;
-}
-
-.influencer-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-}
-
-.stat-card {
-  transition: transform 0.2s;
-}
-
-.stat-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-}
-
-/* Filter Pills */
-.filter-pill {
-  padding: 8px 18px;
-  border-radius: 9999px;
-  font-size: 0.78rem;
-  font-weight: 600;
-  transition: all 0.2s;
-  border: 1px solid #e5e7eb;
-  background: white;
-  color: #6b7280;
-  cursor: pointer;
-}
-
-.filter-pill:hover {
-  border-color: #1f108e;
-  color: #1f108e;
-}
-
-.filter-pill.active {
-  background: linear-gradient(135deg, #1f108e, #4b41e1);
-  color: white;
-  border-color: transparent;
-}
-
-/* Shadow levels */
-.shadow-level-2 {
-  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.05);
-}
-
-.shadow-level-3 {
-  box-shadow: 0px 8px 24px rgba(0, 0, 0, 0.10);
-}
-
-/* Animations */
-@keyframes shimmer {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
-}
-
-.animate-shimmer {
-  animation: shimmer 2s infinite;
-}
-
-@keyframes pulse-slow {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.8; transform: scale(1.05); }
-}
-
-.animate-pulse-slow {
-  animation: pulse-slow 2s ease-in-out infinite;
-}
-
-@keyframes spin-slow {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-.animate-spin-slow {
-  animation: spin-slow 20s linear infinite;
-}
-
-/* Material Icons */
-.material-symbols-outlined {
-  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-}
-
-/* Scrollbar */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-
-::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 10px;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 10px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
-}
-</style>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="/css/style.css">
 </head>
-<body class="bg-[#f7f9fb]">
+<body class="bg-gray-50">
 
-<!-- Login Modal - Systematic Indigo Design -->
-<div id="loginModal" class="fixed inset-0 z-50 flex items-center justify-center">
-  <!-- Animated Gradient Background -->
-  <div class="absolute inset-0 bg-gradient-to-br from-[#1f108e] via-[#3730a3] to-[#4b41e1] overflow-hidden">
-    <div class="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23ffffff" fill-opacity="0.03"%3E%3Cpath d="M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-30"></div>
-    
-    <!-- Floating orbs -->
-    <div class="absolute top-10 left-10 w-72 h-72 bg-purple-400 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse"></div>
-    <div class="absolute bottom-10 right-10 w-96 h-96 bg-indigo-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse delay-700"></div>
-    <div class="absolute top-1/3 right-1/4 w-60 h-60 bg-blue-400 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-pulse delay-1400"></div>
-    
-    <!-- Floating particles -->
-    <div class="absolute top-20 left-1/4 text-white/10 text-4xl animate-bounce">✦</div>
-    <div class="absolute bottom-32 right-1/3 text-white/10 text-3xl animate-pulse delay-500">✦</div>
-    <div class="absolute top-1/2 left-10 text-white/5 text-2xl animate-spin-slow">◈</div>
-  </div>
-  
-  <!-- Login Card -->
-  <div class="relative bg-white/95 backdrop-blur-sm rounded-3xl shadow-2xl w-full max-w-md mx-4 overflow-hidden border border-white/20">
-    <!-- Decorative top gradient bar -->
-    <div class="h-1.5 bg-gradient-to-r from-[#1f108e] via-[#4b41e1] to-[#341575] relative overflow-hidden">
-      <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/50 to-transparent animate-shimmer"></div>
+<!-- Login Modal -->
+<div id="loginModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+  <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8 mx-4">
+    <div class="text-center mb-6">
+      <h1 class="text-3xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">InfluenceX</h1>
+      <p class="text-gray-500 mt-2">Creator Marketplace</p>
     </div>
-    
-    <div class="p-8">
-      <!-- Logo Section -->
-      <div class="text-center mb-8">
-        <div class="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br from-[#1f108e] to-[#4b41e1] shadow-lg mb-4 animate-pulse-slow">
-          <svg class="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M12 2L15 8.5L22 9.5L17 14L18.5 21L12 17.5L5.5 21L7 14L2 9.5L9 8.5L12 2Z" stroke="currentColor" stroke-width="1.5" fill="none"/>
-            <path d="M12 6L13.5 9.5L17 10L14.5 12.5L15 16L12 14L9 16L9.5 12.5L7 10L10.5 9.5L12 6Z" fill="white" opacity="0.9"/>
-          </svg>
-        </div>
-        <h2 class="text-2xl font-bold text-[#1f108e] mb-2">Welcome to InfluenceX</h2>
-        <p class="text-sm text-[#464553]">Your trusted creator marketplace</p>
+    <div class="space-y-4">
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+        <input type="email" id="loginEmail" placeholder="email@example.com" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500">
       </div>
-      
-      <!-- Social Login Options -->
-      <div class="grid grid-cols-2 gap-3 mb-6">
-        <button class="flex items-center justify-center gap-2 px-4 py-2.5 border border-[#c8c4d5] rounded-xl hover:bg-[#f2f4f6] transition-all duration-200">
-          <svg class="w-5 h-5" viewBox="0 0 24 24">
-            <path fill="#1877F2" d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c5.05-.5 9-4.76 9-9.95z"/>
-          </svg>
-          <span class="text-xs font-medium">Google</span>
-        </button>
-        <button class="flex items-center justify-center gap-2 px-4 py-2.5 border border-[#c8c4d5] rounded-xl hover:bg-[#f2f4f6] transition-all duration-200">
-          <svg class="w-5 h-5" viewBox="0 0 24 24">
-            <path fill="#333" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
-          </svg>
-          <span class="text-xs font-medium">LinkedIn</span>
-        </button>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+        <input type="password" id="loginPassword" placeholder="password" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500">
       </div>
-      
-      <!-- Divider -->
-      <div class="relative mb-6">
-        <div class="absolute inset-0 flex items-center">
-          <div class="w-full border-t border-[#c8c4d5]/50"></div>
-        </div>
-        <div class="relative flex justify-center text-sm">
-          <span class="px-3 bg-white text-[#464553] text-xs font-medium">or sign in with email</span>
-        </div>
-      </div>
-      
-      <!-- Login Form -->
-      <form id="loginForm" onsubmit="event.preventDefault(); login();" class="space-y-5">
-        <!-- Email Field -->
-        <div>
-          <label class="text-xs font-medium text-[#464553] mb-1.5 block">Email Address</label>
-          <div class="relative group">
-            <span class="material-symbols-outlined absolute left-3 top-1/2 transform -translate-y-1/2 text-[#464553] group-focus-within:text-[#1f108e] transition-colors text-base">email</span>
-            <input type="email" id="loginEmail" placeholder="name@company.com" 
-              class="w-full pl-10 pr-4 py-3 bg-[#f2f4f6] rounded-xl border border-[#c8c4d5] focus:border-[#1f108e] focus:ring-2 focus:ring-[#1f108e]/20 transition-all duration-200 text-sm text-[#191c1e] placeholder:text-[#464553]/50">
-          </div>
-        </div>
-        
-        <!-- Password Field -->
-        <div>
-          <label class="text-xs font-medium text-[#464553] mb-1.5 block">Password</label>
-          <div class="relative group">
-            <span class="material-symbols-outlined absolute left-3 top-1/2 transform -translate-y-1/2 text-[#464553] group-focus-within:text-[#1f108e] transition-colors text-base">lock</span>
-            <input type="password" id="loginPassword" placeholder="Enter your password" 
-              class="w-full pl-10 pr-12 py-3 bg-[#f2f4f6] rounded-xl border border-[#c8c4d5] focus:border-[#1f108e] focus:ring-2 focus:ring-[#1f108e]/20 transition-all duration-200 text-sm text-[#191c1e] placeholder:text-[#464553]/50">
-            <button type="button" onclick="togglePassword()" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#464553] hover:text-[#1f108e] transition-colors">
-              <span class="material-symbols-outlined text-base" id="passwordToggleIcon">visibility_off</span>
-            </button>
-          </div>
-        </div>
-        
-        <!-- Remember Me & Forgot Password -->
-        <div class="flex items-center justify-between">
-          <label class="flex items-center gap-2 cursor-pointer group">
-            <input type="checkbox" class="w-4 h-4 rounded border-[#c8c4d5] text-[#1f108e] focus:ring-[#1f108e] focus:ring-2 transition-all">
-            <span class="text-sm text-[#464553] group-hover:text-[#1f108e] transition-colors">Remember me</span>
-          </label>
-          <a href="#" class="text-xs font-medium text-[#1f108e] hover:text-[#4b41e1] transition-all hover:translate-x-0.5 inline-flex items-center gap-1">
-            Forgot password?
-            <span class="material-symbols-outlined text-sm">arrow_forward</span>
-          </a>
-        </div>
-        
-        <!-- Login Button -->
-        <button type="submit" id="loginButton"
-          class="w-full bg-[#1f108e] text-white text-base font-semibold py-3 rounded-xl shadow-level-2 hover:shadow-lg hover:bg-[#1f108e]/90 active:scale-[0.98] transition-all duration-200 flex items-center justify-center gap-2">
-          <span class="material-symbols-outlined text-base">login</span>
-          Sign In
-        </button>
-      </form>
-      
-      <!-- Demo Credentials Section -->
-      <div class="mt-8 pt-6 border-t border-[#c8c4d5]/30">
-        <p class="text-xs font-medium text-[#464553] text-center mb-4 flex items-center justify-center gap-2">
-          <span class="material-symbols-outlined text-sm">smart_toy</span>
-          Quick Demo Access
-        </p>
-        <div class="grid grid-cols-3 gap-3">
-          <button onclick="fillDemoCredentials('admin@influencex.com', 'admin123')" 
-            class="group px-3 py-3 bg-gradient-to-br from-[#1f108e]/5 to-[#4b41e1]/5 rounded-xl hover:from-[#1f108e]/10 hover:to-[#4b41e1]/10 transition-all duration-300 hover:-translate-y-0.5">
-            <div class="text-center">
-              <div class="text-2xl mb-1 group-hover:scale-110 transition-transform">👑</div>
-              <div class="text-xs font-medium text-[#1f108e] font-semibold">Admin</div>
-              <div class="text-xs text-[#464553]/60 mt-1">Full Access</div>
-            </div>
-          </button>
-          <button onclick="fillDemoCredentials('ravi@store.com', 'demo123')" 
-            class="group px-3 py-3 bg-gradient-to-br from-[#1f108e]/5 to-[#4b41e1]/5 rounded-xl hover:from-[#1f108e]/10 hover:to-[#4b41e1]/10 transition-all duration-300 hover:-translate-y-0.5">
-            <div class="text-center">
-              <div class="text-2xl mb-1 group-hover:scale-110 transition-transform">💼</div>
-              <div class="text-xs font-medium text-[#1f108e] font-semibold">Brand</div>
-              <div class="text-xs text-[#464553]/60 mt-1">Business</div>
-            </div>
-          </button>
-          <button onclick="fillDemoCredentials('priya@demo.com', 'demo123')" 
-            class="group px-3 py-3 bg-gradient-to-br from-[#1f108e]/5 to-[#4b41e1]/5 rounded-xl hover:from-[#1f108e]/10 hover:to-[#4b41e1]/10 transition-all duration-300 hover:-translate-y-0.5">
-            <div class="text-center">
-              <div class="text-2xl mb-1 group-hover:scale-110 transition-transform">🌟</div>
-              <div class="text-xs font-medium text-[#1f108e] font-semibold">Creator</div>
-              <div class="text-xs text-[#464553]/60 mt-1">Influencer</div>
-            </div>
-          </button>
-        </div>
-        <p class="text-center text-xs text-[#464553]/50 mt-4 flex items-center justify-center gap-1">
-          <span class="material-symbols-outlined text-xs">info</span>
-          Click any role to auto-fill credentials
-        </p>
-      </div>
-      
-      <!-- Sign up link -->
-      <div class="mt-6 text-center">
-        <p class="text-sm text-[#464553]">
-          Don't have an account?
-          <a href="#" class="text-[#1f108e] font-semibold hover:text-[#4b41e1] transition-colors ml-1">Create account →</a>
-        </p>
-      </div>
+      <button onclick="window.auth.login()" class="w-full py-2 rounded-lg gradient-bg text-white font-semibold hover:opacity-90 transition">Login</button>
+    </div>
+    <div class="mt-6 text-center text-sm text-gray-500">
+      <p class="font-medium mb-1">Demo Accounts:</p>
+      <p class="text-xs">👑 Admin: admin@influencex.com / admin123</p>
+      <p class="text-xs">💼 Brand: ravi@store.com / demo123</p>
+      <p class="text-xs">🌟 Influencer: priya@demo.com / demo123</p>
     </div>
   </div>
 </div>
@@ -513,14 +42,14 @@ body {
   <div class="modal-content p-6">
     <div class="flex justify-between items-center mb-4">
       <h2 class="text-xl font-bold">Edit Your Rates</h2>
-      <button onclick="closeEditRatesModal()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+      <button onclick="window.influencer.closeEditRatesModal()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
     </div>
     <div class="space-y-4">
       <div><label class="block text-sm font-medium text-gray-700 mb-1">Instagram Story (₹)</label><input type="number" id="editRateStory" class="w-full px-4 py-2 border border-gray-300 rounded-lg"></div>
       <div><label class="block text-sm font-medium text-gray-700 mb-1">Instagram Reel (₹)</label><input type="number" id="editRateReel" class="w-full px-4 py-2 border border-gray-300 rounded-lg"></div>
       <div><label class="block text-sm font-medium text-gray-700 mb-1">Feed Post (₹)</label><input type="number" id="editRatePost" class="w-full px-4 py-2 border border-gray-300 rounded-lg"></div>
       <div><label class="block text-sm font-medium text-gray-700 mb-1">YouTube Integration (₹)</label><input type="number" id="editRateYoutube" class="w-full px-4 py-2 border border-gray-300 rounded-lg"></div>
-      <button onclick="saveRates()" class="w-full py-2 rounded-lg gradient-bg text-white font-semibold hover:opacity-90 transition mt-4">Save Changes</button>
+      <button onclick="window.influencer.saveRates()" class="w-full py-2 rounded-lg gradient-bg text-white font-semibold hover:opacity-90 transition mt-4">Save Changes</button>
     </div>
   </div>
 </div>
@@ -530,7 +59,7 @@ body {
   <div class="modal-content p-6">
     <div class="flex justify-between items-center mb-4">
       <h2 class="text-xl font-bold">Create New Campaign</h2>
-      <button onclick="closeCreateCampaignModal()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+      <button onclick="window.brand.closeCreateCampaignModal()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
     </div>
     <div class="space-y-4">
       <div><label class="block text-sm font-medium text-gray-700 mb-1">Campaign Name</label><input type="text" id="campaignName" class="w-full px-4 py-2 border border-gray-300 rounded-lg"></div>
@@ -538,7 +67,7 @@ body {
       <div><label class="block text-sm font-medium text-gray-700 mb-1">Content Type</label><select id="campaignType" class="w-full px-4 py-2 border border-gray-300 rounded-lg"><option>Instagram Reel</option><option>Instagram Story</option><option>Feed Post</option><option>YouTube Video</option></select></div>
       <div><label class="block text-sm font-medium text-gray-700 mb-1">Budget (₹)</label><input type="number" id="campaignAmount" class="w-full px-4 py-2 border border-gray-300 rounded-lg"></div>
       <div><label class="block text-sm font-medium text-gray-700 mb-1">Deadline</label><input type="date" id="campaignDeadline" class="w-full px-4 py-2 border border-gray-300 rounded-lg"></div>
-      <button onclick="createCampaign()" class="w-full py-2 rounded-lg gradient-bg text-white font-semibold hover:opacity-90 transition">Create Campaign</button>
+      <button onclick="window.brand.createCampaign()" class="w-full py-2 rounded-lg gradient-bg text-white font-semibold hover:opacity-90 transition">Create Campaign</button>
     </div>
   </div>
 </div>
@@ -549,13 +78,13 @@ body {
     <div class="confirm-modal-header"><span id="confirmIcon" style="font-size: 24px;">⚠️</span><h3 id="confirmTitle" class="font-bold text-lg">Confirm Action</h3></div>
     <div id="confirmMessage" class="confirm-modal-body">Are you sure?</div>
     <div class="confirm-modal-footer">
-      <button class="confirm-btn confirm-btn-cancel" onclick="hideConfirmModal()">Cancel</button>
-      <button id="confirmActionBtn" class="confirm-btn confirm-btn-confirm" onclick="executeConfirm()">Confirm</button>
+      <button class="confirm-btn confirm-btn-cancel" onclick="window.ui.hideConfirmModal()">Cancel</button>
+      <button id="confirmActionBtn" class="confirm-btn confirm-btn-confirm" onclick="window.ui.executeConfirm()">Confirm</button>
     </div>
   </div>
 </div>
 
-<!-- Toast Notification -->
+<!-- Toast -->
 <div id="toast" class="toast"><span class="toast-icon" id="toastIcon">✓</span><span class="toast-message" id="toastMessage">Success!</span></div>
 
 <!-- Main App -->
@@ -563,448 +92,36 @@ body {
   <nav class="bg-white border-b border-gray-200 fixed w-full z-30 top-0 shadow-sm">
     <div class="px-6 py-3 flex justify-between items-center">
       <div class="flex items-center gap-8">
-        <h1 id="mainLogo" class="text-xl font-bold bg-gradient-to-r from-[#1f108e] to-[#4b41e1] bg-clip-text text-transparent">InfluenceX</h1>
+        <h1 id="mainLogo" class="text-xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">InfluenceX</h1>
         <div id="modeSwitcher" class="flex gap-2 bg-gray-100 rounded-lg p-1">
-          <button onclick="switchMode('brand')" id="brandModeBtn" class="px-4 py-1.5 rounded-md text-sm font-medium">💼 Business</button>
-          <button onclick="switchMode('influencer')" id="infModeBtn" class="px-4 py-1.5 rounded-md text-sm font-medium">🌟 Influencer</button>
+          <button onclick="window.app.switchMode('brand')" id="brandModeBtn" class="px-4 py-1.5 rounded-md text-sm font-medium">💼 Business</button>
+          <button onclick="window.app.switchMode('influencer')" id="infModeBtn" class="px-4 py-1.5 rounded-md text-sm font-medium">🌟 Influencer</button>
         </div>
       </div>
       <div class="flex items-center gap-4">
-        <button onclick="toggleNotifications()" class="relative p-2">🔔<span id="notifBadge" class="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full hidden"></span></button>
+        <button onclick="window.app.toggleNotifications()" class="relative p-2">🔔<span id="notifBadge" class="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full hidden"></span></button>
         <div id="userAvatar" class="w-8 h-8 rounded-full gradient-bg flex items-center justify-center text-white text-sm font-bold"></div>
         <span id="userName" class="text-sm font-medium"></span>
-        <button onclick="logout()" class="text-sm text-gray-500 hover:text-gray-700">Logout</button>
+        <button onclick="window.auth.logout()" class="text-sm text-gray-500 hover:text-gray-700">Logout</button>
       </div>
     </div>
   </nav>
-
   <div id="adminModeIndicator" class="fixed top-20 right-4 z-40 hidden"><div class="bg-red-500 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg">👑 Admin Mode</div></div>
-
   <div class="flex pt-16">
     <aside id="sidebar" class="w-64 bg-white border-r border-gray-200 min-h-screen fixed left-0 top-16 bottom-0 overflow-y-auto"></aside>
     <main id="mainContent" class="ml-64 flex-1 p-6"></main>
   </div>
 </div>
 
-<script>
-let currentUser = null;
-let currentMode = 'brand';
-let notifications = [];
-let pendingConfirm = null;
-let allInfluencers = [];
-
-// Toggle password visibility
-function togglePassword() {
-  const passwordInput = document.getElementById('loginPassword');
-  const icon = document.getElementById('passwordToggleIcon');
-  if (passwordInput.type === 'password') {
-    passwordInput.type = 'text';
-    icon.textContent = 'visibility';
-  } else {
-    passwordInput.type = 'password';
-    icon.textContent = 'visibility_off';
-  }
-}
-
-// Fill demo credentials
-function fillDemoCredentials(email, password) {
-  document.getElementById('loginEmail').value = email;
-  document.getElementById('loginPassword').value = password;
-  
-  const emailField = document.getElementById('loginEmail');
-  const passwordField = document.getElementById('loginPassword');
-  
-  emailField.style.backgroundColor = '#e2dfff';
-  passwordField.style.backgroundColor = '#e2dfff';
-  
-  setTimeout(() => {
-    emailField.style.backgroundColor = '';
-    passwordField.style.backgroundColor = '';
-  }, 500);
-}
-
-// API Helper
-async function apiCall(url, options = {}) {
-  const res = await fetch(url, {
-    headers: { 'Content-Type': 'application/json' },
-    ...options
-  });
-  if (!res.ok) {
-    const error = await res.text();
-    throw new Error(error);
-  }
-  return res.json();
-}
-
-// Toast
-function showToast(message, type = 'success') {
-  const toast = document.getElementById('toast');
-  const icon = document.getElementById('toastIcon');
-  const msg = document.getElementById('toastMessage');
-  
-  toast.className = 'toast';
-  toast.classList.add(`toast-${type}`);
-  icon.innerHTML = type === 'success' ? '✓' : type === 'error' ? '✗' : type === 'warning' ? '⚠' : 'ℹ';
-  msg.innerHTML = message;
-  toast.classList.add('show');
-  setTimeout(() => toast.classList.remove('show'), 3000);
-}
-
-// Confirm Modal
-function showConfirm(options) {
-  document.getElementById('confirmIcon').innerHTML = options.icon || '⚠️';
-  document.getElementById('confirmTitle').innerHTML = options.title || 'Confirm';
-  document.getElementById('confirmMessage').innerHTML = options.message || 'Are you sure?';
-  const btn = document.getElementById('confirmActionBtn');
-  btn.innerHTML = options.confirmText || 'Confirm';
-  btn.className = `confirm-btn ${options.confirmClass || 'confirm-btn-confirm'}`;
-  pendingConfirm = options.onConfirm;
-  document.getElementById('confirmModal').style.display = 'flex';
-}
-
-function hideConfirmModal() {
-  document.getElementById('confirmModal').style.display = 'none';
-  pendingConfirm = null;
-}
-
-function executeConfirm() {
-  if (pendingConfirm) pendingConfirm();
-  hideConfirmModal();
-}
-
-// Login
-async function login() {
-  const email = document.getElementById('loginEmail').value;
-  const password = document.getElementById('loginPassword').value;
-  try {
-    const data = await apiCall('/api/login', { method: 'POST', body: JSON.stringify({ email, password }) });
-    currentUser = data.user;
-    document.getElementById('loginModal').style.display = 'none';
-    document.getElementById('app').style.display = 'block';
-    
-    if (currentUser.role === 'admin') {
-      document.getElementById('adminModeIndicator').classList.remove('hidden');
-      document.getElementById('modeSwitcher').style.display = 'none';
-      document.getElementById('mainLogo').className = 'text-xl font-bold bg-gradient-to-r from-red-500 to-red-600 bg-clip-text text-transparent';
-    }
-    
-    document.getElementById('userAvatar').textContent = currentUser.role === 'brand' ? 
-      (currentUser.profile.company?.charAt(0) || 'B') : 
-      (currentUser.role === 'admin' ? 'A' : currentUser.profile.name?.charAt(0) || 'I');
-    document.getElementById('userName').textContent = currentUser.role === 'brand' ? 
-      currentUser.profile.company : (currentUser.role === 'admin' ? 'Admin' : currentUser.profile.name);
-    
-    await loadNotifications();
-    await loadInfluencers();
-    renderSidebar();
-    
-    if (currentUser.role === 'admin') {
-      await renderAdminDashboard();
-    } else if (currentMode === 'brand') {
-      await renderBrandDashboard();
-    } else {
-      await renderInfluencerDashboard();
-    }
-    
-    showToast(`Welcome back!`, 'success');
-  } catch (err) {
-    showToast('Login failed: ' + err.message, 'error');
-  }
-}
-
-async function logout() {
-  await apiCall('/api/logout', { method: 'POST' });
-  location.reload();
-}
-
-async function loadInfluencers() {
-  try {
-    allInfluencers = await apiCall('/api/influencers');
-  } catch (err) {}
-}
-
-async function loadNotifications() {
-  try {
-    const data = await apiCall('/api/notifications');
-    notifications = data;
-    const unreadCount = notifications.filter(n => !n.read).length;
-    const badge = document.getElementById('notifBadge');
-    if (unreadCount > 0) {
-      badge.classList.remove('hidden');
-    } else {
-      badge.classList.add('hidden');
-    }
-  } catch (err) {}
-}
-
-function toggleNotifications() {
-  const unread = notifications.filter(n => !n.read).length;
-  alert(`You have ${unread} unread notifications`);
-}
-
-function switchMode(mode) {
-  if (currentUser?.role === 'admin') return;
-  currentMode = mode;
-  document.getElementById('brandModeBtn').className = mode === 'brand' ? 'px-4 py-1.5 rounded-md text-sm font-medium bg-white shadow-sm' : 'px-4 py-1.5 rounded-md text-sm font-medium text-gray-500';
-  document.getElementById('infModeBtn').className = mode === 'influencer' ? 'px-4 py-1.5 rounded-md text-sm font-medium bg-white shadow-sm' : 'px-4 py-1.5 rounded-md text-sm font-medium text-gray-500';
-  renderSidebar();
-  if (mode === 'brand') renderBrandDashboard();
-  else renderInfluencerDashboard();
-}
-
-function renderSidebar() {
-  const sidebar = document.getElementById('sidebar');
-  if (currentUser?.role === 'admin') {
-    sidebar.innerHTML = `<div class="p-4"><div class="mb-4 p-2 bg-red-50 rounded-lg"><div class="text-xs text-red-600 font-bold">👑 Admin Controls</div></div>
-      <div class="space-y-1"><div class="sidebar-item p-3 rounded-lg cursor-pointer hover:bg-red-50" onclick="renderAdminDashboard()">📊 Dashboard</div>
-      <div class="sidebar-item p-3 rounded-lg cursor-pointer hover:bg-red-50" onclick="renderAdminUsers()">👥 User Management</div>
-      <div class="sidebar-item p-3 rounded-lg cursor-pointer hover:bg-red-50" onclick="renderAdminCampaigns()">📋 All Campaigns</div>
-      <div class="sidebar-item p-3 rounded-lg cursor-pointer hover:bg-red-50" onclick="renderAdminDeals()">💼 All Deals</div>
-      <div class="sidebar-item p-3 rounded-lg cursor-pointer hover:bg-red-50" onclick="renderAdminWithdrawals()">💰 Withdrawals</div></div></div>`;
-  } else if (currentMode === 'brand') {
-    sidebar.innerHTML = `<div class="p-4"><div class="space-y-1"><div class="sidebar-item p-3 rounded-lg cursor-pointer hover:bg-gray-50" onclick="renderBrandDashboard()">📊 Dashboard</div>
-      <div class="sidebar-item p-3 rounded-lg cursor-pointer hover:bg-gray-50" onclick="renderExplore()">🔍 Explore Creators</div>
-      <div class="sidebar-item p-3 rounded-lg cursor-pointer hover:bg-gray-50" onclick="renderBrandCampaigns()">📋 My Campaigns</div></div></div>`;
-  } else {
-    sidebar.innerHTML = `<div class="p-4"><div class="space-y-1"><div class="sidebar-item p-3 rounded-lg cursor-pointer hover:bg-gray-50" onclick="renderInfluencerDashboard()">📊 Dashboard</div>
-      <div class="sidebar-item p-3 rounded-lg cursor-pointer hover:bg-gray-50" onclick="renderInfluencerCampaigns()">🚀 My Campaigns</div>
-      <div class="sidebar-item p-3 rounded-lg cursor-pointer hover:bg-gray-50" onclick="renderEarnings()">💰 Earnings</div>
-      <div class="sidebar-item p-3 rounded-lg cursor-pointer hover:bg-gray-50" onclick="renderProfile()">👤 My Profile</div></div></div>`;
-  }
-}
-
-// ========== ADMIN FUNCTIONS ==========
-async function renderAdminDashboard() {
-  try {
-    const stats = await apiCall('/api/admin/stats');
-    document.getElementById('mainContent').innerHTML = `<div class="page-transition"><h1 class="text-2xl font-bold mb-2">Admin Dashboard</h1>
-      <div class="grid grid-cols-4 gap-5 mb-8"><div class="bg-white rounded-xl p-5 border"><div class="text-gray-400 text-sm">Total Brands</div><div class="text-3xl font-bold mt-2">${stats.totalBrands || 0}</div></div>
-      <div class="bg-white rounded-xl p-5 border"><div class="text-gray-400 text-sm">Total Influencers</div><div class="text-3xl font-bold mt-2">${stats.totalInfluencers || 0}</div><div class="text-xs text-green-600">${stats.verifiedInfluencers || 0} verified</div></div>
-      <div class="bg-white rounded-xl p-5 border"><div class="text-gray-400 text-sm">Total Campaigns</div><div class="text-3xl font-bold mt-2">${stats.totalCampaigns || 0}</div><div class="text-xs text-blue-600">${stats.activeCampaigns || 0} active</div></div>
-      <div class="bg-white rounded-xl p-5 border"><div class="text-gray-400 text-sm">Revenue</div><div class="text-3xl font-bold mt-2 text-green-600">₹${(stats.platformRevenue || 0).toLocaleString()}</div></div></div></div>`;
-  } catch (err) { showToast(err.message, 'error'); }
-}
-
-async function renderAdminUsers() {
-  try {
-    const users = await apiCall('/api/admin/users');
-    document.getElementById('mainContent').innerHTML = `<div class="page-transition"><h1 class="text-2xl font-bold mb-2">User Management</h1>
-      <div class="flex gap-2 mb-4"><button onclick="filterUsers('all')" id="filterAll" class="px-4 py-2 text-sm rounded-lg bg-purple-600 text-white">All</button>
-      <button onclick="filterUsers('brand')" id="filterBrand" class="px-4 py-2 text-sm rounded-lg bg-gray-100 text-gray-700">Brands</button>
-      <button onclick="filterUsers('influencer')" id="filterInfluencer" class="px-4 py-2 text-sm rounded-lg bg-gray-100 text-gray-700">Influencers</button>
-      <button onclick="filterUsers('admin')" id="filterAdmin" class="px-4 py-2 text-sm rounded-lg bg-gray-100 text-gray-700">Admins</button></div>
-      <div class="bg-white rounded-xl border overflow-hidden"><table class="w-full text-sm"><thead class="bg-gray-50 border-b"><tr><th class="p-4 text-left">User</th><th>Email</th><th>Role</th><th>Status</th><th>Actions</th></tr></thead>
-      <tbody id="userTableBody">${renderUserRows(users)}</tbody></table></div></div>`;
-    window.allUsers = users;
-    window.currentUserFilter = 'all';
-  } catch (err) { showToast(err.message, 'error'); }
-}
-
-function renderUserRows(users) {
-  return users.map(user => `<tr class="border-b hover:bg-gray-50"><td class="p-4 font-medium"><div class="flex items-center gap-2"><span>${user.name || user.email.split('@')[0]}</span>${user.verified ? '<span class="text-green-600 text-xs">✓</span>' : ''}</div></td><td class="text-gray-600">${user.email}</td>
-  <td><span class="px-2 py-1 rounded-full text-xs ${user.role === 'admin' ? 'bg-red-100 text-red-700' : user.role === 'brand' ? 'bg-blue-100 text-blue-700' : 'bg-purple-100 text-purple-700'}">${user.role}</span></td>
-  <td><span class="status-badge status-${user.status}">${user.status}</span></td>
-  <td><div class="flex gap-2">${user.role === 'influencer' ? `<button onclick="verifyUser('${user.id}', ${!user.verified})" class="px-2 py-1 text-xs rounded ${user.verified ? 'bg-gray-200' : 'bg-green-100 text-green-700'}">${user.verified ? 'Unverify' : 'Verify'}</button>` : ''}
-  ${user.role !== 'admin' ? `<button onclick="toggleUserStatus('${user.id}', '${user.status}')" class="px-2 py-1 text-xs rounded ${user.status === 'active' ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}">${user.status === 'active' ? 'Suspend' : 'Activate'}</button>` : ''}</div></div></tr>`).join('');
-}
-
-function filterUsers(type) {
-  if (!window.allUsers) return;
-  let filtered = type === 'brand' ? window.allUsers.filter(u => u.role === 'brand') : type === 'influencer' ? window.allUsers.filter(u => u.role === 'influencer') : type === 'admin' ? window.allUsers.filter(u => u.role === 'admin') : window.allUsers;
-  document.getElementById('userTableBody').innerHTML = renderUserRows(filtered);
-  ['All', 'Brand', 'Influencer', 'Admin'].forEach(t => { const btn = document.getElementById(`filter${t}`); if(btn) btn.className = t === (type === 'all' ? 'All' : type.charAt(0).toUpperCase() + type.slice(1)) ? 'px-4 py-2 text-sm rounded-lg bg-purple-600 text-white' : 'px-4 py-2 text-sm rounded-lg bg-gray-100 text-gray-700'; });
-}
-
-async function renderAdminCampaigns() {
-  try {
-    const campaigns = await apiCall('/api/admin/campaigns');
-    document.getElementById('mainContent').innerHTML = `<div class="page-transition"><h1 class="text-2xl font-bold mb-2">All Campaigns</h1>
-      <div class="bg-white rounded-xl border overflow-hidden"><table class="w-full text-sm"><thead class="bg-gray-50 border-b"><tr><th class="p-4">Campaign</th><th>Brand</th><th>Influencer</th><th>Amount</th><th>Status</th><th>Progress</th><th>Deadline</th><th>Action</th></tr></thead>
-      <tbody>${campaigns.map(c => `<tr class="border-b"><td class="p-4">${c.campaignName}</td><td>${c.brandName}</td><td>${c.influencerName}</td><td class="font-semibold">₹${c.amount.toLocaleString()}</td><td><span class="status-badge status-${c.status}">${c.status}</span></td>
-      <td><div class="w-20"><div class="progress-bar"><div class="progress-fill" style="width: ${c.progress}%"></div></div></div></div><td>${c.deadline}</td>
-      <td><select onchange="updateCampaignStatus('${c.id}', this.value)" class="px-2 py-1 text-xs border rounded"><option value="pending" ${c.status === 'pending' ? 'selected' : ''}>Pending</option><option value="active" ${c.status === 'active' ? 'selected' : ''}>Active</option><option value="review" ${c.status === 'review' ? 'selected' : ''}>Review</option><option value="completed" ${c.status === 'completed' ? 'selected' : ''}>Completed</option><option value="dispute" ${c.status === 'dispute' ? 'selected' : ''}>Dispute</option></select></div></tr>`).join('')}</tbody></table></div></div>`;
-  } catch (err) { showToast(err.message, 'error'); }
-}
-
-async function updateCampaignStatus(campaignId, status) {
-  showConfirm({ title: 'Update Status', message: `Change campaign status to ${status}?`, confirmText: 'Update', onConfirm: async () => { await apiCall(`/api/campaigns/${campaignId}/status`, { method: 'PUT', body: JSON.stringify({ status }) }); showToast('Status updated!', 'success'); await renderAdminCampaigns(); } });
-}
-
-async function renderAdminDeals() {
-  try {
-    const deals = await apiCall('/api/admin/deals');
-    document.getElementById('mainContent').innerHTML = `<div class="page-transition"><h1 class="text-2xl font-bold mb-2">All Deals</h1>
-      <div class="bg-white rounded-xl border overflow-hidden"><table class="w-full text-sm"><thead class="bg-gray-50 border-b"><tr><th class="p-4">Brand</th><th>Influencer</th><th>Package</th><th>Amount</th><th>Status</th><th>Created</th></tr></thead>
-      <tbody>${deals.map(d => `<tr class="border-b"><td class="p-4">${d.brandName}</td><td>${d.influencerName}</td><td class="capitalize">${d.packageType}</td><td class="font-semibold">₹${d.amount.toLocaleString()}</td><td><span class="status-badge status-${d.status}">${d.status}</span></td><td>${d.createdAt?.split('T')[0] || 'N/A'}</td></tr>`).join('')}</tbody></table></div></div>`;
-  } catch (err) { showToast(err.message, 'error'); }
-}
-
-async function renderAdminWithdrawals() {
-  try {
-    const withdrawals = await apiCall('/api/admin/withdrawals');
-    document.getElementById('mainContent').innerHTML = `<div class="page-transition"><h1 class="text-2xl font-bold mb-2">Withdrawals</h1>
-      <div class="bg-white rounded-xl border overflow-hidden"><table class="w-full text-sm"><thead class="bg-gray-50 border-b"><tr><th class="p-4">Influencer</th><th>Amount</th><th>Requested</th><th>Status</th><th>Actions</th></tr></thead>
-      <tbody>${withdrawals.map(w => `<tr class="border-b"><td class="p-4">${w.userName}</td><td class="font-semibold">₹${w.amount.toLocaleString()}</td><td>${w.requestedAt}</td><td><span class="status-badge status-${w.status}">${w.status}</span></td>
-      <td>${w.status === 'pending' ? `<button onclick="processWithdrawal('${w.id}', ${w.amount}, 'completed')" class="px-2 py-1 bg-green-100 text-green-700 rounded text-xs mr-2">Approve</button><button onclick="processWithdrawal('${w.id}', ${w.amount}, 'rejected')" class="px-2 py-1 bg-red-100 text-red-700 rounded text-xs">Reject</button>` : '-'}</div></tr>`).join('')}</tbody></table></div></div>`;
-  } catch (err) { showToast(err.message, 'error'); }
-}
-
-async function verifyUser(userId, verified) {
-  showConfirm({ title: verified ? 'Verify' : 'Unverify', message: 'Are you sure?', onConfirm: async () => { await apiCall(`/api/admin/users/${userId}/verify`, { method: 'PUT', body: JSON.stringify({ verified }) }); showToast(`Influencer ${verified ? 'verified' : 'unverified'}!`, 'success'); await renderAdminUsers(); } });
-}
-
-async function toggleUserStatus(userId, currentStatus) {
-  const newStatus = currentStatus === 'active' ? 'suspended' : 'active';
-  showConfirm({ title: newStatus === 'suspended' ? 'Suspend' : 'Activate', message: 'Are you sure?', onConfirm: async () => { await apiCall(`/api/admin/users/${userId}/status`, { method: 'PUT', body: JSON.stringify({ status: newStatus }) }); showToast(`User ${newStatus === 'suspended' ? 'suspended' : 'activated'}!`, 'success'); await renderAdminUsers(); } });
-}
-
-async function processWithdrawal(id, amount, status) {
-  showConfirm({ title: status === 'completed' ? 'Approve' : 'Reject', message: `Approve ₹${amount.toLocaleString()} withdrawal?`, onConfirm: async () => { await apiCall(`/api/admin/withdrawals/${id}/process`, { method: 'PUT', body: JSON.stringify({ status }) }); showToast(`Withdrawal ${status === 'completed' ? 'approved' : 'rejected'}!`, 'success'); await renderAdminWithdrawals(); } });
-}
-
-// ========== BRAND FUNCTIONS ==========
-async function renderBrandDashboard() {
-  try {
-    const stats = await apiCall('/api/stats');
-    const campaigns = await apiCall('/api/campaigns');
-    const influencers = await apiCall('/api/influencers');
-    document.getElementById('mainContent').innerHTML = `<div class="page-transition"><h1 class="text-2xl font-bold mb-2">Welcome, ${currentUser.profile.company} 👋</h1>
-      <div class="grid grid-cols-4 gap-5 mb-8"><div class="bg-white rounded-xl p-5 border"><div class="text-gray-400 text-sm">Active Campaigns</div><div class="text-3xl font-bold">${stats.activeCampaigns || 0}</div></div>
-      <div class="bg-white rounded-xl p-5 border"><div class="text-gray-400 text-sm">Total Spent</div><div class="text-3xl font-bold">₹${(stats.totalSpent || 0).toLocaleString()}</div></div>
-      <div class="bg-white rounded-xl p-5 border"><div class="text-gray-400 text-sm">Total Reach</div><div class="text-3xl font-bold">${(stats.totalReach / 1000000).toFixed(1)}M</div></div>
-      <div class="bg-white rounded-xl p-5 border"><div class="text-gray-400 text-sm">Avg Engagement</div><div class="text-3xl font-bold">${stats.avgEngagement || 0}%</div></div></div>
-      <div class="bg-white rounded-xl border p-6"><h2 class="font-semibold mb-4">Top Creators</h2>${influencers.slice(0, 3).map(inf => `<div class="flex items-center justify-between p-3 border-b cursor-pointer" onclick="viewInfluencer('${inf.id}')"><div><span class="font-medium">${inf.name}</span><div class="text-xs text-gray-400">${inf.niche}</div></div><div class="text-purple-600 font-semibold">₹${inf.rates?.post || 5000}</div></div>`).join('')}<button onclick="renderExplore()" class="mt-4 text-purple-600 text-sm">View all creators →</button></div></div>`;
-  } catch (err) { showToast(err.message, 'error'); }
-}
-
-async function renderExplore() {
-  try {
-    const influencers = await apiCall('/api/influencers');
-    document.getElementById('mainContent').innerHTML = `<div class="page-transition"><h1 class="text-2xl font-bold mb-2">Explore Creators</h1>
-      <div class="flex gap-2 mb-6 flex-wrap"><button onclick="filterNiche('all')" class="filter-pill active">All</button><button onclick="filterNiche('Fashion')" class="filter-pill">👗 Fashion</button><button onclick="filterNiche('Food')" class="filter-pill">🍕 Food</button><button onclick="filterNiche('Tech')" class="filter-pill">📱 Tech</button><button onclick="filterNiche('Fitness')" class="filter-pill">💪 Fitness</button></div>
-      <div class="grid grid-cols-3 gap-6" id="influencerGrid">${influencers.map(inf => `<div class="influencer-card bg-white rounded-xl border p-4 cursor-pointer" onclick="viewInfluencer('${inf.id}')"><div class="h-20 gradient-bg rounded-lg flex items-center justify-center text-3xl mb-3">${inf.avatar || '👤'}</div><h3 class="font-bold">${inf.name} ${inf.verified ? '✓' : ''}</h3><p class="text-xs text-gray-400">${inf.location}</p><div class="flex justify-between items-center mt-3"><div><span class="font-bold text-purple-600">₹${inf.rates?.post || 5000}</span></div><button class="px-3 py-1 bg-purple-600 text-white rounded text-xs" onclick="event.stopPropagation(); viewInfluencer('${inf.id}')">Hire</button></div></div>`).join('')}</div></div>`;
-    window.filterNiche = (niche) => { const filtered = niche === 'all' ? influencers : influencers.filter(i => i.niche === niche); document.getElementById('influencerGrid').innerHTML = filtered.map(inf => `<div class="influencer-card bg-white rounded-xl border p-4 cursor-pointer" onclick="viewInfluencer('${inf.id}')"><div class="h-20 gradient-bg rounded-lg flex items-center justify-center text-3xl mb-3">${inf.avatar || '👤'}</div><h3 class="font-bold">${inf.name}</h3><div class="flex justify-between items-center mt-3"><div><span class="font-bold text-purple-600">₹${inf.rates?.post || 5000}</span></div><button class="px-3 py-1 bg-purple-600 text-white rounded text-xs">Hire</button></div></div>`).join(''); };
-  } catch (err) { showToast(err.message, 'error'); }
-}
-
-async function renderBrandCampaigns() {
-  try {
-    const campaigns = await apiCall('/api/campaigns');
-    document.getElementById('mainContent').innerHTML = `<div class="page-transition"><h1 class="text-2xl font-bold mb-2">My Campaigns</h1>
-      <div class="bg-white rounded-xl border overflow-hidden"><table class="w-full text-sm"><thead class="bg-gray-50"><tr><th class="p-4">Campaign</th><th>Influencer</th><th>Status</th><th>Amount</th><th>Deadline</th></tr></thead>
-      <tbody>${campaigns.map(c => `<tr class="border-b"><td class="p-4">${c.campaignName}</td><td>${c.influencerName}</td><td><span class="status-badge status-${c.status}">${c.status}</span></td><td class="font-semibold">₹${c.amount}<td>${c.deadline}</td></tr>`).join('')}</tbody></table></div>
-      <div class="mt-6"><button onclick="openCreateCampaignModal()" class="px-6 py-2 rounded-lg gradient-bg text-white font-semibold">+ Create Campaign</button></div></div>`;
-  } catch (err) { showToast(err.message, 'error'); }
-}
-
-function openCreateCampaignModal() {
-  const select = document.getElementById('campaignInfluencer');
-  if (select && allInfluencers.length) select.innerHTML = allInfluencers.map(inf => `<option value="${inf.id}">${inf.name} - ₹${inf.rates?.post || 5000}/post</option>`).join('');
-  document.getElementById('createCampaignModal').style.display = 'flex';
-}
-function closeCreateCampaignModal() { document.getElementById('createCampaignModal').style.display = 'none'; }
-async function createCampaign() {
-  const campaignName = document.getElementById('campaignName').value, influencerId = document.getElementById('campaignInfluencer').value, type = document.getElementById('campaignType').value, amount = parseInt(document.getElementById('campaignAmount').value), deadline = document.getElementById('campaignDeadline').value;
-  if (!campaignName || !influencerId || !amount || !deadline) { showToast('Please fill all fields', 'error'); return; }
-  showConfirm({ title: 'Create Campaign', message: `Create "${campaignName}" with budget ₹${amount.toLocaleString()}?`, confirmClass: 'confirm-btn-success', onConfirm: async () => { await apiCall('/api/campaigns', { method: 'POST', body: JSON.stringify({ influencerId, campaignName, type, amount, deadline }) }); showToast('Campaign created!', 'success'); closeCreateCampaignModal(); await renderBrandCampaigns(); } });
-}
-
-// ========== INFLUENCER FUNCTIONS ==========
-async function renderInfluencerDashboard() {
-  try {
-    const stats = await apiCall('/api/stats');
-    const deals = await apiCall('/api/deals');
-    const pendingOffers = deals.filter(d => d.status === 'pending');
-    document.getElementById('mainContent').innerHTML = `<div class="page-transition"><h1 class="text-2xl font-bold mb-2">Creator Dashboard ✨</h1>
-      <div class="bg-gradient-to-r from-purple-600 to-indigo-600 rounded-xl p-6 text-white mb-8"><div><div class="text-sm opacity-80">Total Earnings</div><div class="text-4xl font-bold">₹${stats.totalEarned?.toLocaleString() || 0}</div><div class="text-sm opacity-80">+₹${stats.pendingAmount || 0} pending</div></div></div>
-      <div class="grid grid-cols-4 gap-5 mb-8"><div class="bg-white rounded-xl p-5 border"><div class="text-gray-400 text-sm">Active</div><div class="text-3xl font-bold">${stats.activeCampaigns || 0}</div></div>
-      <div class="bg-white rounded-xl p-5 border"><div class="text-gray-400 text-sm">Completed</div><div class="text-3xl font-bold">${stats.completedCampaigns || 0}</div></div>
-      <div class="bg-white rounded-xl p-5 border"><div class="text-gray-400 text-sm">Rating</div><div class="text-3xl font-bold">${stats.rating || 4.8}⭐</div></div></div>
-      ${pendingOffers.length > 0 ? `<div class="bg-white rounded-xl border p-6"><h2 class="font-semibold mb-4">🔥 New Offers</h2>${pendingOffers.map(offer => `<div class="flex justify-between items-center p-4 bg-gray-50 rounded-lg mb-3"><div><div class="font-medium">${offer.brandName}</div><div class="text-sm">${offer.packageType} · ₹${offer.amount}</div></div><div><button onclick="respondToDeal('${offer.id}', 'accepted')" class="px-4 py-1.5 bg-purple-600 text-white rounded text-sm mr-2">Accept</button><button onclick="respondToDeal('${offer.id}', 'rejected')" class="px-4 py-1.5 bg-gray-200 rounded text-sm">Decline</button></div></div>`).join('')}</div>` : ''}</div>`;
-  } catch (err) { showToast(err.message, 'error'); }
-}
-
-async function renderInfluencerCampaigns() {
-  try {
-    const campaigns = await apiCall('/api/campaigns');
-    document.getElementById('mainContent').innerHTML = `<div class="page-transition"><h1 class="text-2xl font-bold mb-2">My Campaigns</h1>
-      <div class="bg-white rounded-xl border overflow-hidden"><table class="w-full text-sm"><thead class="bg-gray-50"><tr><th class="p-4">Brand</th><th>Campaign</th><th>Status</th><th>Amount</th><th>Deadline</th></tr></thead>
-      <tbody>${campaigns.map(c => `<tr class="border-b"><td class="p-4">${c.brandName}</td><td>${c.campaignName}</td><td><span class="status-badge status-${c.status}">${c.status}</span></td><td class="font-semibold">₹${c.amount}<td>${c.deadline}</td></tr>`).join('')}</tbody><tr></div></div>`;
-  } catch (err) { showToast(err.message, 'error'); }
-}
-
-async function renderEarnings() {
-  try {
-    const stats = await apiCall('/api/stats');
-    const campaigns = await apiCall('/api/campaigns');
-    document.getElementById('mainContent').innerHTML = `<div class="page-transition"><h1 class="text-2xl font-bold mb-2">Earnings</h1>
-      <div class="bg-gradient-to-r from-purple-600 to-indigo-600 rounded-xl p-6 text-white mb-8"><div><div class="text-sm opacity-80">Total Lifetime Earnings</div><div class="text-4xl font-bold">₹${stats.totalEarned?.toLocaleString() || 0}</div><div class="text-sm opacity-80">₹${stats.pendingAmount || 0} pending</div></div></div>
-      <div class="bg-white rounded-xl border overflow-hidden"><table class="w-full text-sm"><thead class="bg-gray-50"><tr><th class="p-4">Campaign</th><th>Brand</th><th>Amount</th><th>Status</th><th>Date</th></tr></thead>
-      <tbody>${campaigns.map(c => `<tr class="border-b"><td class="p-4">${c.campaignName}</td><td>${c.brandName}</td><td class="font-semibold">₹${c.amount}</td><td><span class="status-badge status-${c.status}">${c.status}</span><td>${c.deadline}</td></tr>`).join('')}</tbody></table></div></div>`;
-  } catch (err) { showToast(err.message, 'error'); }
-}
-
-async function renderProfile() {
-  try {
-    const userData = await apiCall('/api/me');
-    const profile = userData.user.profile;
-    window.currentRates = profile.rates;
-    document.getElementById('mainContent').innerHTML = `<div class="page-transition"><div class="flex justify-between items-center mb-6"><div><h1 class="text-2xl font-bold mb-2">My Profile</h1></div><button onclick="openEditRatesModal()" class="px-4 py-2 bg-purple-600 text-white rounded-lg">✏️ Edit Rates</button></div>
-      <div class="bg-white rounded-xl border p-6"><div class="flex items-center gap-6 mb-6"><div class="w-20 h-20 rounded-full gradient-bg flex items-center justify-center text-3xl">${profile.avatar || '👤'}</div>
-      <div><h2 class="text-xl font-bold">${profile.name} ${profile.verified ? '<span class="verified-badge ml-2">✓ Verified</span>' : ''}</h2><p class="text-gray-500">${profile.niche} · ${profile.location}</p><div class="flex text-yellow-400">${'⭐'.repeat(Math.floor(profile.rating || 4.8))}</div></div></div>
-      <div class="border-t pt-6"><h3 class="font-semibold mb-4">Rates</h3><div class="grid grid-cols-4 gap-4"><div class="bg-gray-50 p-4 rounded-lg text-center"><div class="text-xs text-gray-400">Story</div><div class="text-xl font-bold text-purple-600">₹${profile.rates?.story || 5000}</div></div>
-      <div class="bg-gray-50 p-4 rounded-lg text-center"><div class="text-xs text-gray-400">Reel</div><div class="text-xl font-bold text-purple-600">₹${profile.rates?.reel || 12000}</div></div>
-      <div class="bg-gray-50 p-4 rounded-lg text-center"><div class="text-xs text-gray-400">Post</div><div class="text-xl font-bold text-purple-600">₹${profile.rates?.post || 8000}</div></div>
-      <div class="bg-gray-50 p-4 rounded-lg text-center"><div class="text-xs text-gray-400">YouTube</div><div class="text-xl font-bold text-purple-600">₹${profile.rates?.youtube || 25000}</div></div></div></div></div></div>`;
-  } catch (err) { showToast(err.message, 'error'); }
-}
-
-function openEditRatesModal() {
-  if (window.currentRates) { document.getElementById('editRateStory').value = window.currentRates.story; document.getElementById('editRateReel').value = window.currentRates.reel; document.getElementById('editRatePost').value = window.currentRates.post; document.getElementById('editRateYoutube').value = window.currentRates.youtube; }
-  document.getElementById('editRatesModal').style.display = 'flex';
-}
-function closeEditRatesModal() { document.getElementById('editRatesModal').style.display = 'none'; }
-async function saveRates() {
-  const newRates = { story: parseInt(document.getElementById('editRateStory').value) || 0, reel: parseInt(document.getElementById('editRateReel').value) || 0, post: parseInt(document.getElementById('editRatePost').value) || 0, youtube: parseInt(document.getElementById('editRateYoutube').value) || 0 };
-  showConfirm({ title: 'Update Rates', message: `Update to ₹${newRates.story}/${newRates.reel}/${newRates.post}/${newRates.youtube}?`, confirmClass: 'confirm-btn-success', onConfirm: async () => { await apiCall('/api/influencer/rates', { method: 'PUT', body: JSON.stringify({ rates: newRates }) }); showToast('Rates updated!', 'success'); closeEditRatesModal(); await renderProfile(); } });
-}
-
-async function respondToDeal(dealId, status) {
-  showConfirm({ title: status === 'accepted' ? 'Accept' : 'Decline', message: 'Are you sure?', onConfirm: async () => { await apiCall(`/api/deals/${dealId}/status`, { method: 'PUT', body: JSON.stringify({ status }) }); showToast(`Offer ${status === 'accepted' ? 'accepted' : 'declined'}!`, 'success'); await renderInfluencerDashboard(); } });
-}
-
-async function viewInfluencer(id) {
-  const inf = await apiCall(`/api/influencer/${id}`);
-  const packageType = prompt(`Hire ${inf.name}\n\nPost: ₹${inf.rates?.post}\nStory: ₹${inf.rates?.story}\nReel: ₹${inf.rates?.reel}\n\nEnter type (post/story/reel):`);
-  if (packageType && inf.rates[packageType]) { await apiCall('/api/deals', { method: 'POST', body: JSON.stringify({ influencerId: id, packageType, message: '' }) }); showToast(`Hire request sent to ${inf.name}!`, 'success'); }
-}
-
-// Make functions global
-window.renderAdminDashboard = renderAdminDashboard;
-window.renderAdminUsers = renderAdminUsers;
-window.renderAdminCampaigns = renderAdminCampaigns;
-window.renderAdminDeals = renderAdminDeals;
-window.renderAdminWithdrawals = renderAdminWithdrawals;
-window.renderBrandDashboard = renderBrandDashboard;
-window.renderExplore = renderExplore;
-window.renderBrandCampaigns = renderBrandCampaigns;
-window.renderInfluencerDashboard = renderInfluencerDashboard;
-window.renderInfluencerCampaigns = renderInfluencerCampaigns;
-window.renderEarnings = renderEarnings;
-window.renderProfile = renderProfile;
-window.switchMode = switchMode;
-window.viewInfluencer = viewInfluencer;
-window.openCreateCampaignModal = openCreateCampaignModal;
-window.closeCreateCampaignModal = closeCreateCampaignModal;
-window.createCampaign = createCampaign;
-window.respondToDeal = respondToDeal;
-window.filterUsers = filterUsers;
-window.verifyUser = verifyUser;
-window.toggleUserStatus = toggleUserStatus;
-window.processWithdrawal = processWithdrawal;
-window.updateCampaignStatus = updateCampaignStatus;
-window.fillDemoCredentials = fillDemoCredentials;
-window.togglePassword = togglePassword;
-</script>
+<!-- Script Modules -->
+<script src="/js/config.js"></script>
+<script src="/js/utils.js"></script>
+<script src="/js/api.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/ui.js"></script>
+<script src="/js/admin.js"></script>
+<script src="/js/brand.js"></script>
+<script src="/js/influencer.js"></script>
+<script src="/js/app.js"></script>
 </body>
 </html>
