@@ -1,0 +1,375 @@
+{
+  "users": [
+    {
+      "id": "admin_1",
+      "email": "admin@influencex.com",
+      "password": "$2a$10$kZAqiCKZQ1xr137OZG8G.ea7CdDSeuf1Xc1Ul5OJVxqujUWSfC.aS",
+      "role": "admin",
+      "profile": {
+        "name": "Platform Admin",
+        "permissions": [
+          "all"
+        ]
+      },
+      "status": "active",
+      "joinedAt": "2026-01-01"
+    },
+    {
+      "id": "biz_1",
+      "email": "ravi@store.com",
+      "password": "$2a$10$Vxb2vu3PQAsXDrWyrgKtY.B2n89VCo6R8IEqoG0V2tUMgWSKdncAe",
+      "role": "brand",
+      "profile": {
+        "company": "Ravi's Store",
+        "budget": 50000,
+        "spent": 32400,
+        "industry": "Fashion"
+      },
+      "status": "active",
+      "joinedAt": "2026-02-15"
+    },
+    {
+      "id": "inf_1",
+      "email": "priya@demo.com",
+      "password": "$2a$10$Vxb2vu3PQAsXDrWyrgKtY.B2n89VCo6R8IEqoG0V2tUMgWSKdncAe",
+      "role": "influencer",
+      "profile": {
+        "name": "Priya Sharma",
+        "niche": "Fashion",
+        "followers": 1200000,
+        "engagement": 6.4,
+        "location": "Mumbai",
+        "rates": {
+          "story": 5000,
+          "reel": 12000,
+          "post": 8000,
+          "youtube": 25000
+        },
+        "availability": true,
+        "avatar": "👗",
+        "rating": 4.8,
+        "campaigns": 47,
+        "bio": "Fashion influencer based in Mumbai",
+        "verified": false
+      },
+      "status": "suspended",
+      "joinedAt": "2026-01-13"
+    },
+    {
+      "id": "inf_2",
+      "email": "arjun@demo.com",
+      "password": "$2a$10$Vxb2vu3PQAsXDrWyrgKtY.B2n89VCo6R8IEqoG0V2tUMgWSKdncAe",
+      "role": "influencer",
+      "profile": {
+        "name": "Chef Arjun",
+        "niche": "Food",
+        "followers": 890000,
+        "engagement": 7.1,
+        "location": "Delhi",
+        "rates": {
+          "story": 8000,
+          "reel": 15000,
+          "post": 10000,
+          "youtube": 25000
+        },
+        "availability": true,
+        "avatar": "🍕",
+        "rating": 4.9,
+        "campaigns": 32,
+        "bio": "Food creator from Delhi",
+        "verified": true
+      },
+      "status": "suspended",
+      "joinedAt": "2026-01-22"
+    },
+    {
+      "id": "inf_3",
+      "email": "nikhil@demo.com",
+      "password": "$2a$10$Vxb2vu3PQAsXDrWyrgKtY.B2n89VCo6R8IEqoG0V2tUMgWSKdncAe",
+      "role": "influencer",
+      "profile": {
+        "name": "FitWithNikhil",
+        "niche": "Fitness",
+        "followers": 560000,
+        "engagement": 5.8,
+        "location": "Pune",
+        "rates": {
+          "story": 4500,
+          "reel": 8000,
+          "post": 5000
+        },
+        "availability": true,
+        "avatar": "💪",
+        "rating": 4.7,
+        "campaigns": 28,
+        "bio": "Fitness coach and wellness advocate",
+        "verified": true
+      },
+      "status": "active",
+      "joinedAt": "2026-01-13"
+    },
+    {
+      "id": "inf_4",
+      "email": "vikram@demo.com",
+      "password": "$2a$10$Vxb2vu3PQAsXDrWyrgKtY.B2n89VCo6R8IEqoG0V2tUMgWSKdncAe",
+      "role": "influencer",
+      "profile": {
+        "name": "TechTalk Vikram",
+        "niche": "Tech",
+        "followers": 180000,
+        "engagement": 8.2,
+        "location": "Bangalore",
+        "rates": {
+          "story": 3000,
+          "reel": 6000,
+          "post": 8000
+        },
+        "availability": true,
+        "avatar": "📱",
+        "rating": 4.9,
+        "campaigns": 19,
+        "bio": "Tech reviewer and gadget expert",
+        "verified": true
+      },
+      "status": "active",
+      "joinedAt": "2026-01-15"
+    },
+    {
+      "id": "inf_5",
+      "email": "ananya@demo.com",
+      "password": "$2a$10$Vxb2vu3PQAsXDrWyrgKtY.B2n89VCo6R8IEqoG0V2tUMgWSKdncAe",
+      "role": "influencer",
+      "profile": {
+        "name": "GreenLife Ananya",
+        "niche": "Lifestyle",
+        "followers": 210000,
+        "engagement": 4.9,
+        "location": "Delhi",
+        "rates": {
+          "story": 3500,
+          "reel": 7000,
+          "post": 5000
+        },
+        "availability": true,
+        "avatar": "🌿",
+        "rating": 4.6,
+        "campaigns": 15,
+        "bio": "Sustainable living advocate",
+        "verified": false
+      },
+      "status": "active",
+      "joinedAt": "2026-01-14"
+    },
+    {
+      "id": "inf_6",
+      "email": "kabir@demo.com",
+      "password": "$2a$10$Vxb2vu3PQAsXDrWyrgKtY.B2n89VCo6R8IEqoG0V2tUMgWSKdncAe",
+      "role": "influencer",
+      "profile": {
+        "name": "Wanderer Kabir",
+        "niche": "Travel",
+        "followers": 340000,
+        "engagement": 5.5,
+        "location": "Goa",
+        "rates": {
+          "story": 6000,
+          "reel": 12000,
+          "post": 9000
+        },
+        "availability": true,
+        "avatar": "✈️",
+        "rating": 4.7,
+        "campaigns": 22,
+        "bio": "Travel blogger exploring India",
+        "verified": false
+      },
+      "status": "active",
+      "joinedAt": "2026-01-26"
+    }
+  ],
+  "deals": [
+    {
+      "id": "deal_1",
+      "brandId": "biz_1",
+      "brandName": "Ravi's Store",
+      "influencerId": "inf_5",
+      "influencerName": "GreenLife Ananya",
+      "packageType": "post",
+      "amount": 3500,
+      "message": "Eco-friendly product collaboration",
+      "status": "dispute",
+      "createdAt": "2026-05-10"
+    }
+  ],
+  "campaigns": [
+    {
+      "id": "camp_1",
+      "brandId": "biz_1",
+      "influencerId": "inf_1",
+      "influencerName": "Priya Sharma",
+      "type": "Instagram Reel",
+      "amount": 12000,
+      "status": "active",
+      "progress": 75,
+      "deadline": "2026-05-20",
+      "brandName": "Ravi's Store",
+      "campaignName": "Summer Reel Campaign",
+      "createdAt": "2026-05-01"
+    },
+    {
+      "id": "camp_2",
+      "brandId": "biz_1",
+      "influencerId": "inf_2",
+      "influencerName": "Chef Arjun",
+      "type": "YouTube Video",
+      "amount": 25000,
+      "status": "review",
+      "progress": 90,
+      "deadline": "2026-05-19",
+      "brandName": "Ravi's Store",
+      "campaignName": "Product Unboxing",
+      "createdAt": "2026-05-02"
+    },
+    {
+      "id": "camp_3",
+      "brandId": "biz_1",
+      "influencerId": "inf_3",
+      "influencerName": "FitWithNikhil",
+      "type": "Instagram Story",
+      "amount": 5000,
+      "status": "pending",
+      "progress": 20,
+      "deadline": "2026-05-24",
+      "brandName": "Ravi's Store",
+      "campaignName": "Brand Awareness Story",
+      "createdAt": "2026-05-03"
+    },
+    {
+      "id": "camp_4",
+      "brandId": "biz_1",
+      "influencerId": "inf_4",
+      "influencerName": "TechTalk Vikram",
+      "type": "Feed Post",
+      "amount": 8000,
+      "status": "completed",
+      "progress": 100,
+      "deadline": "2026-05-15",
+      "brandName": "Ravi's Store",
+      "campaignName": "Tech Review Post",
+      "createdAt": "2026-04-20"
+    },
+    {
+      "id": "1779045919889",
+      "brandId": "biz_1",
+      "brandName": "Ravi's Store",
+      "influencerId": "inf_6",
+      "influencerName": "Wanderer Kabir",
+      "campaignName": "ravi demo prod",
+      "type": "Instagram Reel",
+      "amount": 5000,
+      "status": "active",
+      "progress": 0,
+      "deadline": "2026-05-18",
+      "createdAt": "2026-05-17T19:25:19.889Z"
+    },
+    {
+      "id": "1779051533473",
+      "brandId": "biz_1",
+      "brandName": "Ravi's Store",
+      "influencerId": "inf_6",
+      "influencerName": "Wanderer Kabir",
+      "campaignName": "clothing",
+      "type": "Instagram Reel",
+      "amount": 8000,
+      "status": "completed",
+      "progress": 0,
+      "deadline": "2026-05-19",
+      "createdAt": "2026-05-17T20:58:53.473Z"
+    }
+  ],
+  "notifications": [
+    {
+      "id": "n1",
+      "userId": "biz_1",
+      "title": "Campaign approved",
+      "message": "Campaign with Priya Sharma was approved",
+      "time": "2 minutes ago",
+      "read": false,
+      "icon": "🎉"
+    },
+    {
+      "id": "n2",
+      "userId": "biz_1",
+      "title": "New message",
+      "message": "Chef Arjun sent you a message",
+      "time": "18 minutes ago",
+      "read": false,
+      "icon": "💬"
+    },
+    {
+      "id": "n3",
+      "userId": "biz_1",
+      "title": "Content ready",
+      "message": "Content from FitWithNikhil is ready",
+      "time": "1 hour ago",
+      "read": false,
+      "icon": "✅"
+    },
+    {
+      "id": "n4",
+      "userId": "inf_1",
+      "title": "New Campaign",
+      "message": "Ravi's Store invited you to Summer Reel Campaign",
+      "time": "1 day ago",
+      "read": true,
+      "icon": "🎯"
+    },
+    {
+      "id": "n5",
+      "userId": "inf_2",
+      "title": "Payment Released",
+      "message": "₹25,000 has been released to your account",
+      "time": "2 days ago",
+      "read": true,
+      "icon": "💰"
+    },
+    {
+      "id": "1779045919889",
+      "userId": "inf_6",
+      "title": "New Campaign Offer",
+      "message": "Ravi's Store invited you to ravi demo prod",
+      "time": "Just now",
+      "read": false,
+      "icon": "🎯"
+    },
+    {
+      "id": "1779051533473",
+      "userId": "inf_6",
+      "title": "New Campaign Offer",
+      "message": "Ravi's Store invited you to clothing",
+      "time": "Just now",
+      "read": false,
+      "icon": "🎯"
+    }
+  ],
+  "withdrawals": [
+    {
+      "id": "wd_1",
+      "userId": "inf_1",
+      "userName": "Priya Sharma",
+      "amount": 15000,
+      "status": "completed",
+      "requestedAt": "2026-05-16",
+      "processedAt": "2026-05-17T19:21:57.278Z"
+    },
+    {
+      "id": "wd_2",
+      "userId": "inf_2",
+      "userName": "Chef Arjun",
+      "amount": 25000,
+      "status": "completed",
+      "requestedAt": "2026-05-14",
+      "processedAt": "2026-05-15"
+    }
+  ]
+}
