@@ -1,7 +1,7 @@
 // Utility Functions Module
 window.utils = {
   formatCurrency(amount) {
-    return '₹' + amount.toLocaleString();
+    return '₹' + (amount || 0).toLocaleString();
   },
   
   formatNumber(num) {

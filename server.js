@@ -4,6 +4,43 @@ const bcrypt = require('bcryptjs');
 const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
+const { Server } = require('socket.io');
+require('dotenv').config();
+const { S3Client, GetObjectCommand, PutObjectCommand, DeleteObjectCommand } = require('@aws-sdk/client-s3');
+const multer = require('multer');
+const sharp = require('sharp');
+
+// Initialize S3 Client
+const s3 = new S3Client({
+  region: process.env.AWS_REGION || 'us-east-1',
+  credentials: {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID || '',
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || '',
+  }
+});
+
+const upload = multer({ storage: multer.memoryStorage() });
+
+async function uploadToS3(buffer, originalname) {
+  const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+  const key = uniqueSuffix + '-' + originalname.replace(/\.[^/.]+$/, "") + '.jpg';
+  
+  // Compress to JPEG using sharp
+  const compressedBuffer = await sharp(buffer)
+    .resize(800, 800, { fit: 'inside', withoutEnlargement: true })
+    .jpeg({ quality: 80 })
+    .toBuffer();
+    
+  const command = new PutObjectCommand({
+    Bucket: process.env.AWS_S3_BUCKET_NAME,
+    Key: key,
+    Body: compressedBuffer,
+    ContentType: 'image/jpeg'
+  });
+  
+  await s3.send(command);
+  return `https://${process.env.AWS_S3_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${key}`;
+}
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -415,8 +452,8 @@ app.put('/api/deals/:id/status', async (req, res) => {
   const dealIndex = db.deals.findIndex(d => d.id === req.params.id);
   if (dealIndex === -1) return res.status(404).json({ error: 'Deal not found' });
   const deal = db.deals[dealIndex];
-  if (user.role !== 'influencer' || deal.influencerId !== user.id) {
-    return res.status(403).json({ error: 'Only the influencer can respond' });
+  if (user.role !== 'admin' && (user.role !== 'influencer' || deal.influencerId !== user.id)) {
+    return res.status(403).json({ error: 'Only the influencer or admin can update status' });
   }
   deal.status = status;
   db.deals[dealIndex] = deal;
@@ -622,6 +659,117 @@ app.get('/api/stats', async (req, res) => {
 });
 
 // ========== HEALTH CHECK ==========
+
+app.post('/api/users/influencer', upload.single('profilePic'), async (req, res) => {
+  const db = readDB();
+  const { name, email, password, instagramFollowers, about, storyRate, postRate, reelRate, niche } = req.body;
+  
+  const hashedPassword = await bcrypt.hash(password || 'demo123', 10);
+  const newUser = {
+    id: 'user_' + Date.now(),
+    email: email,
+    password: hashedPassword,
+    role: 'influencer',
+    profile: {
+      name: name,
+      bio: about || '',
+      niche: niche || 'Fashion',
+      followers: parseInt(instagramFollowers) || 0,
+      engagement: 5.0,
+      location: 'Global',
+      rates: {
+        story: parseInt(storyRate) || 0,
+        post: parseInt(postRate) || 0,
+        reel: parseInt(reelRate) || 0
+      },
+      avatar: req.file ? await uploadToS3(req.file.buffer, req.file.originalname) : null,
+      rating: 5.0,
+      campaigns: 0,
+      verified: false,
+      availability: true
+    },
+    status: 'active',
+    joinedAt: new Date().toISOString()
+  };
+  
+  db.users.push(newUser);
+  writeDB(db);
+  
+  if (req.app.get('io')) req.app.get('io').emit('new_influencer', newUser);
+  res.json({ success: true, user: newUser });
+});
+
+app.put('/api/users/influencer/:id', upload.single('profilePic'), async (req, res) => {
+  const db = readDB();
+  const userIndex = db.users.findIndex(u => u.id === req.params.id && u.role === 'influencer');
+  if (userIndex === -1) return res.status(404).json({ error: 'Influencer not found' });
+
+  const { name, email, instagramFollowers, about, storyRate, postRate, reelRate, niche } = req.body;
+  
+  const user = db.users[userIndex];
+  if (name) user.profile.name = name;
+  if (email) user.email = email;
+  if (about) user.profile.bio = about;
+  if (niche) user.profile.niche = niche;
+  if (instagramFollowers) user.profile.followers = parseInt(instagramFollowers) || user.profile.followers;
+  
+  if (storyRate) user.profile.rates.story = parseInt(storyRate);
+  if (postRate) user.profile.rates.post = parseInt(postRate);
+  if (reelRate) user.profile.rates.reel = parseInt(reelRate);
+  
+  if (req.file) {
+    user.profile.avatar = await uploadToS3(req.file.buffer, req.file.originalname);
+  }
+  
+  db.users[userIndex] = user;
+  writeDB(db);
+  
+  if (req.app.get('io')) req.app.get('io').emit('update_influencer', user);
+  res.json({ success: true, user });
+});
+
+app.delete('/api/users/influencer/:id', async (req, res) => {
+  const db = readDB();
+  const userIndex = db.users.findIndex(u => u.id === req.params.id && u.role === 'influencer');
+  if (userIndex === -1) return res.status(404).json({ error: 'Influencer not found' });
+  
+  // Delete from S3
+  const user = db.users[userIndex];
+  if (user.profile && user.profile.avatar && user.profile.avatar.includes('amazonaws.com')) {
+    try {
+      const key = new URL(user.profile.avatar).pathname.substring(1);
+      await s3.send(new DeleteObjectCommand({ Bucket: process.env.AWS_S3_BUCKET_NAME, Key: decodeURIComponent(key) }));
+    } catch (err) {
+      console.error('Failed to delete S3 image:', err);
+    }
+  }
+  
+  db.users.splice(userIndex, 1);
+  writeDB(db);
+  
+  if (req.app.get('io')) req.app.get('io').emit('delete_influencer', req.params.id);
+  res.json({ success: true });
+});
+
+app.get('/api/proxy-image', async (req, res) => {
+  try {
+    const url = req.query.url;
+    if (!url || !url.includes('amazonaws.com')) return res.status(400).send('Invalid URL');
+    const key = new URL(url).pathname.substring(1);
+    const command = new GetObjectCommand({ Bucket: process.env.AWS_S3_BUCKET_NAME, Key: decodeURIComponent(key) });
+    const response = await s3.send(command);
+    let contentType = response.ContentType;
+    if (!contentType || contentType === 'application/octet-stream') {
+      contentType = key.toLowerCase().endsWith('.png') ? 'image/png' : 'image/jpeg';
+    }
+    res.setHeader('Content-Type', contentType);
+    response.Body.pipe(res);
+  } catch (err) {
+    console.error('Image proxy error:', err);
+    res.status(404).send('Image not found');
+  }
+});
+
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
@@ -633,7 +781,12 @@ app.get('*', (req, res) => {
 
 // Initialize DB and start server
 initDB().then(() => {
-  app.listen(PORT, () => {
+  const server = app.listen(PORT, '0.0.0.0', () => {
+    const io = new Server(server, { cors: { origin: '*' } });
+    app.set('io', io);
+    io.on('connection', (socket) => {
+      console.log('Client connected: ' + socket.id);
+    });
     console.log(`\n${'='.repeat(50)}`);
     console.log(`🚀 Server running on http://localhost:${PORT}`);
     console.log(`${'='.repeat(50)}`);

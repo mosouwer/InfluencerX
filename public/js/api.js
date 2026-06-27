@@ -2,13 +2,29 @@
 window.api = {
   async request(url, options = {}) {
     try {
+      // If we are sending FormData (for file uploads), do NOT set Content-Type to application/json
+      // Let the browser set it automatically to multipart/form-data with the correct boundary
+      const headers = {};
+      if (!(options.body instanceof FormData)) {
+        headers['Content-Type'] = 'application/json';
+      }
+      if (window.auth && window.auth.currentUser) {
+        headers['x-user-id'] = window.auth.currentUser.id;
+        headers['x-user-role'] = window.auth.currentUser.role;
+      }
+      
       const res = await fetch(window.CONFIG.API_BASE + url, {
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         ...options
       });
       if (!res.ok) {
-        const error = await res.text();
-        throw new Error(error);
+        const text = await res.text();
+        let errorMsg = text;
+        try {
+          const parsed = JSON.parse(text);
+          if (parsed.error) errorMsg = parsed.error;
+        } catch (e) {}
+        throw new Error(errorMsg);
       }
       return res.json();
     } catch (err) {
@@ -37,6 +53,15 @@ window.api = {
   },
   updateInfluencerRates(rates) {
     return this.request('/influencer/rates', { method: 'PUT', body: JSON.stringify({ rates }) });
+  },
+  createInfluencer(formData) {
+    return this.request('/users/influencer', { method: 'POST', body: formData });
+  },
+  updateInfluencer(id, formData) {
+    return this.request(`/users/influencer/${id}`, { method: 'PUT', body: formData });
+  },
+  deleteInfluencer(id) {
+    return this.request(`/users/influencer/${id}`, { method: 'DELETE' });
   },
   
   // Campaigns

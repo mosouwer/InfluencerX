@@ -1,6 +1,6 @@
 // Authentication Module
 window.auth = {
-  currentUser: null,
+  currentUser: JSON.parse(localStorage.getItem('currentUser')) || null,
   
   async login() {
     const email = document.getElementById('loginEmail').value;
@@ -9,6 +9,7 @@ window.auth = {
     try {
       const data = await window.api.login({ email, password });
       this.currentUser = data.user;
+      localStorage.setItem('currentUser', JSON.stringify(data.user));
       document.getElementById('loginModal').style.display = 'none';
       document.getElementById('app').style.display = 'block';
       
@@ -43,6 +44,7 @@ window.auth = {
   
   async logout() {
     await window.api.logout();
+    localStorage.removeItem('currentUser');
     location.reload();
   },
   

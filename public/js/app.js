@@ -3,6 +3,24 @@ window.app = {
   currentMode: 'brand',
   notifications: [],
   notificationInterval: null,
+  currentViewFn: null,
+  
+  refreshCurrentView() {
+    const btn = document.querySelector('button[title="Refresh Latest Data"] svg');
+    if (btn) btn.classList.add('animate-spin');
+    
+    setTimeout(() => {
+      if (this.currentViewFn) {
+        this.currentViewFn();
+      } else {
+        if (window.auth && window.auth.isAdmin()) window.admin.renderDashboard();
+        else if (this.currentMode === 'brand') window.brand.renderDashboard();
+        else window.influencer.renderDashboard();
+      }
+      if (btn) btn.classList.remove('animate-spin');
+      if (window.ui && window.ui.showToast) window.ui.showToast('Data refreshed successfully!');
+    }, 400);
+  },
   
   async loadInitialData() {
     await this.loadNotifications();
@@ -55,25 +73,47 @@ window.app = {
     
     if (window.auth.isAdmin()) {
       sidebar.innerHTML = `
-        <div class="p-4"><div class="mb-4 p-2 bg-red-50 rounded-lg"><div class="text-xs text-red-600 font-bold">👑 Admin Controls</div></div>
-        <div class="space-y-1"><div class="sidebar-item p-3 rounded-lg cursor-pointer hover:bg-red-50" onclick="window.admin.renderDashboard()">📊 Dashboard</div>
-        <div class="sidebar-item p-3 rounded-lg cursor-pointer hover:bg-red-50" onclick="window.admin.renderUsers()">👥 User Management</div>
-        <div class="sidebar-item p-3 rounded-lg cursor-pointer hover:bg-red-50" onclick="window.admin.renderCampaigns()">📋 All Campaigns</div>
-        <div class="sidebar-item p-3 rounded-lg cursor-pointer hover:bg-red-50" onclick="window.admin.renderDeals()">💼 All Deals</div>
-        <div class="sidebar-item p-3 rounded-lg cursor-pointer hover:bg-red-50" onclick="window.admin.renderWithdrawals()">💰 Withdrawals</div></div></div>
+        <div class="p-6">
+          <div class="mb-8 p-3 bg-gray-900 border border-black shadow-lg rounded-sm flex items-center gap-2">
+            <span class="material-icons-outlined text-white text-[18px]">admin_panel_settings</span>
+            <div class="text-xs text-white uppercase tracking-widest font-black">Admin Mode</div>
+          </div>
+          <div class="space-y-2">
+            <div class="sidebar-item p-3 rounded-sm cursor-pointer text-gray-600 hover:text-black hover:bg-gray-100 font-bold flex items-center gap-3 transition-all duration-300  " onclick="window.app.currentViewFn = () => window.admin.renderDashboard(); window.admin.renderDashboard()">
+              <span class="material-icons-outlined">dashboard</span>
+              Dashboard
+            </div>
+            <div class="sidebar-item p-3 rounded-sm cursor-pointer text-gray-600 hover:text-black hover:bg-gray-100 font-bold flex items-center gap-3 transition-all duration-300  " onclick="window.app.currentViewFn = () => window.admin.renderUsers(); window.admin.renderUsers()">
+              <span class="material-icons-outlined">people</span>
+              User Management
+            </div>
+            <div class="sidebar-item p-3 rounded-sm cursor-pointer text-gray-600 hover:text-black hover:bg-gray-100 font-bold flex items-center gap-3 transition-all duration-300  " onclick="window.app.currentViewFn = () => window.admin.renderCampaigns(); window.admin.renderCampaigns()">
+              <span class="material-icons-outlined">campaign</span>
+              All Campaigns
+            </div>
+            <div class="sidebar-item p-3 rounded-sm cursor-pointer text-gray-600 hover:text-black hover:bg-gray-100 font-bold flex items-center gap-3 transition-all duration-300  " onclick="window.app.currentViewFn = () => window.admin.renderDeals(); window.admin.renderDeals()">
+              <span class="material-icons-outlined">work</span>
+              All Deals
+            </div>
+            <div class="sidebar-item p-3 rounded-sm cursor-pointer text-gray-600 hover:text-black hover:bg-gray-100 font-bold flex items-center gap-3 transition-all duration-300  " onclick="window.app.currentViewFn = () => window.admin.renderWithdrawals(); window.admin.renderWithdrawals()">
+              <span class="material-icons-outlined">account_balance_wallet</span>
+              Withdrawals
+            </div>
+          </div>
+        </div>
       `;
     } else if (this.currentMode === 'brand') {
       sidebar.innerHTML = `
-        <div class="p-4"><div class="space-y-1"><div class="sidebar-item p-3 rounded-lg cursor-pointer hover:bg-gray-50" onclick="window.brand.renderDashboard()">📊 Dashboard</div>
-        <div class="sidebar-item p-3 rounded-lg cursor-pointer hover:bg-gray-50" onclick="window.brand.renderExplore()">🔍 Explore Creators</div>
-        <div class="sidebar-item p-3 rounded-lg cursor-pointer hover:bg-gray-50" onclick="window.brand.renderCampaigns()">📋 My Campaigns</div></div></div>
+        <div class="p-4"><div class="space-y-1"><div class="sidebar-item p-3 rounded-lg cursor-pointer hover:bg-gray-50" onclick="window.app.currentViewFn = () => window.brand.renderDashboard(); window.brand.renderDashboard()">📊 Dashboard</div>
+        <div class="sidebar-item p-3 rounded-lg cursor-pointer hover:bg-gray-50" onclick="window.app.currentViewFn = () => window.brand.renderExplore(); window.brand.renderExplore()">🔍 Explore Creators</div>
+        <div class="sidebar-item p-3 rounded-lg cursor-pointer hover:bg-gray-50" onclick="window.app.currentViewFn = () => window.brand.renderCampaigns(); window.brand.renderCampaigns()">📋 My Campaigns</div></div></div>
       `;
     } else {
       sidebar.innerHTML = `
-        <div class="p-4"><div class="space-y-1"><div class="sidebar-item p-3 rounded-lg cursor-pointer hover:bg-gray-50" onclick="window.influencer.renderDashboard()">📊 Dashboard</div>
-        <div class="sidebar-item p-3 rounded-lg cursor-pointer hover:bg-gray-50" onclick="window.influencer.renderCampaigns()">🚀 My Campaigns</div>
-        <div class="sidebar-item p-3 rounded-lg cursor-pointer hover:bg-gray-50" onclick="window.influencer.renderEarnings()">💰 Earnings</div>
-        <div class="sidebar-item p-3 rounded-lg cursor-pointer hover:bg-gray-50" onclick="window.influencer.renderProfile()">👤 My Profile</div></div></div>
+        <div class="p-4"><div class="space-y-1"><div class="sidebar-item p-3 rounded-lg cursor-pointer hover:bg-gray-50" onclick="window.app.currentViewFn = () => window.influencer.renderDashboard(); window.influencer.renderDashboard()">📊 Dashboard</div>
+        <div class="sidebar-item p-3 rounded-lg cursor-pointer hover:bg-gray-50" onclick="window.app.currentViewFn = () => window.influencer.renderCampaigns(); window.influencer.renderCampaigns()">🚀 My Campaigns</div>
+        <div class="sidebar-item p-3 rounded-lg cursor-pointer hover:bg-gray-50" onclick="window.app.currentViewFn = () => window.influencer.renderEarnings(); window.influencer.renderEarnings()">💰 Earnings</div>
+        <div class="sidebar-item p-3 rounded-lg cursor-pointer hover:bg-gray-50" onclick="window.app.currentViewFn = () => window.influencer.renderProfile(); window.influencer.renderProfile()">👤 My Profile</div></div></div>
       `;
     }
   }

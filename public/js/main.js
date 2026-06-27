@@ -99,7 +99,7 @@ async function loadInfluencers(filters = {}) {
     container.innerHTML = influencers.map(inf => `
         <div class="bg-white border rounded-lg p-5 shadow-sm influencer-card">
             <h3 class="text-xl font-semibold">${inf.name}</h3>
-            <div class="text-sm text-gray-500">${inf.niche} • ${inf.followers.toLocaleString()} followers</div>
+            <div class="text-sm text-gray-500">${inf.niche} • ${(inf.followers || 0).toLocaleString()} followers</div>
             <div class="mt-2 text-sm">📍 ${inf.location} | 📈 ${inf.engagement}% engagement</div>
             <div class="mt-3 flex gap-2 text-sm">
                 <span class="bg-gray-100 px-2 py-1 rounded">📷 Post: $${inf.rates.post}</span>
