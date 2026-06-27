@@ -185,9 +185,10 @@ app.use(express.static('public'));
 
 // Helper functions
 function getUser(req) {
-  if (!req.session.userId) return null;
+  const userId = req.session.userId || req.headers['x-user-id'];
+  if (!userId) return null;
   const db = readDB();
-  return db.users.find(u => u.id === req.session.userId);
+  return db.users.find(u => u.id === userId);
 }
 
 function isAdmin(req) {
