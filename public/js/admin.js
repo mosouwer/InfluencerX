@@ -668,7 +668,7 @@ window.admin = {
         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${campaign.influencerName}</td>
         <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-600">${window.utils.formatCurrency(campaign.amount)}</td>
         <td class="px-6 py-4 whitespace-nowrap">
-          <span class="status-badge status-${campaign.status}">${campaign.status}</span>
+          <span class="status-badge w-28 justify-center status-${campaign.status}">${campaign.status}</span>
         </td>
         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${campaign.deadline}</td>
         <td class="px-6 py-4 whitespace-nowrap flex items-center gap-2">
@@ -867,7 +867,7 @@ window.admin = {
                       <td class="px-6 py-4 whitespace-nowrap text-sm capitalize text-gray-500">${deal.packageType}</td>
                       <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-600">${window.utils.formatCurrency(deal.amount)}</td>
                       <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-green-600">${window.utils.formatCurrency((deal.amount || 0) * 0.20)}</td>
-                      <td class="px-6 py-4 whitespace-nowrap"><span class="status-badge status-completed">${deal.status}</span></td>
+                      <td class="px-6 py-4 whitespace-nowrap"><span class="status-badge w-28 justify-center status-completed">${deal.status}</span></td>
                       <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${deal.createdAt?.split('T')[0] || 'N/A'}</td>
                       <td class="px-6 py-4 whitespace-nowrap">
                         <button onclick="window.admin.deleteSingleDeal('${deal.id}')" class="p-1.5 text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 rounded-sm transition-colors flex items-center" title="Delete Deal">
@@ -915,7 +915,7 @@ window.admin = {
                       <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${w.userName}</td>
                       <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-600">${window.utils.formatCurrency(w.amount)}</div>
                       <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${w.requestedAt}</div>
-                      <td class="px-6 py-4 whitespace-nowrap"><span class="status-badge status-${w.status === 'pending' ? 'pending' : 'completed'}">${w.status}</span></div>
+                      <td class="px-6 py-4 whitespace-nowrap"><span class="status-badge w-28 justify-center status-${w.status === 'pending' ? 'pending' : 'completed'}">${w.status}</span></td>
                       <td class="px-6 py-4 whitespace-nowrap text-sm">
                         ${w.status === 'pending' ? `
                           <div class="flex gap-2">
