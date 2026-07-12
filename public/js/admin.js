@@ -804,10 +804,48 @@ window.admin = {
       btn.removeAttribute('onclick');
     }
     
-    // Refresh background campaign table
-    setTimeout(() => {
-      this.renderCampaigns();
-    }, 1500);
+    // Immediately clear in-memory attachment state to prevent reopen race conditions
+    const camp = this.allCampaigns.find(c => c.id === id);
+    if (camp) {
+      camp.hasMedia = false;
+      delete camp.mediaAttached;
+      delete camp.mediaUrl;
+      delete camp.media;
+    }
+    
+    // Instantly refresh the parent tables in the UI
+    this.filterCampaigns(this.currentCampaignFilter || 'all');
+    
+    // Sync with the backend after S3 and Firestore complete their operations
+    setTimeout(async () => {
+      try {
+        const rawCampaigns = await window.api.getAdminCampaigns();
+        const rawDeals = await window.api.getAdminDeals();
+        
+        const dealCampaigns = rawDeals.map(d => ({
+          id: d.id,
+          isDeal: true,
+          campaignName: d.id,
+          packageType: d.packageType || d.type || 'Post',
+          brandName: d.brandName,
+          influencerName: d.influencerName,
+          amount: d.amount,
+          status: d.status,
+          progress: 0,
+          deadline: 'N/A',
+          createdAt: d.createdAt,
+          message: d.message,
+          hasMedia: d.hasMedia
+        }));
+        
+        this.allCampaigns = [...rawCampaigns.map(c => ({...c, isDeal: false})), ...dealCampaigns]
+          .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+        
+        this.filterCampaigns(this.currentCampaignFilter || 'all');
+      } catch (err) {
+        console.error(err);
+      }
+    }, 3000);
   },
   
   async updateUnifiedCampaignStatus(id, newStatus, isDeal) {
