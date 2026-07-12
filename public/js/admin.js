@@ -29,17 +29,17 @@ window.admin = {
           
           <!-- Row 1: Users & Platform Earnings -->
           <div class="grid grid-cols-3 gap-5 mb-6">
-            <div class="stat-card bg-white rounded-sm p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)]  transition-all duration-300 ring-1 ring-gray-200">
+            <div onclick="window.admin.showBrandsDetails()" class="stat-card bg-white rounded-sm p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:-translate-y-0.5 cursor-pointer transition-all duration-300 ring-1 ring-gray-200">
               <div class="text-gray-400 text-sm font-semibold">Total Brands</div>
               <div class="text-3xl font-bold mt-2 text-gray-900">${stats.totalBrands || 0}</div>
               <div class="text-gray-500 text-xs mt-1 font-medium">Active businesses</div>
             </div>
-            <div class="stat-card bg-white rounded-sm p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)]  transition-all duration-300 ring-1 ring-gray-200">
+            <div onclick="window.admin.showInfluencersDetails()" class="stat-card bg-white rounded-sm p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:-translate-y-0.5 cursor-pointer transition-all duration-300 ring-1 ring-gray-200">
               <div class="text-gray-400 text-sm font-semibold">Total Influencers</div>
               <div class="text-3xl font-bold mt-2 text-gray-900">${stats.totalInfluencers || 0}</div>
               <div class="text-gray-500 text-xs mt-1 font-medium">${stats.verifiedInfluencers || 0} verified creators</div>
             </div>
-            <div class="stat-card bg-white rounded-sm p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)]  transition-all duration-300 ring-1 ring-gray-200">
+            <div onclick="window.admin.showRevenueDetails()" class="stat-card bg-white rounded-sm p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:-translate-y-0.5 cursor-pointer transition-all duration-300 ring-1 ring-gray-200">
               <div class="text-gray-400 text-sm font-semibold">Platform Revenue</div>
               <div class="text-3xl font-bold mt-2 text-green-600">${window.utils.formatCurrency(stats.platformRevenue || 0)}</div>
               <div class="text-gray-500 text-xs mt-1 font-medium">From ${window.utils.formatCurrency(stats.totalValue || 0)} transaction value</div>
@@ -48,22 +48,22 @@ window.admin = {
 
           <!-- Row 2: Campaign Metrics -->
           <div class="grid grid-cols-4 gap-5 mb-8">
-            <div class="stat-card bg-white rounded-sm p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)]  transition-all duration-300 ring-1 ring-gray-200">
+            <div onclick="window.admin.showCampaignsDetails('all')" class="stat-card bg-white rounded-sm p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:-translate-y-0.5 cursor-pointer transition-all duration-300 ring-1 ring-gray-200">
               <div class="text-gray-400 text-sm font-semibold">Total Campaigns</div>
               <div class="text-3xl font-bold mt-2 text-gray-900">${stats.totalCampaigns || 0}</div>
               <div class="text-gray-500 text-xs mt-1 font-medium">All campaigns created</div>
             </div>
-            <div class="stat-card bg-white rounded-sm p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)]  transition-all duration-300 ring-1 ring-gray-200">
+            <div onclick="window.admin.showCampaignsDetails('active')" class="stat-card bg-white rounded-sm p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:-translate-y-0.5 cursor-pointer transition-all duration-300 ring-1 ring-gray-200">
               <div class="text-gray-400 text-sm font-semibold">Active Campaigns</div>
               <div class="text-3xl font-bold mt-2 text-blue-600">${stats.campaignsActive || 0}</div>
               <div class="text-gray-500 text-xs mt-1 font-medium">Currently running</div>
             </div>
-            <div class="stat-card bg-white rounded-sm p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)]  transition-all duration-300 ring-1 ring-gray-200">
+            <div onclick="window.admin.showCampaignsDetails('review')" class="stat-card bg-white rounded-sm p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:-translate-y-0.5 cursor-pointer transition-all duration-300 ring-1 ring-gray-200">
               <div class="text-gray-400 text-sm font-semibold">Campaigns Under Review</div>
               <div class="text-3xl font-bold mt-2 text-purple-600">${stats.campaignsReview || 0}</div>
               <div class="text-gray-500 text-xs mt-1 font-medium">Awaiting approval</div>
             </div>
-            <div class="stat-card bg-white rounded-sm p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)]  transition-all duration-300 ring-1 ring-gray-200">
+            <div onclick="window.admin.showCampaignsDetails('completed')" class="stat-card bg-white rounded-sm p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:-translate-y-0.5 cursor-pointer transition-all duration-300 ring-1 ring-gray-200">
               <div class="text-gray-400 text-sm font-semibold">Completed Campaigns</div>
               <div class="text-3xl font-bold mt-2 text-green-600">${stats.campaignsCompleted || 0}</div>
               <div class="text-gray-500 text-xs mt-1 font-medium">Successfully completed</div>
@@ -1085,6 +1085,167 @@ window.admin = {
       window.ui.showToast(err.message, 'error');
       submitBtn.disabled = false;
       submitBtn.textContent = originalText;
+    }
+  },
+
+  showModal(title, headers, rows) {
+    const existing = document.getElementById('adminDynamicModal');
+    if (existing) existing.remove();
+    
+    const modalHtml = `
+      <div id="adminDynamicModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+        <div class="bg-white rounded-lg shadow-2xl w-full max-w-4xl max-h-[85vh] flex flex-col overflow-hidden ring-1 ring-black/5">
+          <!-- Header -->
+          <div class="px-6 py-4 bg-gray-50 border-b flex justify-between items-center">
+            <h2 class="text-lg font-bold text-gray-900">${title}</h2>
+            <button onclick="document.getElementById('adminDynamicModal').remove()" class="text-gray-400 hover:text-gray-600 text-2xl font-semibold leading-none">&times;</button>
+          </div>
+          <!-- Body -->
+          <div class="p-6 overflow-y-auto flex-1 text-sm">
+            <div class="border rounded-sm overflow-hidden bg-white">
+              <div class="overflow-x-auto">
+                <table class="w-full">
+                  <thead class="bg-gray-50 border-b">
+                    <tr>
+                      ${headers.map(h => `<th class="px-4 py-2.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">${h}</th>`).join('')}
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-gray-200">
+                    ${rows.length === 0 ? `
+                      <tr>
+                        <td colspan="${headers.length}" class="px-4 py-8 text-center text-gray-400">No records found.</td>
+                      </tr>
+                    ` : rows.map(row => `
+                      <tr class="hover:bg-gray-50 transition-colors duration-150">
+                        ${row.map(cell => `<td class="px-4 py-2.5 text-gray-600 whitespace-nowrap">${cell}</td>`).join('')}
+                      </tr>
+                    `).join('')}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          <!-- Footer -->
+          <div class="px-6 py-4 bg-gray-50 border-t flex justify-end">
+            <button onclick="document.getElementById('adminDynamicModal').remove()" class="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-white rounded-sm font-semibold transition text-xs">Close</button>
+          </div>
+        </div>
+      </div>
+    `;
+    
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+  },
+
+  async showBrandsDetails() {
+    try {
+      const users = await window.api.getAdminUsers();
+      const brands = users.filter(u => u.role === 'brand');
+      const headers = ['Company', 'Email', 'Budget (₹)', 'Joined'];
+      const rows = brands.map(b => [
+        window.ui.escapeHtml(b.profile?.company || b.name || 'N/A'),
+        window.ui.escapeHtml(b.email || 'N/A'),
+        window.ui.escapeHtml((b.profile?.budget || 0).toLocaleString()),
+        window.ui.escapeHtml(b.createdAt?.split('T')[0] || 'N/A')
+      ]);
+      this.showModal('Total Registered Brands', headers, rows);
+    } catch (err) {
+      window.ui.showToast('Failed to load brand details: ' + err.message, 'error');
+    }
+  },
+
+  async showInfluencersDetails() {
+    try {
+      const users = await window.api.getAdminUsers();
+      const influencers = users.filter(u => u.role === 'influencer');
+      const headers = ['Name', 'Email', 'Niche', 'Followers', 'Engagement', 'Status'];
+      const rows = influencers.map(i => [
+        window.ui.escapeHtml(i.profile?.name || i.name || 'N/A'),
+        window.ui.escapeHtml(i.email || 'N/A'),
+        window.ui.escapeHtml(i.profile?.niche || 'N/A'),
+        window.ui.escapeHtml((i.profile?.followers || 0).toLocaleString()),
+        window.ui.escapeHtml((i.profile?.engagement || 0).toString() + '%'),
+        i.profile?.verified ? '<span class="px-2 py-0.5 bg-blue-100 text-blue-800 rounded-full text-xs font-semibold">Verified</span>' : '<span class="text-gray-400 text-xs">Standard</span>'
+      ]);
+      this.showModal('Total Registered Influencers', headers, rows);
+    } catch (err) {
+      window.ui.showToast('Failed to load influencer details: ' + err.message, 'error');
+    }
+  },
+
+  async showRevenueDetails() {
+    try {
+      const deals = await window.api.getAdminDeals();
+      const completedDeals = deals.filter(d => d.status === 'completed');
+      const headers = ['Brand', 'Influencer', 'Package', 'Amount', 'Commission (20%)', 'Completed'];
+      const rows = completedDeals.map(d => [
+        window.ui.escapeHtml(d.brandName || 'N/A'),
+        window.ui.escapeHtml(d.influencerName || 'N/A'),
+        window.ui.escapeHtml(d.packageType || 'N/A'),
+        window.ui.escapeHtml(window.utils.formatCurrency(d.amount || 0)),
+        `<span class="text-green-600 font-semibold">${window.utils.formatCurrency((d.amount || 0) * 0.20)}</span>`,
+        window.ui.escapeHtml(d.createdAt?.split('T')[0] || 'N/A')
+      ]);
+      this.showModal('Completed Hires & Revenue Breakdown', headers, rows);
+    } catch (err) {
+      window.ui.showToast('Failed to load revenue details: ' + err.message, 'error');
+    }
+  },
+
+  async showCampaignsDetails(statusFilter) {
+    try {
+      const campaigns = await window.api.getAdminCampaigns();
+      const deals = await window.api.getAdminDeals();
+      
+      const formattedCampaigns = campaigns.map(c => ({
+        name: c.name || 'Campaign Listing',
+        brand: c.brandName || 'N/A',
+        influencer: c.influencerName || 'N/A',
+        type: c.type || 'Campaign',
+        amount: c.amount || 0,
+        status: c.status || 'pending',
+        date: c.createdAt || ''
+      }));
+
+      const formattedDeals = deals.map(d => ({
+        name: 'Profile Booking: ' + (d.packageType || 'post'),
+        brand: d.brandName || 'N/A',
+        influencer: d.influencerName || 'N/A',
+        type: 'Profile Booking',
+        amount: d.amount || 0,
+        status: d.status || 'pending',
+        date: d.createdAt || ''
+      }));
+
+      const allItems = [...formattedCampaigns, ...formattedDeals];
+      
+      let filteredItems = allItems;
+      let title = 'Total Campaigns & Bookings';
+      
+      if (statusFilter === 'active') {
+        filteredItems = allItems.filter(item => item.status === 'active');
+        title = 'Active Campaigns & Bookings';
+      } else if (statusFilter === 'review') {
+        filteredItems = allItems.filter(item => item.status === 'review' || item.status === 'pending');
+        title = 'Campaigns & Bookings Under Review';
+      } else if (statusFilter === 'completed') {
+        filteredItems = allItems.filter(item => item.status === 'completed');
+        title = 'Completed Campaigns & Bookings';
+      }
+
+      const headers = ['Name', 'Brand', 'Influencer', 'Type', 'Budget', 'Status', 'Date'];
+      const rows = filteredItems.map(item => [
+        window.ui.escapeHtml(item.name),
+        window.ui.escapeHtml(item.brand),
+        window.ui.escapeHtml(item.influencer),
+        window.ui.escapeHtml(item.type),
+        window.ui.escapeHtml(window.utils.formatCurrency(item.amount)),
+        `<span class="px-2 py-0.5 bg-gray-100 rounded-full text-xs font-semibold capitalize">${item.status}</span>`,
+        window.ui.escapeHtml(item.date?.split('T')[0] || 'N/A')
+      ]);
+
+      this.showModal(title, headers, rows);
+    } catch (err) {
+      window.ui.showToast('Failed to load campaigns: ' + err.message, 'error');
     }
   }
 };
