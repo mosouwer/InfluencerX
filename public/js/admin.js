@@ -655,14 +655,33 @@ window.admin = {
     return campaigns.map(campaign => `
       <tr class="hover:bg-white hover:shadow-[0_4px_20px_rgb(0,0,0,0.08)]  transition-all duration-300 z-10 relative">
         <td class="px-6 py-4 whitespace-nowrap text-sm"><input type="checkbox" class="campaign-row-checkbox" value="${campaign.id}" data-is-deal="${campaign.isDeal}" onclick="window.admin.onCampaignRowSelect()"></td>
-        <td class="px-6 py-4 text-sm font-medium text-gray-900 cursor-pointer hover:text-black" onclick="window.admin.openCampaignModal('${campaign.id}', ${campaign.isDeal})">
-          <div>${campaign.campaignName}</div>
-          ${campaign.isDeal ? `
-            <div class="text-xs text-gray-500 mt-1 max-w-[200px] truncate" title="${campaign.message || ''}">
-              ${campaign.message ? `📝 ${campaign.message}` : ''}
+        <td class="px-6 py-4 text-sm cursor-pointer" onclick="window.admin.openCampaignModal('${campaign.id}', ${campaign.isDeal})">
+          <div class="flex flex-col gap-1">
+            <div class="flex items-center gap-2">
+              <span class="font-semibold text-gray-900 hover:text-black transition-colors">${campaign.campaignName}</span>
+              <span class="px-1.5 py-0.5 text-[10px] font-medium rounded ${
+                campaign.isDeal 
+                  ? 'bg-amber-50 text-amber-700 ring-1 ring-inset ring-amber-600/10' 
+                  : 'bg-blue-50 text-blue-700 ring-1 ring-inset ring-blue-600/10'
+              }">
+                ${campaign.isDeal ? 'Direct Hire' : 'Campaign'}
+              </span>
             </div>
-            ${campaign.hasMedia ? `<div class="text-xs text-gray-600 mt-0.5"> View attached media</div>` : ''}
-          ` : ''}
+            ${campaign.isDeal ? `
+              <div class="flex flex-col gap-0.5 mt-0.5">
+                ${campaign.message ? `
+                  <span class="text-xs text-gray-500 max-w-[240px] truncate flex items-center gap-1" title="${campaign.message}">
+                    <span class="text-[12px] text-gray-400">📝</span> ${campaign.message}
+                  </span>
+                ` : ''}
+                ${campaign.hasMedia ? `
+                  <span class="text-xs text-indigo-600 font-medium flex items-center gap-1">
+                    <span>📎</span> Attachment available
+                  </span>
+                ` : ''}
+              </div>
+            ` : ''}
+          </div>
         </td>
         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${campaign.brandName}</td>
         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${campaign.influencerName}</td>
