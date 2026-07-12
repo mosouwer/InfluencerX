@@ -13,6 +13,7 @@ window.admin = {
         id: d.id,
         isDeal: true,
         campaignName: d.id,
+        packageType: d.packageType || d.type || 'Post',
         brandName: d.brandName,
         influencerName: d.influencerName,
         amount: d.amount,
@@ -556,6 +557,7 @@ window.admin = {
         id: d.id,
         isDeal: true,
         campaignName: d.id,
+        packageType: d.packageType || d.type || 'Post',
         brandName: d.brandName,
         influencerName: d.influencerName,
         amount: d.amount,
@@ -656,24 +658,20 @@ window.admin = {
       <tr class="hover:bg-white hover:shadow-[0_4px_20px_rgb(0,0,0,0.08)]  transition-all duration-300 z-10 relative">
         <td class="px-6 py-4 whitespace-nowrap text-sm"><input type="checkbox" class="campaign-row-checkbox" value="${campaign.id}" data-is-deal="${campaign.isDeal}" onclick="window.admin.onCampaignRowSelect()"></td>
         <td class="px-6 py-4 text-sm cursor-pointer" onclick="window.admin.openCampaignModal('${campaign.id}', ${campaign.isDeal})">
-          <div class="flex flex-col gap-1">
-            <div class="flex items-center gap-2">
-              <span class="font-semibold text-gray-900 hover:text-black transition-colors">${campaign.campaignName}</span>
+          <div class="flex flex-col gap-1.5">
+            <div class="font-bold text-gray-900 hover:text-black transition-colors tracking-wide">
+              ${campaign.isDeal ? '#' + campaign.campaignName : campaign.campaignName}
             </div>
-            ${campaign.isDeal ? `
-              <div class="flex flex-col gap-0.5 mt-0.5">
-                ${campaign.message ? `
-                  <span class="text-xs text-gray-500 max-w-[240px] truncate flex items-center gap-1" title="${campaign.message}">
-                    <span class="text-[12px] text-gray-400">📝</span> ${campaign.message}
-                  </span>
-                ` : ''}
-                ${campaign.hasMedia ? `
-                  <span class="text-xs text-indigo-600 font-medium flex items-center gap-1">
-                    <span>📎</span> Attachment available
-                  </span>
-                ` : ''}
-              </div>
-            ` : ''}
+            <div class="flex items-center gap-2 text-xs font-medium text-gray-500">
+              <span class="capitalize px-1.5 py-0.5 bg-gray-100 text-gray-700 rounded-sm border border-gray-200/50">
+                ${campaign.packageType || campaign.type || 'Campaign'}
+              </span>
+              ${campaign.hasMedia ? `
+                <span class="inline-flex items-center gap-1 text-indigo-600 font-bold">
+                  <span>📎</span> Attachment available
+                </span>
+              ` : ''}
+            </div>
           </div>
         </td>
         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${campaign.brandName}</td>
