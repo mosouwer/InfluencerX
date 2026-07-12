@@ -593,7 +593,6 @@ window.admin = {
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Influencer</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Progress</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Deadline</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                   </tr>
@@ -621,12 +620,12 @@ window.admin = {
     if (campaigns.length === 0) {
       return `
         <tr>
-          <td colspan="8" class="px-6 py-12 text-center text-gray-400">
+          <td colspan="7" class="px-6 py-12 text-center text-gray-400">
             <div class="flex flex-col items-center gap-2">
               <span class="text-4xl"></span>
               <span>No campaigns found</span>
             </div>
-           </div>
+          </td>
         </tr>
       `;
     }
@@ -644,25 +643,22 @@ window.admin = {
         </td>
         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${campaign.brandName}</td>
         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${campaign.influencerName}</td>
-        <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-600">${window.utils.formatCurrency(campaign.amount)}</div>
+        <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-600">${window.utils.formatCurrency(campaign.amount)}</td>
         <td class="px-6 py-4 whitespace-nowrap">
           <span class="status-badge status-${campaign.status}">${campaign.status}</span>
-        </div>
-        <td class="px-6 py-4 whitespace-nowrap">
-          <div class="w-24"><div class="progress-bar"><div class="progress-fill" style="width: ${campaign.progress}%"></div></div></div>
-        </div>
-        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${campaign.deadline}</div>
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${campaign.deadline}</td>
         <td class="px-6 py-4 whitespace-nowrap">
           <select onchange="window.admin.updateUnifiedCampaignStatus('${campaign.id}', this.value, ${campaign.isDeal})" 
-            class="px-3 py-1.5 text-sm rounded-sm shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)]  transition-all duration-300 ring-1 ring-gray-200 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)]  transition-all duration-300 ring-1 ring-gray-200-gray-200 bg-white focus:ring-2 focus:ring-gray-500">
+            class="px-3 py-1.5 text-sm rounded-sm bg-white focus:ring-2 focus:ring-gray-500 border ring-1 ring-gray-200">
             <option value="pending" ${campaign.status === 'pending' ? 'selected' : ''}>Pending</option>
             <option value="active" ${campaign.status === 'active' ? 'selected' : ''}>Active</option>
             <option value="review" ${campaign.status === 'review' ? 'selected' : ''}>In Review</option>
             <option value="completed" ${campaign.status === 'completed' ? 'selected' : ''}>Completed</option>
             <option value="dispute" ${campaign.status === 'dispute' ? 'selected' : ''}>Dispute</option>
           </select>
-        </div>
-       </div>
+        </td>
+      </tr>
     `).join('');
   },
   
