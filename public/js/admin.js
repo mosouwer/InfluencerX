@@ -12,7 +12,7 @@ window.admin = {
       const pendingDeals = rawDeals.filter(d => d.status === 'pending').map(d => ({
         id: d.id,
         isDeal: true,
-        campaignName: 'Profile Booking: ' + d.packageType,
+        campaignName: 'Campaign ID: CMP-' + d.id,
         brandName: d.brandName,
         influencerName: d.influencerName,
         amount: d.amount,
@@ -555,7 +555,7 @@ window.admin = {
       const dealCampaigns = rawDeals.map(d => ({
         id: d.id,
         isDeal: true,
-        campaignName: 'Profile Booking: ' + d.packageType,
+        campaignName: 'Campaign ID: CMP-' + d.id,
         brandName: d.brandName,
         influencerName: d.influencerName,
         amount: d.amount,
@@ -1268,10 +1268,10 @@ window.admin = {
       }));
 
       const formattedDeals = deals.map(d => ({
-        name: 'Profile Booking: ' + (d.packageType || 'post'),
+        name: 'Campaign ID: CMP-' + d.id,
         brand: d.brandName || 'N/A',
         influencer: d.influencerName || 'N/A',
-        type: 'Profile Booking',
+        type: 'Direct Hire',
         amount: d.amount || 0,
         status: d.status || 'pending',
         date: d.createdAt || ''
