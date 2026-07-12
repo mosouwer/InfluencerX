@@ -786,19 +786,18 @@ window.admin = {
     const query = user ? `?userId=${user.id}&userRole=${user.role}` : '';
     window.open('/api/deals/download/' + id + query, '_blank');
     
-    const btn = document.querySelector('#campaignModal button.bg-black');
+    const btn = document.querySelector('#campaignModal button[onclick*="downloadMedia"]');
     if (btn) {
-      btn.innerHTML = '<span class="animate-pulse">Downloading...</span>';
-      btn.classList.replace('bg-black', 'bg-gray-400');
+      btn.innerHTML = 'Downloaded';
+      btn.className = 'px-4 py-2 bg-gray-300 text-gray-500 rounded-sm text-sm font-bold cursor-not-allowed';
       btn.disabled = true;
+      btn.removeAttribute('onclick');
     }
     
-    // Auto-refresh UI after download triggers
+    // Refresh background campaign table
     setTimeout(() => {
-      const modal = document.getElementById('campaignModal');
-      if (modal) modal.remove();
       this.renderCampaigns();
-    }, 2500);
+    }, 1500);
   },
   
   async updateUnifiedCampaignStatus(id, newStatus, isDeal) {
