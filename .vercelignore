@@ -1,0 +1,8 @@
+node_modules
+.git
+.idea
+influencer_app
+functions
+scripts
+uploads
+db.json
