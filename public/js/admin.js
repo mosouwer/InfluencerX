@@ -285,7 +285,7 @@ window.admin = {
          </div>
         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${user.email}</td>
         <td class="px-6 py-4 whitespace-nowrap">
-          <span class="px-2.5 py-1 inline-flex items-center rounded-md text-xs font-semibold ring-1 ring-inset ${
+          <span class="w-28 justify-center py-1 inline-flex items-center rounded-md text-xs font-semibold ring-1 ring-inset ${
             user.role === 'admin' 
               ? 'bg-rose-50 text-rose-700 ring-rose-600/10' 
               : user.role === 'brand' 
@@ -296,7 +296,7 @@ window.admin = {
           </span>
         </td>
         <td class="px-6 py-4 whitespace-nowrap">
-          <span class="px-2.5 py-1 inline-flex items-center gap-1.5 rounded-md text-xs font-semibold ring-1 ring-inset ${
+          <span class="w-28 justify-center py-1 inline-flex items-center gap-1.5 rounded-md text-xs font-semibold ring-1 ring-inset ${
             user.status === 'active' 
               ? 'bg-emerald-50 text-emerald-700 ring-emerald-600/20' 
               : 'bg-rose-50 text-rose-700 ring-rose-600/20'
