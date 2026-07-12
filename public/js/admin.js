@@ -782,11 +782,12 @@ window.admin = {
   
   async renderDeals() {
     try {
-      const deals = await window.api.getAdminDeals();
+      const allDeals = await window.api.getAdminDeals();
+      const deals = allDeals.filter(deal => deal.status === 'completed');
       document.getElementById('mainContent').innerHTML = `
         <div class="page-transition">
-          <h1 class="text-2xl font-bold mb-2">All Deals & Hire Requests</h1>
-          <p class="text-gray-500 mb-6">Monitor all influencer hire requests</p>
+          <h1 class="text-2xl font-bold mb-2">Completed Deals & Commission</h1>
+          <p class="text-gray-500 mb-6">Monitor completed influencer hires and platform earnings</p>
           
           <div class="bg-white rounded-sm shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)]  transition-all duration-300 ring-1 ring-gray-200 overflow-hidden">
             <div class="overflow-x-auto">
@@ -796,7 +797,8 @@ window.admin = {
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Brand</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Influencer</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Package</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Deal Amount</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Commission (20%)</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
                   </tr>
@@ -807,10 +809,11 @@ window.admin = {
                       <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${deal.brandName}</td>
                       <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${deal.influencerName}</td>
                       <td class="px-6 py-4 whitespace-nowrap text-sm capitalize text-gray-500">${deal.packageType}</td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-600">${window.utils.formatCurrency(deal.amount)}</div>
-                      <td class="px-6 py-4 whitespace-nowrap"><span class="status-badge status-${deal.status === 'dispute' ? 'dispute' : deal.status}">${deal.status}</span></div>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${deal.createdAt?.split('T')[0] || 'N/A'}</div>
-                     </div>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-600">${window.utils.formatCurrency(deal.amount)}</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-green-600">${window.utils.formatCurrency((deal.amount || 0) * 0.20)}</td>
+                      <td class="px-6 py-4 whitespace-nowrap"><span class="status-badge status-completed">${deal.status}</span></td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${deal.createdAt?.split('T')[0] || 'N/A'}</td>
+                    </tr>
                   `).join('')}
                 </tbody>
               </table>

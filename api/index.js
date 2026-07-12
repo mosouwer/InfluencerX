@@ -618,23 +618,35 @@ app.get('/api/admin/stats', async (req, res) => {
   const usersSnap = await db.collection('users').get();
   const campaignsSnap = await db.collection('campaigns').get();
   const dealsSnap = await db.collection('deals').get();
+  const withdrawalsSnap = await db.collection('withdrawals').get();
   
-  const users = usersSnap.docs.map(d => d.data());
+  const users = usersSnap.docs.map(d => {
+    const data = d.data();
+    data.id = d.id;
+    return data;
+  });
   const campaigns = campaignsSnap.docs.map(d => d.data());
   const deals = dealsSnap.docs.map(d => d.data());
+  const withdrawals = withdrawalsSnap.docs.map(d => d.data());
   
-  const infCount = users.filter(u => u.role === 'influencer').length;
-  const brandCount = users.filter(u => u.role === 'brand').length;
-  const activeCampCount = campaigns.filter(c => c.status === 'active').length;
-  const activeDealsCount = deals.filter(d => d.status === 'active').length;
-  const rev = deals.filter(d => d.status === 'completed').reduce((sum, d) => sum + (Number(d.amount) || 0), 0);
+  const brands = users.filter(u => u.role === 'brand');
+  const influencers = users.filter(u => u.role === 'influencer');
+  
+  const totalValue = deals.filter(d => d.status === 'completed').reduce((sum, d) => sum + (Number(d.amount) || 0), 0);
+  const platformRevenue = totalValue * 0.20;
+  const pendingDisputes = deals.filter(d => d.status === 'dispute').length;
+  const pendingWithdrawals = withdrawals.filter(w => w.status === 'pending').reduce((sum, w) => sum + (Number(w.amount) || 0), 0);
   
   res.json({
-    totalUsers: users.length,
-    influencers: infCount,
-    brands: brandCount,
-    activeCampaigns: activeCampCount + activeDealsCount,
-    totalRevenue: rev
+    totalBrands: brands.length,
+    totalInfluencers: influencers.length,
+    totalCampaigns: campaigns.length,
+    activeCampaigns: campaigns.filter(c => c.status === 'active').length + deals.filter(d => d.status === 'active').length,
+    platformRevenue,
+    pendingDisputes,
+    totalValue,
+    pendingWithdrawals,
+    verifiedInfluencers: influencers.filter(i => i.verified || i.profile?.verified).length
   });
 });
 
