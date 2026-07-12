@@ -27,26 +27,46 @@ window.admin = {
           <h1 class="text-2xl font-bold mb-2">Admin Dashboard</h1>
           <p class="text-gray-500 mb-6">Platform overview and key metrics</p>
           
+          <!-- Row 1: Users & Platform Earnings -->
+          <div class="grid grid-cols-3 gap-5 mb-6">
+            <div class="stat-card bg-white rounded-sm p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)]  transition-all duration-300 ring-1 ring-gray-200">
+              <div class="text-gray-400 text-sm font-semibold">Total Brands</div>
+              <div class="text-3xl font-bold mt-2 text-gray-900">${stats.totalBrands || 0}</div>
+              <div class="text-gray-500 text-xs mt-1 font-medium">Active businesses</div>
+            </div>
+            <div class="stat-card bg-white rounded-sm p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)]  transition-all duration-300 ring-1 ring-gray-200">
+              <div class="text-gray-400 text-sm font-semibold">Total Influencers</div>
+              <div class="text-3xl font-bold mt-2 text-gray-900">${stats.totalInfluencers || 0}</div>
+              <div class="text-gray-500 text-xs mt-1 font-medium">${stats.verifiedInfluencers || 0} verified creators</div>
+            </div>
+            <div class="stat-card bg-white rounded-sm p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)]  transition-all duration-300 ring-1 ring-gray-200">
+              <div class="text-gray-400 text-sm font-semibold">Platform Revenue</div>
+              <div class="text-3xl font-bold mt-2 text-green-600">${window.utils.formatCurrency(stats.platformRevenue || 0)}</div>
+              <div class="text-gray-500 text-xs mt-1 font-medium">From ${window.utils.formatCurrency(stats.totalValue || 0)} transaction value</div>
+            </div>
+          </div>
+
+          <!-- Row 2: Campaign Metrics -->
           <div class="grid grid-cols-4 gap-5 mb-8">
             <div class="stat-card bg-white rounded-sm p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)]  transition-all duration-300 ring-1 ring-gray-200">
-              <div class="text-gray-400 text-sm">Total Brands</div>
-              <div class="text-3xl font-bold mt-2">${stats.totalBrands || 0}</div>
-              <div class="text-gray-500 text-sm mt-1">Active businesses</div>
+              <div class="text-gray-400 text-sm font-semibold">Total Campaigns</div>
+              <div class="text-3xl font-bold mt-2 text-gray-900">${stats.totalCampaigns || 0}</div>
+              <div class="text-gray-500 text-xs mt-1 font-medium">All campaigns created</div>
             </div>
             <div class="stat-card bg-white rounded-sm p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)]  transition-all duration-300 ring-1 ring-gray-200">
-              <div class="text-gray-400 text-sm">Total Influencers</div>
-              <div class="text-3xl font-bold mt-2">${stats.totalInfluencers || 0}</div>
-              <div class="text-gray-500 text-sm mt-1">${stats.verifiedInfluencers || 0} verified</div>
+              <div class="text-gray-400 text-sm font-semibold">Active Campaigns</div>
+              <div class="text-3xl font-bold mt-2 text-blue-600">${stats.campaignsActive || 0}</div>
+              <div class="text-gray-500 text-xs mt-1 font-medium">Currently running</div>
             </div>
             <div class="stat-card bg-white rounded-sm p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)]  transition-all duration-300 ring-1 ring-gray-200">
-              <div class="text-gray-400 text-sm">Total Campaigns</div>
-              <div class="text-3xl font-bold mt-2">${stats.totalCampaigns || 0}</div>
-              <div class="text-gray-600 text-sm mt-1">${stats.activeCampaigns || 0} active</div>
+              <div class="text-gray-400 text-sm font-semibold">Campaigns Under Review</div>
+              <div class="text-3xl font-bold mt-2 text-purple-600">${stats.campaignsReview || 0}</div>
+              <div class="text-gray-500 text-xs mt-1 font-medium">Awaiting approval</div>
             </div>
             <div class="stat-card bg-white rounded-sm p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)]  transition-all duration-300 ring-1 ring-gray-200">
-              <div class="text-gray-400 text-sm">Platform Revenue</div>
-              <div class="text-3xl font-bold mt-2 text-gray-900">${window.utils.formatCurrency(stats.platformRevenue || 0)}</div>
-              <div class="text-gray-500 text-sm mt-1">20% commission</div>
+              <div class="text-gray-400 text-sm font-semibold">Completed Campaigns</div>
+              <div class="text-3xl font-bold mt-2 text-green-600">${stats.campaignsCompleted || 0}</div>
+              <div class="text-gray-500 text-xs mt-1 font-medium">Successfully completed</div>
             </div>
           </div>
           
@@ -55,9 +75,6 @@ window.admin = {
               <h2 class="font-semibold mb-4">Platform Summary</h2>
               <div class="space-y-3">
                 <div class="flex justify-between py-2 border-b"><span class="text-gray-600">Total Transaction Value</span><span class="font-bold">${window.utils.formatCurrency(stats.totalValue || 0)}</span></div>
-                <div class="flex justify-between py-2 border-b"><span class="text-gray-600">Active Campaigns</span><span class="font-bold text-blue-600">${stats.campaignsActive || 0}</span></div>
-                <div class="flex justify-between py-2 border-b"><span class="text-gray-600">Campaigns Under Review</span><span class="font-bold text-purple-600">${stats.campaignsReview || 0}</span></div>
-                <div class="flex justify-between py-2 border-b"><span class="text-gray-600">Completed Campaigns</span><span class="font-bold text-green-600">${stats.campaignsCompleted || 0}</span></div>
                 <div class="flex justify-between py-2 border-b"><span class="text-gray-600">Pending Disputes</span><span class="font-bold text-red-600">${stats.pendingDisputes || 0}</span></div>
                 <div class="flex justify-between py-2"><span class="text-gray-600">Pending Withdrawals</span><span class="font-bold text-orange-600">${window.utils.formatCurrency(stats.pendingWithdrawals || 0)}</span></div>
               </div>
