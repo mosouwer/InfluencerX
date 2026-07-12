@@ -782,7 +782,9 @@ window.admin = {
   },
   
   downloadMedia(id) {
-    window.open('/api/deals/download/' + id, '_blank');
+    const user = window.auth?.currentUser;
+    const query = user ? `?userId=${user.id}&userRole=${user.role}` : '';
+    window.open('/api/deals/download/' + id + query, '_blank');
     
     const btn = document.querySelector('#campaignModal button.bg-black');
     if (btn) {

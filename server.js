@@ -185,7 +185,7 @@ app.use(express.static('public'));
 
 // Helper functions
 function getUser(req) {
-  const userId = req.session.userId || req.headers['x-user-id'];
+  const userId = req.session.userId || req.headers['x-user-id'] || req.query.userId;
   if (!userId) return null;
   const db = readDB();
   return db.users.find(u => u.id === userId);

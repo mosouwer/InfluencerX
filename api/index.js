@@ -78,8 +78,8 @@ app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 // A simple middleware to simulate authentication (in production use Firebase Auth tokens)
 // Here we rely on the client sending userId and userRole in headers
 function getUser(req) {
-  const userId = req.headers['x-user-id'];
-  const userRole = req.headers['x-user-role'];
+  const userId = req.headers['x-user-id'] || req.query.userId;
+  const userRole = req.headers['x-user-role'] || req.query.userRole;
   if (!userId) return null;
   return { id: userId, role: userRole };
 }
