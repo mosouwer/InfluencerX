@@ -285,12 +285,23 @@ window.admin = {
          </div>
         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${user.email}</td>
         <td class="px-6 py-4 whitespace-nowrap">
-          <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${user.role === 'admin' ? 'bg-red-100 text-red-800' : user.role === 'brand' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'}">
+          <span class="px-2.5 py-1 inline-flex items-center rounded-md text-xs font-semibold ring-1 ring-inset ${
+            user.role === 'admin' 
+              ? 'bg-rose-50 text-rose-700 ring-rose-600/10' 
+              : user.role === 'brand' 
+                ? 'bg-indigo-50 text-indigo-700 ring-indigo-600/10' 
+                : 'bg-purple-50 text-purple-700 ring-purple-600/10'
+          }">
             ${user.role === 'brand' ? 'Brand' : user.role === 'influencer' ? 'Influencer' : 'Admin'}
           </span>
         </td>
         <td class="px-6 py-4 whitespace-nowrap">
-          <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${user.status === 'active' ? 'bg-black-100 text-black-800' : 'bg-red-100 text-red-800'}">
+          <span class="px-2.5 py-1 inline-flex items-center gap-1.5 rounded-md text-xs font-semibold ring-1 ring-inset ${
+            user.status === 'active' 
+              ? 'bg-emerald-50 text-emerald-700 ring-emerald-600/20' 
+              : 'bg-rose-50 text-rose-700 ring-rose-600/20'
+          }">
+            <span class="h-1.5 w-1.5 rounded-full ${user.status === 'active' ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500'}"></span>
             ${user.status === 'active' ? 'Active' : 'Suspended'}
           </span>
         </td>
