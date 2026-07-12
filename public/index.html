@@ -13,30 +13,132 @@
 <body class="bg-gray-50">
 
 <!-- Login Modal -->
-<div id="loginModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-  <div class="bg-white rounded-sm shadow-2xl w-full max-w-md p-6 sm:p-8 mx-auto">
-    <div class="text-center mb-6">
-      <h1 class="text-2xl sm:text-3xl font-bold text-black tracking-tight">InfluenceX</h1>
-      <p class="text-gray-500 mt-2 text-sm">Creator Marketplace</p>
-    </div>
-    <div class="space-y-4">
-      <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-        <input type="email" id="loginEmail" placeholder="email@example.com" class="w-full px-4 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-gray-500">
+<div id="loginModal" class="fixed inset-0 z-50 flex bg-[#f8f9fa] overflow-hidden">
+  
+  <!-- Left Side: Interactive Creator Orbital Panel -->
+  <div class="hidden lg:flex w-7/12 bg-[#804ee6] flex-col justify-between p-12 text-white relative overflow-hidden">
+    <!-- Starfield/Orbital concentric circular overlays -->
+    <div class="absolute inset-0 flex items-center justify-center pointer-events-none opacity-20">
+      <div class="w-[500px] h-[500px] border border-white rounded-full flex items-center justify-center relative">
+        <div class="w-[360px] h-[360px] border border-white rounded-full flex items-center justify-center relative">
+          <div class="w-[220px] h-[220px] border border-white rounded-full relative"></div>
+        </div>
       </div>
-      <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
-        <input type="password" id="loginPassword" placeholder="password" class="w-full px-4 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-gray-500">
-      </div>
-      <button onclick="window.auth.login()" class="w-full py-2 rounded-sm gradient-bg text-white font-semibold hover:opacity-90 transition">Login</button>
     </div>
-    <div class="mt-6 text-center text-sm text-gray-500">
-      <p class="font-medium mb-1 text-xs sm:text-sm">Demo Accounts:</p>
-      <p class="text-xs">👑 Admin: admin@influencex.com / admin123</p>
-      <p class="text-xs">💼 Brand: ravi@store.com / demo123</p>
-      <p class="text-xs">🌟 Influencer: priya@demo.com / demo123</p>
+
+    <!-- Floating Creators (orbit positions) -->
+    <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=faces" alt="Creator" 
+      class="absolute left-[20%] top-[15%] w-14 h-14 rounded-full border-2 border-white/80 object-cover shadow-lg animate-bounce duration-1000">
+    <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop&crop=faces" alt="Creator" 
+      class="absolute right-[20%] top-[20%] w-12 h-12 rounded-full border-2 border-white/80 object-cover shadow-lg">
+    <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=faces" alt="Creator" 
+      class="absolute right-[33%] top-[42%] w-16 h-16 rounded-full border-2 border-white/80 object-cover shadow-lg">
+    <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=100&h=100&fit=crop&crop=faces" alt="Creator" 
+      class="absolute right-[22%] bottom-[20%] w-14 h-14 rounded-full border-2 border-white/80 object-cover shadow-lg">
+    <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=faces" alt="Creator" 
+      class="absolute left-[18%] bottom-[28%] w-16 h-16 rounded-full border-2 border-white/80 object-cover shadow-lg">
+
+    <!-- Central Logo -->
+    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center">
+      <div class="relative w-20 h-20 bg-white/10 backdrop-blur-md border border-white/20 rounded-full flex items-center justify-center shadow-2xl">
+        <span class="text-3xl font-extrabold text-white tracking-tighter">IX</span>
+        <span class="absolute top-[22px] left-[20px] w-2.5 h-2.5 bg-[#ff8a3d] rounded-full"></span>
+      </div>
+    </div>
+
+    <!-- Header Logo Text -->
+    <div class="flex items-center gap-2 z-10">
+      <span class="text-xl font-bold tracking-tight text-white">InfluenceX</span>
+    </div>
+
+    <!-- Bottom Promo Message -->
+    <div class="max-w-md z-10 mt-auto">
+      <h2 class="text-2xl font-bold text-white mb-3">Connect with Top Creators Worldwide</h2>
+      <p class="text-purple-100 text-sm leading-relaxed font-light">
+        Thanks to the rapid expansion of digital media, creator partnerships are crucial. We provide a premium, business-standard platform for brands and influencers to collaborate seamlessly.
+      </p>
     </div>
   </div>
+
+  <!-- Right Side: Classy Floating Login Card -->
+  <div class="w-full lg:w-5/12 flex items-center justify-center p-6 sm:p-12 relative">
+    <div class="relative w-full max-w-md">
+      <!-- Layered offset cards behind main card -->
+      <div class="absolute -right-3 top-6 bottom-6 w-3 bg-[#804ee6]/20 rounded-r-lg -z-10"></div>
+      <div class="absolute -right-6 top-12 bottom-12 w-3 bg-[#804ee6]/10 rounded-r-lg -z-20"></div>
+
+      <!-- Main Login Card -->
+      <div class="bg-white rounded-lg shadow-[0_20px_50px_rgba(0,0,0,0.05)] border border-gray-100 p-8 sm:p-10 w-full relative">
+        <div class="text-center mb-8">
+          <h1 class="text-3xl font-extrabold tracking-tight mb-2">
+            <span class="text-[#804ee6]">Influence</span><span class="text-[#ff8a3d]">X</span>
+          </h1>
+          <p class="text-gray-500 text-sm font-medium">Welcome Back !</p>
+        </div>
+
+        <div class="space-y-4">
+          <!-- Email Input -->
+          <div class="relative">
+            <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-gray-400">
+              <span class="material-icons-outlined text-lg">mail</span>
+            </span>
+            <input type="email" id="loginEmail" placeholder="Email Address" 
+              class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#804ee6]/20 focus:border-[#804ee6] transition duration-200">
+          </div>
+
+          <!-- Password Input -->
+          <div class="relative">
+            <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-gray-400">
+              <span class="material-icons-outlined text-lg">lock</span>
+            </span>
+            <input type="password" id="loginPassword" placeholder="Password" 
+              class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#804ee6]/20 focus:border-[#804ee6] transition duration-200">
+          </div>
+
+          <!-- Login Button -->
+          <button onclick="window.auth.login()" 
+            class="w-full py-3 bg-[#ff8a3d] hover:bg-[#e0752d] text-white rounded-lg text-sm font-bold tracking-wider shadow-md hover:shadow-lg transition duration-200 uppercase active:scale-[0.98] mt-2">
+            Login
+          </button>
+
+          <!-- Divider -->
+          <div class="relative my-6 flex items-center justify-center">
+            <div class="border-t border-gray-200 w-full"></div>
+            <span class="absolute bg-white px-3 text-xs text-gray-400 font-semibold uppercase">Or</span>
+          </div>
+
+          <!-- Google Login -->
+          <button onclick="window.ui.showToast('Google login is a mock demonstration.', 'info')" 
+            class="w-full py-3 border border-gray-200 rounded-lg text-sm font-semibold text-gray-600 bg-white hover:bg-gray-50 flex items-center justify-center gap-2.5 transition duration-200">
+            <svg class="w-4 h-4" viewBox="0 0 24 24">
+              <path fill="#EA4335" d="M12 5.04c1.67 0 3.2.58 4.38 1.69l3.27-3.27C17.68 1.54 15.01 1 12 1 7.35 1 3.41 3.73 1.58 7.69l3.85 2.99C6.39 7.42 8.97 5.04 12 5.04z"/>
+              <path fill="#4285F4" d="M23.45 12.3c0-.82-.07-1.6-.22-2.3H12v4.4h6.41c-.28 1.48-1.12 2.74-2.38 3.58l3.71 2.88c2.17-2 3.71-4.94 3.71-8.56z"/>
+              <path fill="#FBBC05" d="M5.43 10.68c-.24-.72-.38-1.49-.38-2.28s.14-1.56.38-2.28L1.58 3.13C.58 5.12 0 7.37 0 9.4c0 2.03.58 4.28 1.58 6.27l3.85-2.99z"/>
+              <path fill="#34A853" d="M12 23c3.24 0 5.97-1.07 7.96-2.91l-3.71-2.88c-1.11.75-2.53 1.19-4.25 1.19-3.03 0-5.61-2.38-6.52-5.64L1.63 15.75C3.47 19.71 7.41 23 12 23z"/>
+            </svg>
+            Continue With Google
+          </button>
+        </div>
+
+        <!-- Footer Links -->
+        <div class="flex justify-between items-center mt-6 text-xs font-semibold text-gray-500">
+          <a href="#" onclick="window.ui.showToast('Please contact admin@influencex.com to create an account.', 'info')" class="hover:text-[#804ee6] transition">Create Account</a>
+          <a href="#" onclick="window.ui.showToast('Reset password instructions have been disabled for demo accounts.', 'info')" class="hover:text-[#804ee6] transition">Forgot Password</a>
+        </div>
+
+        <!-- Demo Accounts Section -->
+        <div class="mt-8 pt-6 border-t border-gray-100 text-center text-xs text-gray-400 font-medium">
+          <p class="font-bold text-gray-500 mb-1 text-[11px] uppercase tracking-wider">Demo Accounts</p>
+          <div class="flex flex-col gap-0.5">
+            <div>👑 Admin: <span class="text-gray-600 font-semibold">admin@influencex.com</span> / <span class="text-gray-600 font-semibold">admin123</span></div>
+            <div>💼 Brand: <span class="text-gray-600 font-semibold">ravi@store.com</span> / <span class="text-gray-600 font-semibold">demo123</span></div>
+            <div>🌟 Creator: <span class="text-gray-600 font-semibold">priya@demo.com</span> / <span class="text-gray-600 font-semibold">demo123</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <!-- Edit Rates Modal -->
