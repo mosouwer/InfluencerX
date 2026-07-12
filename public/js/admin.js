@@ -12,7 +12,7 @@ window.admin = {
       const pendingDeals = rawDeals.filter(d => d.status === 'pending').map(d => ({
         id: d.id,
         isDeal: true,
-        campaignName: 'Campaign ID: CMP-' + d.id,
+        campaignName: d.id,
         brandName: d.brandName,
         influencerName: d.influencerName,
         amount: d.amount,
@@ -555,7 +555,7 @@ window.admin = {
       const dealCampaigns = rawDeals.map(d => ({
         id: d.id,
         isDeal: true,
-        campaignName: 'Campaign ID: CMP-' + d.id,
+        campaignName: d.id,
         brandName: d.brandName,
         influencerName: d.influencerName,
         amount: d.amount,
@@ -659,13 +659,6 @@ window.admin = {
           <div class="flex flex-col gap-1">
             <div class="flex items-center gap-2">
               <span class="font-semibold text-gray-900 hover:text-black transition-colors">${campaign.campaignName}</span>
-              <span class="px-1.5 py-0.5 text-[10px] font-medium rounded ${
-                campaign.isDeal 
-                  ? 'bg-amber-50 text-amber-700 ring-1 ring-inset ring-amber-600/10' 
-                  : 'bg-blue-50 text-blue-700 ring-1 ring-inset ring-blue-600/10'
-              }">
-                ${campaign.isDeal ? 'Direct Hire' : 'Campaign'}
-              </span>
             </div>
             ${campaign.isDeal ? `
               <div class="flex flex-col gap-0.5 mt-0.5">
@@ -1268,7 +1261,7 @@ window.admin = {
       }));
 
       const formattedDeals = deals.map(d => ({
-        name: 'Campaign ID: CMP-' + d.id,
+        name: d.id,
         brand: d.brandName || 'N/A',
         influencer: d.influencerName || 'N/A',
         type: 'Direct Hire',
