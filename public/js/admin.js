@@ -55,6 +55,9 @@ window.admin = {
               <h2 class="font-semibold mb-4">Platform Summary</h2>
               <div class="space-y-3">
                 <div class="flex justify-between py-2 border-b"><span class="text-gray-600">Total Transaction Value</span><span class="font-bold">${window.utils.formatCurrency(stats.totalValue || 0)}</span></div>
+                <div class="flex justify-between py-2 border-b"><span class="text-gray-600">Active Campaigns</span><span class="font-bold text-blue-600">${stats.campaignsActive || 0}</span></div>
+                <div class="flex justify-between py-2 border-b"><span class="text-gray-600">Campaigns Under Review</span><span class="font-bold text-purple-600">${stats.campaignsReview || 0}</span></div>
+                <div class="flex justify-between py-2 border-b"><span class="text-gray-600">Completed Campaigns</span><span class="font-bold text-green-600">${stats.campaignsCompleted || 0}</span></div>
                 <div class="flex justify-between py-2 border-b"><span class="text-gray-600">Pending Disputes</span><span class="font-bold text-red-600">${stats.pendingDisputes || 0}</span></div>
                 <div class="flex justify-between py-2"><span class="text-gray-600">Pending Withdrawals</span><span class="font-bold text-orange-600">${window.utils.formatCurrency(stats.pendingWithdrawals || 0)}</span></div>
               </div>

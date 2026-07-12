@@ -508,20 +508,27 @@ app.get('/api/admin/stats', async (req, res) => {
   const withdrawals = db.withdrawals || [];
   
   const totalTransactions = [...campaigns, ...deals];
-  const platformRevenue = totalTransactions.reduce((sum, t) => sum + (t.amount * 0.2), 0);
+  const platformRevenue = totalTransactions.reduce((sum, t) => sum + ((t.amount || 0) * 0.2), 0);
   const pendingDisputes = deals.filter(d => d.status === 'dispute').length;
-  const pendingWithdrawals = withdrawals.filter(w => w.status === 'pending').reduce((sum, w) => sum + w.amount, 0);
+  const pendingWithdrawals = withdrawals.filter(w => w.status === 'pending').reduce((sum, w) => sum + (Number(w.amount) || 0), 0);
   
+  const campaignsActive = campaigns.filter(c => c.status === 'active').length + deals.filter(d => d.status === 'active').length;
+  const campaignsReview = campaigns.filter(c => c.status === 'review').length + deals.filter(d => d.status === 'review').length;
+  const campaignsCompleted = campaigns.filter(c => c.status === 'completed').length + deals.filter(d => d.status === 'completed').length;
+
   res.json({
     totalBrands: brands.length,
     totalInfluencers: influencers.length,
     totalCampaigns: campaigns.length,
-    activeCampaigns: campaigns.filter(c => c.status === 'active').length,
+    activeCampaigns: campaignsActive,
+    campaignsActive,
+    campaignsReview,
+    campaignsCompleted,
     platformRevenue,
     pendingDisputes,
-    totalValue: totalTransactions.reduce((sum, t) => sum + t.amount, 0),
+    totalValue: totalTransactions.reduce((sum, t) => sum + (Number(t.amount) || 0), 0),
     pendingWithdrawals,
-    verifiedInfluencers: influencers.filter(i => i.profile.verified).length
+    verifiedInfluencers: influencers.filter(i => i.profile?.verified).length
   });
 });
 

@@ -637,11 +637,18 @@ app.get('/api/admin/stats', async (req, res) => {
   const pendingDisputes = deals.filter(d => d.status === 'dispute').length;
   const pendingWithdrawals = withdrawals.filter(w => w.status === 'pending').reduce((sum, w) => sum + (Number(w.amount) || 0), 0);
   
+  const campaignsActive = campaigns.filter(c => c.status === 'active').length + deals.filter(d => d.status === 'active').length;
+  const campaignsReview = campaigns.filter(c => c.status === 'review').length + deals.filter(d => d.status === 'review').length;
+  const campaignsCompleted = campaigns.filter(c => c.status === 'completed').length + deals.filter(d => d.status === 'completed').length;
+
   res.json({
     totalBrands: brands.length,
     totalInfluencers: influencers.length,
     totalCampaigns: campaigns.length,
-    activeCampaigns: campaigns.filter(c => c.status === 'active').length + deals.filter(d => d.status === 'active').length,
+    activeCampaigns: campaignsActive,
+    campaignsActive,
+    campaignsReview,
+    campaignsCompleted,
     platformRevenue,
     pendingDisputes,
     totalValue,
