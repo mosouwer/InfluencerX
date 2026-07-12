@@ -7,7 +7,17 @@ const multer = require('multer');
 const sharp = require('sharp');
 
 // Initialize Firebase Admin
-const serviceAccount = require('../firebase-service-account.json');
+let serviceAccount;
+if (process.env.FIREBASE_SERVICE_ACCOUNT_JSON) {
+  serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_JSON);
+} else {
+  try {
+    serviceAccount = require('../firebase-service-account.json');
+  } catch (e) {
+    console.error('Firebase service account not found. Set FIREBASE_SERVICE_ACCOUNT_JSON env var or provide firebase-service-account.json');
+    throw e;
+  }
+}
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount)
 });
