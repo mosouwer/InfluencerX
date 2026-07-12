@@ -2,7 +2,7 @@
 const admin = require('firebase-admin');
 const express = require('express');
 const cors = require('cors');
-const { S3Client, PutObjectCommand } = require('@aws-sdk/client-s3');
+const { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } = require('@aws-sdk/client-s3');
 const multer = require('multer');
 const sharp = require('sharp');
 
@@ -760,6 +760,74 @@ app.delete('/api/admin/deals', async (req, res) => {
     res.json({ success: true, message: `Successfully deleted ${ids.length} deals from admin side` });
   } catch (err) {
     res.status(500).json({ error: 'Failed to delete deals', details: err.message });
+  }
+});
+
+app.get('/api/deals/download/:id', async (req, res) => {
+  try {
+    const user = getUser(req);
+    if (!user) return res.status(401).json({ error: 'Unauthorized' });
+    
+    let isDeal = true;
+    let docRef = db.collection('deals').doc(req.params.id);
+    let doc = await docRef.get();
+    
+    if (!doc.exists) {
+      isDeal = false;
+      docRef = db.collection('campaigns').doc(req.params.id);
+      doc = await docRef.get();
+    }
+    
+    if (!doc.exists) {
+      return res.status(404).json({ error: 'Item not found' });
+    }
+    
+    const item = doc.data();
+    const mediaUrl = item.mediaAttached || item.mediaUrl || item.media;
+    
+    if (!mediaUrl) {
+      return res.status(404).json({ error: 'No attachment found for this item' });
+    }
+    
+    // Extract key from S3 URL
+    const key = mediaUrl.substring(mediaUrl.lastIndexOf('/') + 1);
+    
+    const command = new GetObjectCommand({
+      Bucket: process.env.AWS_S3_BUCKET_NAME,
+      Key: key
+    });
+    
+    const response = await s3.send(command);
+    
+    res.setHeader('Content-Type', response.ContentType || 'application/octet-stream');
+    res.setHeader('Content-Disposition', `attachment; filename="${key}"`);
+    
+    response.Body.pipe(res);
+    
+    res.on('finish', async () => {
+      try {
+        const deleteCommand = new DeleteObjectCommand({
+          Bucket: process.env.AWS_S3_BUCKET_NAME,
+          Key: key
+        });
+        await s3.send(deleteCommand);
+        
+        // Update document to clear media
+        await docRef.update({
+          hasMedia: 'false',
+          mediaAttached: null,
+          mediaUrl: null,
+          media: null
+        });
+        console.log(`Deleted S3 attachment for item ${req.params.id}`);
+      } catch (err) {
+        console.error('Failed to clean up attachment after download:', err);
+      }
+    });
+    
+  } catch (error) {
+    console.error('Download error:', error);
+    res.status(500).json({ error: 'Failed to download file', details: error.message });
   }
 });
 

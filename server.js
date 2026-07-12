@@ -810,6 +810,90 @@ app.delete('/api/admin/deals', async (req, res) => {
   res.json({ success: true, message: `Successfully deleted ${ids.length} deals from admin side` });
 });
 
+app.get('/api/deals/download/:id', async (req, res) => {
+  try {
+    const user = getUser(req);
+    if (!user) return res.status(401).json({ error: 'Unauthorized' });
+    
+    const dbData = readDB();
+    let isDeal = true;
+    let itemIndex = dbData.deals ? dbData.deals.findIndex(d => d.id === req.params.id) : -1;
+    let item;
+    
+    if (itemIndex !== -1) {
+      item = dbData.deals[itemIndex];
+    } else {
+      isDeal = false;
+      itemIndex = dbData.campaigns ? dbData.campaigns.findIndex(c => c.id === req.params.id) : -1;
+      if (itemIndex !== -1) {
+        item = dbData.campaigns[itemIndex];
+      }
+    }
+    
+    if (itemIndex === -1 || !item) {
+      return res.status(404).json({ error: 'Item not found' });
+    }
+    
+    const mediaUrl = item.mediaAttached || item.mediaUrl || item.media;
+    if (!mediaUrl) {
+      return res.status(404).json({ error: 'No attachment found for this item' });
+    }
+    
+    // Extract key from S3 URL
+    const key = mediaUrl.substring(mediaUrl.lastIndexOf('/') + 1);
+    
+    const command = new GetObjectCommand({
+      Bucket: process.env.AWS_S3_BUCKET_NAME,
+      Key: key
+    });
+    
+    const response = await s3.send(command);
+    
+    res.setHeader('Content-Type', response.ContentType || 'application/octet-stream');
+    res.setHeader('Content-Disposition', `attachment; filename="${key}"`);
+    
+    response.Body.pipe(res);
+    
+    res.on('finish', async () => {
+      try {
+        const deleteCommand = new DeleteObjectCommand({
+          Bucket: process.env.AWS_S3_BUCKET_NAME,
+          Key: key
+        });
+        await s3.send(deleteCommand);
+        
+        // Update document to clear media in local DB
+        const freshDb = readDB();
+        if (isDeal) {
+          const freshIndex = freshDb.deals.findIndex(d => d.id === req.params.id);
+          if (freshIndex !== -1) {
+            freshDb.deals[freshIndex].hasMedia = 'false';
+            delete freshDb.deals[freshIndex].mediaAttached;
+            delete freshDb.deals[freshIndex].mediaUrl;
+            delete freshDb.deals[freshIndex].media;
+          }
+        } else {
+          const freshIndex = freshDb.campaigns.findIndex(c => c.id === req.params.id);
+          if (freshIndex !== -1) {
+            freshDb.campaigns[freshIndex].hasMedia = 'false';
+            delete freshDb.campaigns[freshIndex].mediaAttached;
+            delete freshDb.campaigns[freshIndex].mediaUrl;
+            delete freshDb.campaigns[freshIndex].media;
+          }
+        }
+        writeDB(freshDb);
+        console.log(`Deleted S3 attachment for item ${req.params.id} in local database`);
+      } catch (err) {
+        console.error('Failed to clean up attachment after download:', err);
+      }
+    });
+    
+  } catch (error) {
+    console.error('Download error:', error);
+    res.status(500).json({ error: 'Failed to download file', details: error.message });
+  }
+});
+
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
