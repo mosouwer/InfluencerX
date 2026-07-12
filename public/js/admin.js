@@ -242,62 +242,68 @@ window.admin = {
     const adminCount = users.filter(u => u.role === 'admin').length;
     
     document.getElementById('mainContent').innerHTML = `
-      <div class="page-transition">
-        <div class="flex justify-between items-center mb-6">
+      <div class="page-transition space-y-6">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
-            <h1 class="text-2xl font-bold mb-2">User Management</h1>
-            <p class="text-gray-500">View, verify, and manage all platform users</p>
+            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight mb-1">User Management</h1>
+            <p class="text-gray-500 text-sm">View, verify, and manage all registered brands and creators</p>
           </div>
           <div class="flex gap-2">
-            <button id="createInfluencerBtn" onclick="window.admin.openCreateInfluencerModal()" class="px-4 py-2 bg-black text-white rounded-sm text-sm font-bold shadow-sm hidden flex items-center gap-2">
+            <button id="createInfluencerBtn" onclick="window.admin.openCreateInfluencerModal()" 
+              class="px-4 py-2 bg-[#804ee6] hover:bg-[#6c2bd9] text-white rounded-lg text-sm font-bold shadow transition flex items-center gap-2 active:scale-95 hidden">
               <span class="material-icons-outlined text-[18px]">add</span> Create Influencer
             </button>
-            <button onclick="window.admin.exportUsers()" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-sm text-sm font-medium hover:bg-gray-200 transition">
+            <button onclick="window.admin.exportUsers()" 
+              class="px-4 py-2 border border-gray-200 hover:border-gray-300 text-gray-700 rounded-lg text-sm font-semibold hover:bg-gray-50 transition duration-200">
               Export CSV
             </button>
           </div>
         </div>
         
-        <!-- Filter Tabs -->
-        <div class="flex gap-2 mb-6 border-b">
-          <button onclick="window.admin.filterUsers('all')" id="filterAll" class="px-5 py-2.5 text-sm font-medium rounded-t-lg transition-all">
-            All Users <span class="ml-1 px-2 py-0.5 bg-gray-100 rounded-full text-xs">${users.length}</span>
+        <!-- Filter Pills -->
+        <div class="flex flex-wrap gap-2">
+          <button onclick="window.admin.filterUsers('all')" id="filterAll" 
+            class="px-4 py-2 text-xs font-bold rounded-lg border border-transparent bg-[#804ee6] text-white shadow-sm transition active:scale-[0.98]">
+            All Users <span class="ml-1 px-1.5 py-0.5 bg-white/20 rounded-md text-[10px]">${users.length}</span>
           </button>
-          <button onclick="window.admin.filterUsers('brand')" id="filterBrand" class="px-5 py-2.5 text-sm font-medium rounded-t-lg transition-all text-gray-500 hover:text-gray-700">
-            Brands <span class="ml-1 px-2 py-0.5 bg-gray-100 rounded-full text-xs">${brandCount}</span>
+          <button onclick="window.admin.filterUsers('brand')" id="filterBrand" 
+            class="px-4 py-2 text-xs font-bold rounded-lg border border-gray-200 bg-white text-gray-500 hover:text-gray-900 transition active:scale-[0.98]">
+            Brands <span class="ml-1 px-1.5 py-0.5 bg-gray-100 rounded-md text-[10px]">${brandCount}</span>
           </button>
-          <button onclick="window.admin.filterUsers('influencer')" id="filterInfluencer" class="px-5 py-2.5 text-sm font-medium rounded-t-lg transition-all text-gray-500 hover:text-gray-700">
-            Influencers <span class="ml-1 px-2 py-0.5 bg-gray-100 rounded-full text-xs">${influencerCount}</span>
+          <button onclick="window.admin.filterUsers('influencer')" id="filterInfluencer" 
+            class="px-4 py-2 text-xs font-bold rounded-lg border border-gray-200 bg-white text-gray-500 hover:text-gray-900 transition active:scale-[0.98]">
+            Influencers <span class="ml-1 px-1.5 py-0.5 bg-gray-100 rounded-md text-[10px]">${influencerCount}</span>
           </button>
-          <button onclick="window.admin.filterUsers('admin')" id="filterAdmin" class="px-5 py-2.5 text-sm font-medium rounded-t-lg transition-all text-gray-500 hover:text-gray-700">
-            Admins <span class="ml-1 px-2 py-0.5 bg-gray-100 rounded-full text-xs">${adminCount}</span>
+          <button onclick="window.admin.filterUsers('admin')" id="filterAdmin" 
+            class="px-4 py-2 text-xs font-bold rounded-lg border border-gray-200 bg-white text-gray-500 hover:text-gray-900 transition active:scale-[0.98]">
+            Admins <span class="ml-1 px-1.5 py-0.5 bg-gray-100 rounded-md text-[10px]">${adminCount}</span>
           </button>
         </div>
         
         <!-- Search Bar -->
-        <div class="mb-5">
-          <div class="relative max-w-md">
-            <input type="text" id="searchUsers" placeholder="Search by name or email..." 
-              class="w-full px-4 py-2.5 pl-10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)]  transition-all duration-300 ring-1 ring-gray-200 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)]  transition-all duration-300 ring-1 ring-gray-200-gray-200 rounded-sm focus:ring-2 focus:ring-gray-500 focus:shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)]  transition-all duration-300 ring-1 ring-gray-200-transparent">
-            <span class="absolute left-3 top-2.5 text-gray-400">🔍</span>
-          </div>
+        <div class="relative max-w-md w-full">
+          <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">
+            <span class="material-icons-outlined text-lg">search</span>
+          </span>
+          <input type="text" id="searchUsers" placeholder="Search by name or email..." 
+            class="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#804ee6]/20 focus:border-[#804ee6] transition duration-200">
         </div>
         
         <!-- Users Table -->
-        <div class="bg-white rounded-sm shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)]  transition-all duration-300 ring-1 ring-gray-200 overflow-hidden">
+        <div class="bg-white border border-gray-150 rounded-xl shadow-[0_8px_30px_rgba(0,0,0,0.02)] overflow-hidden">
           <div class="overflow-x-auto">
             <table class="w-full text-sm">
-              <thead class="bg-gray-50 border-b">
+              <thead class="bg-gray-50/70 border-b border-gray-100">
                 <tr>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Joined</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                  <th class="px-6 py-3.5 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">User</th>
+                  <th class="px-6 py-3.5 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Email</th>
+                  <th class="px-6 py-3.5 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Role</th>
+                  <th class="px-6 py-3.5 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Status</th>
+                  <th class="px-6 py-3.5 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Joined</th>
+                  <th class="px-6 py-3.5 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
-              <tbody class="divide-y divide-gray-200" id="userTableBody">
+              <tbody class="divide-y divide-gray-150" id="userTableBody">
                 ${this.renderUserRows(users)}
               </tbody>
             <table>
@@ -471,13 +477,13 @@ window.admin = {
     filters.forEach(f => {
       const btn = document.getElementById(`filter${f.charAt(0).toUpperCase() + f.slice(1)}`);
       if (btn) {
-        btn.className = 'px-5 py-2.5 text-sm font-medium rounded-t-lg transition-all text-gray-500 hover:text-gray-700';
+        btn.className = 'px-4 py-2 text-xs font-bold rounded-lg border border-gray-200 bg-white text-gray-500 hover:text-gray-900 transition active:scale-[0.98]';
       }
     });
     
     const activeBtn = document.getElementById(`filter${type.charAt(0).toUpperCase() + type.slice(1)}`);
     if (activeBtn) {
-      activeBtn.className = 'px-5 py-2.5 text-sm font-medium rounded-t-lg transition-all bg-gray-50 text-gray-600 border-b-2 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)]  transition-all duration-300 ring-1 ring-gray-200-gray-600';
+      activeBtn.className = 'px-4 py-2 text-xs font-bold rounded-lg border border-transparent bg-[#804ee6] text-white shadow-sm transition active:scale-[0.98]';
     }
   },
   
@@ -644,55 +650,61 @@ window.admin = {
         .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
       
       document.getElementById('mainContent').innerHTML = `
-        <div class="page-transition">
-          <div class="flex justify-between items-center mb-6">
+        <div class="page-transition space-y-6">
+          <div class="flex justify-between items-center">
             <div>
-              <h1 class="text-2xl font-bold mb-2">All Campaigns</h1>
-              <p class="text-gray-500">Monitor and manage all platform campaigns</p>
+              <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight mb-1">All Campaigns</h1>
+              <p class="text-gray-500 text-sm">Monitor and manage all platform campaigns and brand hires</p>
             </div>
           </div>
           
           <!-- Status Filter Tabs & Bulk Actions -->
-          <div class="flex gap-2 mb-6 border-b justify-between items-center">
-            <div class="flex gap-2">
-              <button onclick="window.admin.filterCampaigns('all')" id="campFilterAll" class="px-5 py-2.5 text-sm font-medium rounded-t-lg transition-all bg-gray-50 text-gray-600 border-b-2 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)]  transition-all duration-300 ring-1 ring-gray-200-gray-600">
-                All <span class="ml-1 px-2 py-0.5 bg-gray-100 rounded-full text-xs">${campaigns.length}</span>
+          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div class="flex flex-wrap gap-2">
+              <button onclick="window.admin.filterCampaigns('all')" id="campFilterAll" 
+                class="px-4 py-2 text-xs font-bold rounded-lg border border-transparent bg-[#804ee6] text-white shadow-sm transition active:scale-[0.98]">
+                All <span class="ml-1 px-1.5 py-0.5 bg-white/20 rounded-md text-[10px]">${campaigns.length}</span>
               </button>
-              <button onclick="window.admin.filterCampaigns('active')" id="campFilterActive" class="px-5 py-2.5 text-sm font-medium rounded-t-lg transition-all text-gray-500 hover:text-gray-700">
-                Active <span class="ml-1 px-2 py-0.5 bg-gray-100 rounded-full text-xs">${campaigns.filter(c => c.status === 'active').length}</span>
+              <button onclick="window.admin.filterCampaigns('active')" id="campFilterActive" 
+                class="px-4 py-2 text-xs font-bold rounded-lg border border-gray-200 bg-white text-gray-500 hover:text-gray-900 transition active:scale-[0.98]">
+                Active <span class="ml-1 px-1.5 py-0.5 bg-gray-100 rounded-md text-[10px]">${campaigns.filter(c => c.status === 'active').length}</span>
               </button>
-              <button onclick="window.admin.filterCampaigns('pending')" id="campFilterPending" class="px-5 py-2.5 text-sm font-medium rounded-t-lg transition-all text-gray-500 hover:text-gray-700">
-                Pending <span class="ml-1 px-2 py-0.5 bg-gray-100 rounded-full text-xs">${campaigns.filter(c => c.status === 'pending').length}</span>
+              <button onclick="window.admin.filterCampaigns('pending')" id="campFilterPending" 
+                class="px-4 py-2 text-xs font-bold rounded-lg border border-gray-200 bg-white text-gray-500 hover:text-gray-900 transition active:scale-[0.98]">
+                Pending <span class="ml-1 px-1.5 py-0.5 bg-gray-100 rounded-md text-[10px]">${campaigns.filter(c => c.status === 'pending').length}</span>
               </button>
-              <button onclick="window.admin.filterCampaigns('review')" id="campFilterReview" class="px-5 py-2.5 text-sm font-medium rounded-t-lg transition-all text-gray-500 hover:text-gray-700">
-                Review <span class="ml-1 px-2 py-0.5 bg-gray-100 rounded-full text-xs">${campaigns.filter(c => c.status === 'review').length}</span>
+              <button onclick="window.admin.filterCampaigns('review')" id="campFilterReview" 
+                class="px-4 py-2 text-xs font-bold rounded-lg border border-gray-200 bg-white text-gray-500 hover:text-gray-900 transition active:scale-[0.98]">
+                Review <span class="ml-1 px-1.5 py-0.5 bg-gray-100 rounded-md text-[10px]">${campaigns.filter(c => c.status === 'review').length}</span>
               </button>
-              <button onclick="window.admin.filterCampaigns('completed')" id="campFilterCompleted" class="px-5 py-2.5 text-sm font-medium rounded-t-lg transition-all text-gray-500 hover:text-gray-700">
-                Completed <span class="ml-1 px-2 py-0.5 bg-gray-100 rounded-full text-xs">${campaigns.filter(c => c.status === 'completed').length}</span>
+              <button onclick="window.admin.filterCampaigns('completed')" id="campFilterCompleted" 
+                class="px-4 py-2 text-xs font-bold rounded-lg border border-gray-200 bg-white text-gray-500 hover:text-gray-900 transition active:scale-[0.98]">
+                Completed <span class="ml-1 px-1.5 py-0.5 bg-gray-100 rounded-md text-[10px]">${campaigns.filter(c => c.status === 'completed').length}</span>
               </button>
             </div>
             
-            <button id="campaignBulkDeleteBtn" onclick="window.admin.deleteSelectedCampaigns()" class="hidden mb-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-sm text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm">
+            <button id="campaignBulkDeleteBtn" onclick="window.admin.deleteSelectedCampaigns()" 
+              class="hidden px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-lg text-xs font-bold shadow-sm transition active:scale-95 flex items-center gap-1.5">
               <span class="material-icons-outlined text-[16px]">delete</span> Delete Selected (<span id="campaignSelectedCount">0</span>)
             </button>
           </div>
           
-          <div class="bg-white rounded-sm shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)]  transition-all duration-300 ring-1 ring-gray-200 overflow-hidden">
+          <div class="bg-white border border-gray-150 rounded-xl shadow-[0_8px_30px_rgba(0,0,0,0.02)] overflow-hidden">
             <div class="overflow-x-auto">
               <table class="w-full text-sm">
-                <thead class="bg-gray-50 border-b">
+                <thead class="bg-gray-50/70 border-b border-gray-100">
                   <tr>
-                    <th class="px-6 py-3 text-left w-10"><input type="checkbox" id="campaignSelectAll" onclick="window.admin.toggleSelectAllCampaigns(this)"></th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Campaign</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Brand</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Influencer</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Deadline</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    <th class="px-6 py-3.5 text-left w-10"><input type="checkbox" id="campaignSelectAll" onclick="window.admin.toggleSelectAllCampaigns(this)"></th>
+                    <th class="px-6 py-3.5 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Campaign</th>
+                    <th class="px-6 py-3.5 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Brand</th>
+                    <th class="px-6 py-3.5 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Influencer</th>
+                    <th class="px-6 py-3.5 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Amount</th>
+                    <th class="px-6 py-3.5 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Status</th>
+                    <th class="px-6 py-3.5 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Deadline</th>
+                    <th class="px-6 py-3.5 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Actions</th>
                   </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-200" id="campaignTableBody">
+                <tbody class="divide-y divide-gray-150" id="campaignTableBody">
                   ${this.renderCampaignRows(campaigns)}
                 </tbody>
               </table>
@@ -786,13 +798,13 @@ window.admin = {
     filters.forEach(f => {
       const btn = document.getElementById(`campFilter${f.charAt(0).toUpperCase() + f.slice(1)}`);
       if (btn) {
-        btn.className = 'px-5 py-2.5 text-sm font-medium rounded-t-lg transition-all text-gray-500 hover:text-gray-700';
+        btn.className = 'px-4 py-2 text-xs font-bold rounded-lg border border-gray-200 bg-white text-gray-500 hover:text-gray-900 transition active:scale-[0.98]';
       }
     });
     
     const activeBtn = document.getElementById(`campFilter${status.charAt(0).toUpperCase() + status.slice(1)}`);
     if (activeBtn) {
-      activeBtn.className = 'px-5 py-2.5 text-sm font-medium rounded-t-lg transition-all bg-gray-50 text-gray-600 border-b-2 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)]  transition-all duration-300 ring-1 ring-gray-200-gray-600';
+      activeBtn.className = 'px-4 py-2 text-xs font-bold rounded-lg border border-transparent bg-[#804ee6] text-white shadow-sm transition active:scale-[0.98]';
     }
   },
 
@@ -947,50 +959,52 @@ window.admin = {
       const allDeals = await window.api.getAdminDeals();
       const deals = allDeals.filter(deal => deal.status === 'completed');
       document.getElementById('mainContent').innerHTML = `
-        <div class="page-transition">
-          <div class="flex justify-between items-center mb-6">
+        <div class="page-transition space-y-6">
+          <div class="flex justify-between items-center">
             <div>
-              <h1 class="text-2xl font-bold mb-2">Completed Deals & Commission</h1>
-              <p class="text-gray-500">Monitor completed influencer hires and platform earnings</p>
+              <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight mb-1">Completed Deals & Commission</h1>
+              <p class="text-gray-500 text-sm">Monitor completed influencer hires and platform commission earnings</p>
             </div>
-            <button id="dealBulkDeleteBtn" onclick="window.admin.deleteSelectedDeals()" class="hidden px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-sm text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm">
+            <button id="dealBulkDeleteBtn" onclick="window.admin.deleteSelectedDeals()" 
+              class="hidden px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-lg text-xs font-bold shadow-sm transition active:scale-95 flex items-center gap-1.5">
               <span class="material-icons-outlined text-[16px]">delete</span> Delete Selected (<span id="dealSelectedCount">0</span>)
             </button>
           </div>
           
-          <div class="bg-white rounded-sm shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)]  transition-all duration-300 ring-1 ring-gray-200 overflow-hidden">
+          <div class="bg-white border border-gray-150 rounded-xl shadow-[0_8px_30px_rgba(0,0,0,0.02)] overflow-hidden">
             <div class="overflow-x-auto">
               <table class="w-full text-sm">
-                <thead class="bg-gray-50 border-b">
+                <thead class="bg-gray-50/70 border-b border-gray-100">
                   <tr>
-                    <th class="px-6 py-3 text-left w-10"><input type="checkbox" id="dealSelectAll" onclick="window.admin.toggleSelectAllDeals(this)"></th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Brand</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Influencer</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Package</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Deal Amount</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Commission (20%)</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    <th class="px-6 py-3.5 text-left w-10"><input type="checkbox" id="dealSelectAll" onclick="window.admin.toggleSelectAllDeals(this)"></th>
+                    <th class="px-6 py-3.5 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Brand</th>
+                    <th class="px-6 py-3.5 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Influencer</th>
+                    <th class="px-6 py-3.5 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Package</th>
+                    <th class="px-6 py-3.5 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Deal Amount</th>
+                    <th class="px-6 py-3.5 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Commission (20%)</th>
+                    <th class="px-6 py-3.5 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Status</th>
+                    <th class="px-6 py-3.5 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Created</th>
+                    <th class="px-6 py-3.5 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Actions</th>
                   </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-200">
+                <tbody class="divide-y divide-gray-150">
                   ${deals.length === 0 ? `
                     <tr>
-                      <td colspan="9" class="px-6 py-12 text-center text-gray-400">No completed deals found</td>
+                      <td colspan="9" class="px-6 py-10 text-center text-gray-400 font-medium">No completed deals found</td>
                     </tr>
                   ` : deals.map(deal => `
-                    <tr class="hover:bg-white hover:shadow-[0_4px_20px_rgb(0,0,0,0.08)]  transition-all duration-300 z-10 relative">
+                    <tr class="hover:bg-gray-50/40 transition-colors">
                       <td class="px-6 py-4 whitespace-nowrap text-sm"><input type="checkbox" class="deal-row-checkbox" value="${deal.id}" onclick="window.admin.onDealRowSelect()"></td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${deal.brandName}</td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${deal.influencerName}</td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm capitalize text-gray-500">${deal.packageType}</td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-600">${window.utils.formatCurrency(deal.amount)}</td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-green-600">${window.utils.formatCurrency((deal.amount || 0) * 0.20)}</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">${deal.brandName}</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-500">${deal.influencerName}</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm capitalize font-semibold text-gray-500">${deal.packageType}</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm font-extrabold text-gray-700">${window.utils.formatCurrency(deal.amount)}</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm font-extrabold text-emerald-600">${window.utils.formatCurrency((deal.amount || 0) * 0.20)}</td>
                       <td class="px-6 py-4 whitespace-nowrap"><span class="status-badge w-28 justify-center status-completed">${deal.status}</span></td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${deal.createdAt?.split('T')[0] || 'N/A'}</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-medium">${deal.createdAt?.split('T')[0] || 'N/A'}</td>
                       <td class="px-6 py-4 whitespace-nowrap">
-                        <button onclick="window.admin.deleteSingleDeal('${deal.id}')" class="p-1.5 text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 rounded-sm transition-colors flex items-center" title="Delete Deal">
+                        <button onclick="window.admin.deleteSingleDeal('${deal.id}')" 
+                          class="p-1.5 text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 rounded-lg transition-colors flex items-center" title="Delete Deal">
                           <span class="material-icons-outlined text-[18px]">delete</span>
                         </button>
                       </td>
@@ -1013,44 +1027,46 @@ window.admin = {
     try {
       const withdrawals = await window.api.getAdminWithdrawals();
       document.getElementById('mainContent').innerHTML = `
-        <div class="page-transition">
-          <h1 class="text-2xl font-bold mb-2">Withdrawal Requests</h1>
-          <p class="text-gray-500 mb-6">Process influencer payout requests</p>
+        <div class="page-transition space-y-6">
+          <div>
+            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight mb-1">Withdrawal Requests</h1>
+            <p class="text-gray-500 text-sm">Process creator payouts and request transactions</p>
+          </div>
           
-          <div class="bg-white rounded-sm shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)]  transition-all duration-300 ring-1 ring-gray-200 overflow-hidden">
+          <div class="bg-white border border-gray-150 rounded-xl shadow-[0_8px_30px_rgba(0,0,0,0.02)] overflow-hidden">
             <div class="overflow-x-auto">
               <table class="w-full text-sm">
-                <thead class="bg-gray-50 border-b">
+                <thead class="bg-gray-50/70 border-b border-gray-100">
                   <tr>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Influencer</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Requested</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    <th class="px-6 py-3.5 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Influencer</th>
+                    <th class="px-6 py-3.5 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Amount</th>
+                    <th class="px-6 py-3.5 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Requested</th>
+                    <th class="px-6 py-3.5 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Status</th>
+                    <th class="px-6 py-3.5 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Actions</th>
                   </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-200">
+                <tbody class="divide-y divide-gray-150">
                   ${withdrawals.map(w => `
-                    <tr class="hover:bg-white hover:shadow-[0_4px_20px_rgb(0,0,0,0.08)]  transition-all duration-300 z-10 relative">
-                      <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${w.userName}</td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-600">${window.utils.formatCurrency(w.amount)}</div>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${w.requestedAt}</div>
+                    <tr class="hover:bg-gray-50/40 transition-colors">
+                      <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">${w.userName}</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm font-extrabold text-gray-700">${window.utils.formatCurrency(w.amount)}</td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-medium">${w.requestedAt}</td>
                       <td class="px-6 py-4 whitespace-nowrap"><span class="status-badge w-28 justify-center status-${w.status === 'pending' ? 'pending' : 'completed'}">${w.status}</span></td>
                       <td class="px-6 py-4 whitespace-nowrap text-sm">
                         ${w.status === 'pending' ? `
                           <div class="flex gap-2">
                             <button onclick="window.admin.processWithdrawal('${w.id}', ${w.amount}, 'completed')" 
-                              class="px-4 py-1.5 text-sm rounded-sm bg-black-50 text-gray-900 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)]  transition-all duration-300 ring-1 ring-gray-200 border-black-200 hover:bg-black-100 transition">
+                              class="px-4 py-1.5 text-xs font-bold rounded-lg border border-transparent bg-[#804ee6] text-white shadow-sm transition active:scale-[0.98]">
                               Approve
                             </button>
                             <button onclick="window.admin.processWithdrawal('${w.id}', ${w.amount}, 'rejected')" 
-                              class="px-4 py-1.5 text-sm rounded-sm bg-red-50 text-red-600 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)]  transition-all duration-300 ring-1 ring-gray-200 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)]  transition-all duration-300 ring-1 ring-gray-200-red-200 hover:bg-red-100 transition">
+                              class="px-4 py-1.5 text-xs font-bold rounded-lg border border-rose-250 bg-rose-50 text-rose-600 shadow-sm transition active:scale-[0.98] hover:bg-rose-100">
                               Reject
                             </button>
                           </div>
                         ` : '-'}
-                       </div>
-                     </div>
+                      </td>
+                    </tr>
                   `).join('')}
                 </tbody>
               </table>
