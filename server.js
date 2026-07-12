@@ -778,6 +778,34 @@ app.get('/api/proxy-image', async (req, res) => {
   }
 });
 
+app.delete('/api/admin/campaigns', async (req, res) => {
+  if (!isAdmin(req)) return res.status(403).json({ error: 'Admin access required' });
+  const { ids } = req.body;
+  if (!ids || !Array.isArray(ids)) {
+    return res.status(400).json({ error: 'Bad Request', details: 'Missing or invalid ids array' });
+  }
+  
+  const db = readDB();
+  db.campaigns = (db.campaigns || []).filter(c => !ids.includes(c.id));
+  writeDB(db);
+  
+  res.json({ success: true, message: `Successfully deleted ${ids.length} campaigns` });
+});
+
+app.delete('/api/admin/deals', async (req, res) => {
+  if (!isAdmin(req)) return res.status(403).json({ error: 'Admin access required' });
+  const { ids } = req.body;
+  if (!ids || !Array.isArray(ids)) {
+    return res.status(400).json({ error: 'Bad Request', details: 'Missing or invalid ids array' });
+  }
+  
+  const db = readDB();
+  db.deals = (db.deals || []).filter(d => !ids.includes(d.id));
+  writeDB(db);
+  
+  res.json({ success: true, message: `Successfully deleted ${ids.length} deals` });
+});
+
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });

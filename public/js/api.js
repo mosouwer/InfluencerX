@@ -123,5 +123,11 @@ window.api = {
   },
   processWithdrawal(id, status) {
     return this.request(`/admin/withdrawals/${id}/process`, { method: 'PUT', body: JSON.stringify({ status }) });
+  },
+  deleteAdminCampaigns(ids) {
+    return this.request('/admin/campaigns', { method: 'DELETE', body: JSON.stringify({ ids }) });
+  },
+  deleteAdminDeals(ids) {
+    return this.request('/admin/deals', { method: 'DELETE', body: JSON.stringify({ ids }) });
   }
 };

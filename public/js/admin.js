@@ -561,25 +561,35 @@ window.admin = {
       
       document.getElementById('mainContent').innerHTML = `
         <div class="page-transition">
-          <h1 class="text-2xl font-bold mb-2">All Campaigns</h1>
-          <p class="text-gray-500 mb-6">Monitor and manage all platform campaigns</p>
+          <div class="flex justify-between items-center mb-6">
+            <div>
+              <h1 class="text-2xl font-bold mb-2">All Campaigns</h1>
+              <p class="text-gray-500">Monitor and manage all platform campaigns</p>
+            </div>
+          </div>
           
-          <!-- Status Filter Tabs -->
-          <div class="flex gap-2 mb-6 border-b">
-            <button onclick="window.admin.filterCampaigns('all')" id="campFilterAll" class="px-5 py-2.5 text-sm font-medium rounded-t-lg transition-all bg-gray-50 text-gray-600 border-b-2 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)]  transition-all duration-300 ring-1 ring-gray-200-gray-600">
-              All <span class="ml-1 px-2 py-0.5 bg-gray-100 rounded-full text-xs">${campaigns.length}</span>
-            </button>
-            <button onclick="window.admin.filterCampaigns('active')" id="campFilterActive" class="px-5 py-2.5 text-sm font-medium rounded-t-lg transition-all text-gray-500 hover:text-gray-700">
-              Active <span class="ml-1 px-2 py-0.5 bg-gray-100 rounded-full text-xs">${campaigns.filter(c => c.status === 'active').length}</span>
-            </button>
-            <button onclick="window.admin.filterCampaigns('pending')" id="campFilterPending" class="px-5 py-2.5 text-sm font-medium rounded-t-lg transition-all text-gray-500 hover:text-gray-700">
-              Pending <span class="ml-1 px-2 py-0.5 bg-gray-100 rounded-full text-xs">${campaigns.filter(c => c.status === 'pending').length}</span>
-            </button>
-            <button onclick="window.admin.filterCampaigns('review')" id="campFilterReview" class="px-5 py-2.5 text-sm font-medium rounded-t-lg transition-all text-gray-500 hover:text-gray-700">
-              Review <span class="ml-1 px-2 py-0.5 bg-gray-100 rounded-full text-xs">${campaigns.filter(c => c.status === 'review').length}</span>
-            </button>
-            <button onclick="window.admin.filterCampaigns('completed')" id="campFilterCompleted" class="px-5 py-2.5 text-sm font-medium rounded-t-lg transition-all text-gray-500 hover:text-gray-700">
-              Completed <span class="ml-1 px-2 py-0.5 bg-gray-100 rounded-full text-xs">${campaigns.filter(c => c.status === 'completed').length}</span>
+          <!-- Status Filter Tabs & Bulk Actions -->
+          <div class="flex gap-2 mb-6 border-b justify-between items-center">
+            <div class="flex gap-2">
+              <button onclick="window.admin.filterCampaigns('all')" id="campFilterAll" class="px-5 py-2.5 text-sm font-medium rounded-t-lg transition-all bg-gray-50 text-gray-600 border-b-2 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)]  transition-all duration-300 ring-1 ring-gray-200-gray-600">
+                All <span class="ml-1 px-2 py-0.5 bg-gray-100 rounded-full text-xs">${campaigns.length}</span>
+              </button>
+              <button onclick="window.admin.filterCampaigns('active')" id="campFilterActive" class="px-5 py-2.5 text-sm font-medium rounded-t-lg transition-all text-gray-500 hover:text-gray-700">
+                Active <span class="ml-1 px-2 py-0.5 bg-gray-100 rounded-full text-xs">${campaigns.filter(c => c.status === 'active').length}</span>
+              </button>
+              <button onclick="window.admin.filterCampaigns('pending')" id="campFilterPending" class="px-5 py-2.5 text-sm font-medium rounded-t-lg transition-all text-gray-500 hover:text-gray-700">
+                Pending <span class="ml-1 px-2 py-0.5 bg-gray-100 rounded-full text-xs">${campaigns.filter(c => c.status === 'pending').length}</span>
+              </button>
+              <button onclick="window.admin.filterCampaigns('review')" id="campFilterReview" class="px-5 py-2.5 text-sm font-medium rounded-t-lg transition-all text-gray-500 hover:text-gray-700">
+                Review <span class="ml-1 px-2 py-0.5 bg-gray-100 rounded-full text-xs">${campaigns.filter(c => c.status === 'review').length}</span>
+              </button>
+              <button onclick="window.admin.filterCampaigns('completed')" id="campFilterCompleted" class="px-5 py-2.5 text-sm font-medium rounded-t-lg transition-all text-gray-500 hover:text-gray-700">
+                Completed <span class="ml-1 px-2 py-0.5 bg-gray-100 rounded-full text-xs">${campaigns.filter(c => c.status === 'completed').length}</span>
+              </button>
+            </div>
+            
+            <button id="campaignBulkDeleteBtn" onclick="window.admin.deleteSelectedCampaigns()" class="hidden mb-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-sm text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm">
+              <span class="material-icons-outlined text-[16px]">delete</span> Delete Selected (<span id="campaignSelectedCount">0</span>)
             </button>
           </div>
           
@@ -588,6 +598,7 @@ window.admin = {
               <table class="w-full text-sm">
                 <thead class="bg-gray-50 border-b">
                   <tr>
+                    <th class="px-6 py-3 text-left w-10"><input type="checkbox" id="campaignSelectAll" onclick="window.admin.toggleSelectAllCampaigns(this)"></th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Campaign</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Brand</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Influencer</th>
@@ -620,7 +631,7 @@ window.admin = {
     if (campaigns.length === 0) {
       return `
         <tr>
-          <td colspan="7" class="px-6 py-12 text-center text-gray-400">
+          <td colspan="8" class="px-6 py-12 text-center text-gray-400">
             <div class="flex flex-col items-center gap-2">
               <span class="text-4xl"></span>
               <span>No campaigns found</span>
@@ -632,6 +643,7 @@ window.admin = {
     
     return campaigns.map(campaign => `
       <tr class="hover:bg-white hover:shadow-[0_4px_20px_rgb(0,0,0,0.08)]  transition-all duration-300 z-10 relative">
+        <td class="px-6 py-4 whitespace-nowrap text-sm"><input type="checkbox" class="campaign-row-checkbox" value="${campaign.id}" data-is-deal="${campaign.isDeal}" onclick="window.admin.onCampaignRowSelect()"></td>
         <td class="px-6 py-4 text-sm font-medium text-gray-900 cursor-pointer hover:text-black" onclick="window.admin.openCampaignModal('${campaign.id}', ${campaign.isDeal})">
           <div>${campaign.campaignName}</div>
           ${campaign.isDeal ? `
@@ -648,7 +660,7 @@ window.admin = {
           <span class="status-badge status-${campaign.status}">${campaign.status}</span>
         </td>
         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${campaign.deadline}</td>
-        <td class="px-6 py-4 whitespace-nowrap">
+        <td class="px-6 py-4 whitespace-nowrap flex items-center gap-2">
           <select onchange="window.admin.updateUnifiedCampaignStatus('${campaign.id}', this.value, ${campaign.isDeal})" 
             class="px-3 py-1.5 text-sm rounded-sm bg-white focus:ring-2 focus:ring-gray-500 border ring-1 ring-gray-200">
             <option value="pending" ${campaign.status === 'pending' ? 'selected' : ''}>Pending</option>
@@ -657,6 +669,9 @@ window.admin = {
             <option value="completed" ${campaign.status === 'completed' ? 'selected' : ''}>Completed</option>
             <option value="dispute" ${campaign.status === 'dispute' ? 'selected' : ''}>Dispute</option>
           </select>
+          <button onclick="window.admin.deleteSingleCampaign('${campaign.id}', ${campaign.isDeal})" class="p-1.5 text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 rounded-sm transition-colors animate-fade-in flex items-center" title="Delete Campaign">
+            <span class="material-icons-outlined text-[18px]">delete</span>
+          </button>
         </td>
       </tr>
     `).join('');
@@ -802,14 +817,22 @@ window.admin = {
       const deals = allDeals.filter(deal => deal.status === 'completed');
       document.getElementById('mainContent').innerHTML = `
         <div class="page-transition">
-          <h1 class="text-2xl font-bold mb-2">Completed Deals & Commission</h1>
-          <p class="text-gray-500 mb-6">Monitor completed influencer hires and platform earnings</p>
+          <div class="flex justify-between items-center mb-6">
+            <div>
+              <h1 class="text-2xl font-bold mb-2">Completed Deals & Commission</h1>
+              <p class="text-gray-500">Monitor completed influencer hires and platform earnings</p>
+            </div>
+            <button id="dealBulkDeleteBtn" onclick="window.admin.deleteSelectedDeals()" class="hidden px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-sm text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm">
+              <span class="material-icons-outlined text-[16px]">delete</span> Delete Selected (<span id="dealSelectedCount">0</span>)
+            </button>
+          </div>
           
           <div class="bg-white rounded-sm shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)]  transition-all duration-300 ring-1 ring-gray-200 overflow-hidden">
             <div class="overflow-x-auto">
               <table class="w-full text-sm">
                 <thead class="bg-gray-50 border-b">
                   <tr>
+                    <th class="px-6 py-3 text-left w-10"><input type="checkbox" id="dealSelectAll" onclick="window.admin.toggleSelectAllDeals(this)"></th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Brand</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Influencer</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Package</th>
@@ -817,11 +840,17 @@ window.admin = {
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Commission (20%)</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                   </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-200">
-                  ${deals.map(deal => `
+                  ${deals.length === 0 ? `
+                    <tr>
+                      <td colspan="9" class="px-6 py-12 text-center text-gray-400">No completed deals found</td>
+                    </tr>
+                  ` : deals.map(deal => `
                     <tr class="hover:bg-white hover:shadow-[0_4px_20px_rgb(0,0,0,0.08)]  transition-all duration-300 z-10 relative">
+                      <td class="px-6 py-4 whitespace-nowrap text-sm"><input type="checkbox" class="deal-row-checkbox" value="${deal.id}" onclick="window.admin.onDealRowSelect()"></td>
                       <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${deal.brandName}</td>
                       <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${deal.influencerName}</td>
                       <td class="px-6 py-4 whitespace-nowrap text-sm capitalize text-gray-500">${deal.packageType}</td>
@@ -829,6 +858,11 @@ window.admin = {
                       <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-green-600">${window.utils.formatCurrency((deal.amount || 0) * 0.20)}</td>
                       <td class="px-6 py-4 whitespace-nowrap"><span class="status-badge status-completed">${deal.status}</span></td>
                       <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${deal.createdAt?.split('T')[0] || 'N/A'}</td>
+                      <td class="px-6 py-4 whitespace-nowrap">
+                        <button onclick="window.admin.deleteSingleDeal('${deal.id}')" class="p-1.5 text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 rounded-sm transition-colors flex items-center" title="Delete Deal">
+                          <span class="material-icons-outlined text-[18px]">delete</span>
+                        </button>
+                      </td>
                     </tr>
                   `).join('')}
                 </tbody>
@@ -1243,5 +1277,138 @@ window.admin = {
     } catch (err) {
       window.ui.showToast('Failed to load campaigns: ' + err.message, 'error');
     }
+  },
+
+  // Campaign checkbox handlers
+  toggleSelectAllCampaigns(master) {
+    const checkboxes = document.querySelectorAll('.campaign-row-checkbox');
+    checkboxes.forEach(cb => cb.checked = master.checked);
+    this.onCampaignRowSelect();
+  },
+
+  onCampaignRowSelect() {
+    const checkboxes = document.querySelectorAll('.campaign-row-checkbox:checked');
+    const btn = document.getElementById('campaignBulkDeleteBtn');
+    const count = document.getElementById('campaignSelectedCount');
+    if (checkboxes.length > 0) {
+      if (btn) btn.classList.remove('hidden');
+      if (count) count.textContent = checkboxes.length;
+    } else {
+      if (btn) btn.classList.add('hidden');
+    }
+  },
+
+  // Deal checkbox handlers
+  toggleSelectAllDeals(master) {
+    const checkboxes = document.querySelectorAll('.deal-row-checkbox');
+    checkboxes.forEach(cb => cb.checked = master.checked);
+    this.onDealRowSelect();
+  },
+
+  onDealRowSelect() {
+    const checkboxes = document.querySelectorAll('.deal-row-checkbox:checked');
+    const btn = document.getElementById('dealBulkDeleteBtn');
+    const count = document.getElementById('dealSelectedCount');
+    if (checkboxes.length > 0) {
+      if (btn) btn.classList.remove('hidden');
+      if (count) count.textContent = checkboxes.length;
+    } else {
+      if (btn) btn.classList.add('hidden');
+    }
+  },
+
+  // Campaign single & bulk delete execution
+  async deleteSingleCampaign(id, isDeal) {
+    window.ui.showConfirm({
+      title: 'Delete Item',
+      message: `Are you sure you want to delete this ${isDeal ? 'deal booking' : 'campaign'}?`,
+      confirmText: 'Delete',
+      confirmClass: 'bg-red-600 text-white hover:bg-red-700',
+      onConfirm: async () => {
+        try {
+          if (isDeal) {
+            await window.api.deleteAdminDeals([id]);
+          } else {
+            await window.api.deleteAdminCampaigns([id]);
+          }
+          window.ui.showToast('Item deleted successfully!', 'success');
+          await this.renderCampaigns();
+        } catch (err) {
+          window.ui.showToast('Delete failed: ' + err.message, 'error');
+        }
+      }
+    });
+  },
+
+  async deleteSelectedCampaigns() {
+    const checkboxes = document.querySelectorAll('.campaign-row-checkbox:checked');
+    const itemsToDelete = Array.from(checkboxes).map(cb => ({
+      id: cb.value,
+      isDeal: cb.getAttribute('data-is-deal') === 'true'
+    }));
+
+    window.ui.showConfirm({
+      title: 'Delete Selected Items',
+      message: `Are you sure you want to delete ${itemsToDelete.length} selected items?`,
+      confirmText: 'Delete All',
+      confirmClass: 'bg-red-600 text-white hover:bg-red-700',
+      onConfirm: async () => {
+        try {
+          const campaignIds = itemsToDelete.filter(item => !item.isDeal).map(item => item.id);
+          const dealIds = itemsToDelete.filter(item => item.isDeal).map(item => item.id);
+          
+          if (campaignIds.length > 0) {
+            await window.api.deleteAdminCampaigns(campaignIds);
+          }
+          if (dealIds.length > 0) {
+            await window.api.deleteAdminDeals(dealIds);
+          }
+          window.ui.showToast('Selected items deleted successfully!', 'success');
+          await this.renderCampaigns();
+        } catch (err) {
+          window.ui.showToast('Delete failed: ' + err.message, 'error');
+        }
+      }
+    });
+  },
+
+  // Deal single & bulk delete execution
+  async deleteSingleDeal(id) {
+    window.ui.showConfirm({
+      title: 'Delete Deal',
+      message: 'Are you sure you want to delete this completed deal?',
+      confirmText: 'Delete',
+      confirmClass: 'bg-red-600 text-white hover:bg-red-700',
+      onConfirm: async () => {
+        try {
+          await window.api.deleteAdminDeals([id]);
+          window.ui.showToast('Deal deleted successfully!', 'success');
+          await this.renderDeals();
+        } catch (err) {
+          window.ui.showToast('Delete failed: ' + err.message, 'error');
+        }
+      }
+    });
+  },
+
+  async deleteSelectedDeals() {
+    const checkboxes = document.querySelectorAll('.deal-row-checkbox:checked');
+    const ids = Array.from(checkboxes).map(cb => cb.value);
+
+    window.ui.showConfirm({
+      title: 'Delete Selected Deals',
+      message: `Are you sure you want to delete ${ids.length} selected completed deals?`,
+      confirmText: 'Delete All',
+      confirmClass: 'bg-red-600 text-white hover:bg-red-700',
+      onConfirm: async () => {
+        try {
+          await window.api.deleteAdminDeals(ids);
+          window.ui.showToast('Selected deals deleted successfully!', 'success');
+          await this.renderDeals();
+        } catch (err) {
+          window.ui.showToast('Delete failed: ' + err.message, 'error');
+        }
+      }
+    });
   }
 };

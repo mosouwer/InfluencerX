@@ -703,4 +703,52 @@ app.put('/api/admin/withdrawals/:id/process', async (req, res) => {
   res.json({ success: true });
 });
 
+app.delete('/api/admin/campaigns', async (req, res) => {
+  try {
+    const user = getUser(req);
+    if (!user || user.role !== 'admin') {
+      return res.status(403).json({ error: 'Admin access required' });
+    }
+    const { ids } = req.body;
+    if (!ids || !Array.isArray(ids)) {
+      return res.status(400).json({ error: 'Bad Request', details: 'Missing or invalid ids array' });
+    }
+    
+    const batch = db.batch();
+    ids.forEach(id => {
+      const docRef = db.collection('campaigns').doc(id);
+      batch.delete(docRef);
+    });
+    await batch.commit();
+    
+    res.json({ success: true, message: `Successfully deleted ${ids.length} campaigns` });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to delete campaigns', details: err.message });
+  }
+});
+
+app.delete('/api/admin/deals', async (req, res) => {
+  try {
+    const user = getUser(req);
+    if (!user || user.role !== 'admin') {
+      return res.status(403).json({ error: 'Admin access required' });
+    }
+    const { ids } = req.body;
+    if (!ids || !Array.isArray(ids)) {
+      return res.status(400).json({ error: 'Bad Request', details: 'Missing or invalid ids array' });
+    }
+    
+    const batch = db.batch();
+    ids.forEach(id => {
+      const docRef = db.collection('deals').doc(id);
+      batch.delete(docRef);
+    });
+    await batch.commit();
+    
+    res.json({ success: true, message: `Successfully deleted ${ids.length} deals` });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to delete deals', details: err.message });
+  }
+});
+
 module.exports = app;
