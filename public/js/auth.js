@@ -19,7 +19,6 @@ window.auth = {
       if (this.currentUser.role === 'admin') {
         document.getElementById('adminModeIndicator').classList.remove('hidden');
         document.getElementById('modeSwitcher').style.display = 'none';
-        document.getElementById('mainLogo').className = 'text-xl font-bold bg-gradient-to-r from-red-500 to-red-600 bg-clip-text text-transparent';
       }
       
       document.getElementById('userAvatar').textContent = this.currentUser.role === 'brand' ? 
@@ -27,6 +26,11 @@ window.auth = {
         (this.currentUser.role === 'admin' ? 'A' : this.currentUser.profile.name?.charAt(0) || 'I');
       document.getElementById('userName').textContent = this.currentUser.role === 'brand' ? 
         this.currentUser.profile.company : (this.currentUser.role === 'admin' ? 'Admin' : this.currentUser.profile.name);
+      
+      const emailEl = document.getElementById('userEmail');
+      if (emailEl) {
+        emailEl.textContent = this.currentUser.email || 'user@influencex.com';
+      }
       
       await window.app.loadInitialData();
       window.app.renderSidebar();

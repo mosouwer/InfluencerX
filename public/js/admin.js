@@ -24,99 +24,170 @@ window.admin = {
         .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
 
       document.getElementById('mainContent').innerHTML = `
-        <div class="page-transition">
-          <h1 class="text-2xl font-bold mb-2">Admin Dashboard</h1>
-          <p class="text-gray-500 mb-6">Platform overview and key metrics</p>
-          
-          <!-- Row 1: Users & Platform Earnings -->
-          <div class="grid grid-cols-3 gap-5 mb-6">
-            <div onclick="window.admin.showBrandsDetails()" class="stat-card bg-white rounded-sm p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:-translate-y-0.5 cursor-pointer transition-all duration-300 ring-1 ring-gray-200">
-              <div class="text-gray-400 text-sm font-semibold">Total Brands</div>
-              <div class="text-3xl font-bold mt-2 text-gray-900">${stats.totalBrands || 0}</div>
-              <div class="text-gray-500 text-xs mt-1 font-medium">Active businesses</div>
-            </div>
-            <div onclick="window.admin.showInfluencersDetails()" class="stat-card bg-white rounded-sm p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:-translate-y-0.5 cursor-pointer transition-all duration-300 ring-1 ring-gray-200">
-              <div class="text-gray-400 text-sm font-semibold">Total Influencers</div>
-              <div class="text-3xl font-bold mt-2 text-gray-900">${stats.totalInfluencers || 0}</div>
-              <div class="text-gray-500 text-xs mt-1 font-medium">${stats.verifiedInfluencers || 0} verified creators</div>
-            </div>
-            <div onclick="window.admin.showRevenueDetails()" class="stat-card bg-white rounded-sm p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:-translate-y-0.5 cursor-pointer transition-all duration-300 ring-1 ring-gray-200">
-              <div class="text-gray-400 text-sm font-semibold">Platform Revenue</div>
-              <div class="text-3xl font-bold mt-2 text-green-600">${window.utils.formatCurrency(stats.platformRevenue || 0)}</div>
-              <div class="text-gray-500 text-xs mt-1 font-medium">From ${window.utils.formatCurrency(stats.totalValue || 0)} transaction value</div>
-            </div>
+        <div class="page-transition space-y-6">
+          <div>
+            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight mb-1">Admin Dashboard</h1>
+            <p class="text-gray-500 text-sm">Monitor platform metrics, user bookings, and transaction payouts.</p>
           </div>
+          
+          <!-- Row 1: Users & Platform Earnings (Donezo Style) -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            
+            <!-- Primary Card: Solid Purple -->
+            <div onclick="window.admin.showBrandsDetails()" 
+              class="stat-card bg-[#804ee6] text-white rounded-xl p-6 shadow-[0_12px_30px_rgba(128,78,230,0.15)] hover:shadow-[0_16px_35px_rgba(128,78,230,0.25)] hover:-translate-y-1 cursor-pointer transition-all duration-300 relative overflow-hidden group">
+              <div class="absolute -right-6 -bottom-6 w-32 h-32 bg-white/5 rounded-full group-hover:scale-110 transition-transform duration-500"></div>
+              <div class="flex justify-between items-start">
+                <span class="text-white/80 text-xs font-bold uppercase tracking-wider">Total Brands</span>
+                <span class="material-icons-outlined text-white/90 text-xl">arrow_outward</span>
+              </div>
+              <div class="text-4xl font-extrabold mt-4 tracking-tight">${stats.totalBrands || 0}</div>
+              <div class="text-white/70 text-xs mt-3 font-medium flex items-center gap-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Active businesses registered
+              </div>
+            </div>
 
-          <!-- Row 2: Campaign Metrics -->
-          <div class="grid grid-cols-4 gap-5 mb-8">
-            <div onclick="window.admin.showCampaignsDetails('all')" class="stat-card bg-white rounded-sm p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:-translate-y-0.5 cursor-pointer transition-all duration-300 ring-1 ring-gray-200">
-              <div class="text-gray-400 text-sm font-semibold">Total Campaigns</div>
-              <div class="text-3xl font-bold mt-2 text-gray-900">${stats.totalCampaigns || 0}</div>
-              <div class="text-gray-500 text-xs mt-1 font-medium">All campaigns created</div>
+            <!-- Card 2: White Total Influencers -->
+            <div onclick="window.admin.showInfluencersDetails()" 
+              class="stat-card bg-white border border-gray-150 rounded-xl p-6 shadow-[0_8px_30px_rgba(0,0,0,0.02)] hover:shadow-[0_12px_35px_rgba(0,0,0,0.08)] hover:-translate-y-1 cursor-pointer transition-all duration-300 relative group">
+              <div class="flex justify-between items-start">
+                <span class="text-gray-400 text-xs font-bold uppercase tracking-wider">Total Influencers</span>
+                <span class="material-icons-outlined text-gray-400 group-hover:text-gray-900 transition-colors text-xl">arrow_outward</span>
+              </div>
+              <div class="text-4xl font-extrabold mt-4 text-gray-900 tracking-tight">${stats.totalInfluencers || 0}</div>
+              <div class="text-gray-500 text-xs mt-3 font-medium flex items-center gap-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-indigo-500"></span> ${stats.verifiedInfluencers || 0} verified creators
+              </div>
             </div>
-            <div onclick="window.admin.showCampaignsDetails('active')" class="stat-card bg-white rounded-sm p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:-translate-y-0.5 cursor-pointer transition-all duration-300 ring-1 ring-gray-200">
-              <div class="text-gray-400 text-sm font-semibold">Active Campaigns</div>
-              <div class="text-3xl font-bold mt-2 text-blue-600">${stats.campaignsActive || 0}</div>
-              <div class="text-gray-500 text-xs mt-1 font-medium">Currently running</div>
-            </div>
-            <div onclick="window.admin.showCampaignsDetails('review')" class="stat-card bg-white rounded-sm p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:-translate-y-0.5 cursor-pointer transition-all duration-300 ring-1 ring-gray-200">
-              <div class="text-gray-400 text-sm font-semibold">Campaigns Under Review</div>
-              <div class="text-3xl font-bold mt-2 text-purple-600">${stats.campaignsReview || 0}</div>
-              <div class="text-gray-500 text-xs mt-1 font-medium">Awaiting approval</div>
-            </div>
-            <div onclick="window.admin.showCampaignsDetails('completed')" class="stat-card bg-white rounded-sm p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:-translate-y-0.5 cursor-pointer transition-all duration-300 ring-1 ring-gray-200">
-              <div class="text-gray-400 text-sm font-semibold">Completed Campaigns</div>
-              <div class="text-3xl font-bold mt-2 text-green-600">${stats.campaignsCompleted || 0}</div>
-              <div class="text-gray-500 text-xs mt-1 font-medium">Successfully completed</div>
-            </div>
-          </div>
-          
-          <div class="grid grid-cols-2 gap-6">
-            <div class="bg-white rounded-sm shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)]  transition-all duration-300 ring-1 ring-gray-200 p-6">
-              <h2 class="font-semibold mb-4">Platform Summary</h2>
-              <div class="space-y-3">
-                <div class="flex justify-between py-2 border-b"><span class="text-gray-600">Total Transaction Value</span><span class="font-bold">${window.utils.formatCurrency(stats.totalValue || 0)}</span></div>
-                <div class="flex justify-between py-2 border-b"><span class="text-gray-600">Pending Disputes</span><span class="font-bold text-red-600">${stats.pendingDisputes || 0}</span></div>
-                <div class="flex justify-between py-2"><span class="text-gray-600">Pending Withdrawals</span><span class="font-bold text-orange-600">${window.utils.formatCurrency(stats.pendingWithdrawals || 0)}</span></div>
+
+            <!-- Card 3: White Platform Revenue -->
+            <div onclick="window.admin.showRevenueDetails()" 
+              class="stat-card bg-white border border-gray-150 rounded-xl p-6 shadow-[0_8px_30px_rgba(0,0,0,0.02)] hover:shadow-[0_12px_35px_rgba(0,0,0,0.08)] hover:-translate-y-1 cursor-pointer transition-all duration-300 relative group">
+              <div class="flex justify-between items-start">
+                <span class="text-gray-400 text-xs font-bold uppercase tracking-wider">Platform Revenue</span>
+                <span class="material-icons-outlined text-gray-400 group-hover:text-gray-900 transition-colors text-xl">arrow_outward</span>
+              </div>
+              <div class="text-4xl font-extrabold mt-4 text-emerald-600 tracking-tight">${window.utils.formatCurrency(stats.platformRevenue || 0)}</div>
+              <div class="text-gray-500 text-xs mt-3 font-medium">
+                From ${window.utils.formatCurrency(stats.totalValue || 0)} transaction value
               </div>
             </div>
             
-            <div class="bg-black rounded-lg p-6 text-white shadow-[0_20px_50px_rgba(0,0,0,0.3)] transition-colors duration-300 ">
-              <div class="text-sm opacity-80 mb-2">Quick Actions</div>
-              <div class="space-y-2">
-                <button onclick="window.admin.renderUsers()" class="w-full text-left px-4 py-2 bg-white/10 rounded-md hover:bg-white/20 transition-all duration-300  border border-white/5">Manage Users</button>
-                <button onclick="window.admin.renderWithdrawals()" class="w-full text-left px-4 py-2 bg-white/10 rounded-md hover:bg-white/20 transition-all duration-300  border border-white/5">Process Withdrawals</button>
-                <button onclick="window.admin.renderDeals()" class="w-full text-left px-4 py-2 bg-white/10 rounded-md hover:bg-white/20 transition-all duration-300  border border-white/5">Resolve Disputes</button>
-              </div>
+          </div>
+
+          <!-- Row 2: Campaign Metrics -->
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+            
+            <div onclick="window.admin.showCampaignsDetails('all')" 
+              class="stat-card bg-white border border-gray-150 rounded-xl p-5 shadow-[0_8px_30px_rgba(0,0,0,0.02)] hover:shadow-[0_12px_35px_rgba(0,0,0,0.08)] hover:-translate-y-0.5 cursor-pointer transition-all duration-300">
+              <div class="text-gray-400 text-xs font-bold uppercase tracking-wider">Total Campaigns</div>
+              <div class="text-2xl font-extrabold mt-2 text-gray-900 tracking-tight">${stats.totalCampaigns || 0}</div>
+              <div class="text-gray-500 text-[11px] mt-1 font-medium">All creator listings</div>
             </div>
+
+            <div onclick="window.admin.showCampaignsDetails('active')" 
+              class="stat-card bg-white border border-gray-150 rounded-xl p-5 shadow-[0_8px_30px_rgba(0,0,0,0.02)] hover:shadow-[0_12px_35px_rgba(0,0,0,0.08)] hover:-translate-y-0.5 cursor-pointer transition-all duration-300">
+              <div class="text-gray-400 text-xs font-bold uppercase tracking-wider">Active</div>
+              <div class="text-2xl font-extrabold mt-2 text-indigo-600 tracking-tight">${stats.campaignsActive || 0}</div>
+              <div class="text-gray-500 text-[11px] mt-1 font-medium">Currently running</div>
+            </div>
+
+            <div onclick="window.admin.showCampaignsDetails('review')" 
+              class="stat-card bg-white border border-gray-150 rounded-xl p-5 shadow-[0_8px_30px_rgba(0,0,0,0.02)] hover:shadow-[0_12px_35px_rgba(0,0,0,0.08)] hover:-translate-y-0.5 cursor-pointer transition-all duration-300">
+              <div class="text-gray-400 text-xs font-bold uppercase tracking-wider">In Review</div>
+              <div class="text-2xl font-extrabold mt-2 text-amber-500 tracking-tight">${stats.campaignsReview || 0}</div>
+              <div class="text-gray-500 text-[11px] mt-1 font-medium">Awaiting validation</div>
+            </div>
+
+            <div onclick="window.admin.showCampaignsDetails('completed')" 
+              class="stat-card bg-white border border-gray-150 rounded-xl p-5 shadow-[0_8px_30px_rgba(0,0,0,0.02)] hover:shadow-[0_12px_35px_rgba(0,0,0,0.08)] hover:-translate-y-0.5 cursor-pointer transition-all duration-300">
+              <div class="text-gray-400 text-xs font-bold uppercase tracking-wider">Completed</div>
+              <div class="text-2xl font-extrabold mt-2 text-emerald-600 tracking-tight">${stats.campaignsCompleted || 0}</div>
+              <div class="text-gray-500 text-[11px] mt-1 font-medium">Settled successfully</div>
+            </div>
+
           </div>
           
-          <div class="mt-8 bg-white rounded-sm shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)]  transition-all duration-300 ring-1 ring-gray-200 overflow-hidden">
-            <div class="p-4 border-b bg-gray-50 flex justify-between items-center">
-              <h2 class="font-bold text-lg">Pending Approvals</h2>
-              <span class="bg-gray-100 text-gray-800 text-xs font-bold px-3 py-1 rounded-full">${pendingItems.length} Pending</span>
+          <!-- Row 3: Platform Summary & Quick Actions -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            
+            <div class="bg-white border border-gray-150 rounded-xl shadow-[0_8px_30px_rgba(0,0,0,0.02)] p-6 md:col-span-2">
+              <h2 class="font-bold text-gray-900 text-base mb-4 flex items-center gap-2">
+                <span class="material-icons-outlined text-[#804ee6]">analytics</span>
+                Platform Financial Summary
+              </h2>
+              <div class="divide-y divide-gray-100">
+                <div class="flex justify-between py-3">
+                  <span class="text-gray-500 font-medium text-sm">Total Gross Transaction Volume</span>
+                  <span class="font-bold text-gray-900 text-sm">${window.utils.formatCurrency(stats.totalValue || 0)}</span>
+                </div>
+                <div class="flex justify-between py-3">
+                  <span class="text-gray-500 font-medium text-sm">Pending Creator Disputes</span>
+                  <span class="font-bold text-rose-600 text-sm">${stats.pendingDisputes || 0} active</span>
+                </div>
+                <div class="flex justify-between py-3">
+                  <span class="text-gray-500 font-medium text-sm">Pending Payout Withdrawals</span>
+                  <span class="font-bold text-amber-600 text-sm">${window.utils.formatCurrency(stats.pendingWithdrawals || 0)}</span>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Quick Actions (Donezo Time Tracker gradient theme) -->
+            <div class="bg-gradient-to-tr from-[#1f2937] to-[#111827] rounded-xl p-6 text-white shadow-[0_15px_35px_rgba(0,0,0,0.15)] relative overflow-hidden flex flex-col justify-between">
+              <div class="absolute -left-6 -bottom-6 w-24 h-24 bg-white/5 rounded-full"></div>
+              <div>
+                <span class="text-white/60 text-xs font-bold uppercase tracking-wider">Administrative Tasks</span>
+                <h3 class="font-extrabold text-lg mt-1 mb-4">Quick Shortcuts</h3>
+              </div>
+              <div class="space-y-2.5 relative z-10">
+                <button onclick="window.admin.renderUsers()" 
+                  class="w-full text-left px-4 py-2.5 bg-white/10 hover:bg-white/15 rounded-lg text-xs font-bold tracking-wide transition-all border border-white/5 flex items-center justify-between group active:scale-[0.98]">
+                  <span>Manage Platform Users</span>
+                  <span class="material-icons-outlined text-sm group-hover:translate-x-1 transition-transform">arrow_forward</span>
+                </button>
+                <button onclick="window.admin.renderWithdrawals()" 
+                  class="w-full text-left px-4 py-2.5 bg-white/10 hover:bg-white/15 rounded-lg text-xs font-bold tracking-wide transition-all border border-white/5 flex items-center justify-between group active:scale-[0.98]">
+                  <span>Process Creator Withdrawals</span>
+                  <span class="material-icons-outlined text-sm group-hover:translate-x-1 transition-transform">arrow_forward</span>
+                </button>
+                <button onclick="window.admin.renderDeals()" 
+                  class="w-full text-left px-4 py-2.5 bg-white/10 hover:bg-white/15 rounded-lg text-xs font-bold tracking-wide transition-all border border-white/5 flex items-center justify-between group active:scale-[0.98]">
+                  <span>Resolve Active Disputes</span>
+                  <span class="material-icons-outlined text-sm group-hover:translate-x-1 transition-transform">arrow_forward</span>
+                </button>
+              </div>
+            </div>
+
+          </div>
+          
+          <!-- Row 4: Pending Approvals Table -->
+          <div class="bg-white border border-gray-150 rounded-xl shadow-[0_8px_30px_rgba(0,0,0,0.02)] overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+              <h2 class="font-bold text-gray-900 text-base">Pending Campaign Actions</h2>
+              <span class="bg-[#804ee6]/10 text-[#804ee6] text-xs font-extrabold px-3 py-1 rounded-full">${pendingItems.length} Waiting</span>
             </div>
             <div class="overflow-x-auto">
               <table class="w-full text-sm">
-                <thead class="bg-gray-50 border-b">
+                <thead class="bg-gray-50/70 border-b border-gray-100">
                   <tr>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type / Name</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Brand</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Influencer</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Action</th>
+                    <th class="px-6 py-3.5 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Type / Name</th>
+                    <th class="px-6 py-3.5 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Brand</th>
+                    <th class="px-6 py-3.5 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Influencer</th>
+                    <th class="px-6 py-3.5 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Amount</th>
+                    <th class="px-6 py-3.5 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Action</th>
                   </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-200">
-                  ${pendingItems.length === 0 ? '<tr><td colspan="5" class="px-6 py-8 text-center text-gray-400">No pending approvals</td></tr>' : 
+                <tbody class="divide-y divide-gray-150">
+                  ${pendingItems.length === 0 ? '<tr><td colspan="5" class="px-6 py-10 text-center text-gray-400 font-medium">No pending approvals</td></tr>' : 
                     pendingItems.map(item => `
-                      <tr class="hover:bg-white hover:shadow-[0_4px_20px_rgb(0,0,0,0.08)]  transition-all duration-300 z-10 relative">
-                        <td class="px-6 py-3 whitespace-nowrap font-medium text-gray-900">${item.campaignName}</td>
-                        <td class="px-6 py-3 whitespace-nowrap text-gray-500">${item.brandName}</td>
-                        <td class="px-6 py-3 whitespace-nowrap text-gray-500">${item.influencerName}</td>
-                        <td class="px-6 py-3 whitespace-nowrap font-semibold text-gray-600">${window.utils.formatCurrency(item.amount)}</td>
-                        <td class="px-6 py-3 whitespace-nowrap">
-                          <select onchange="window.admin.quickApprove('${item.id}', this.value, ${item.isDeal})" class="px-2 py-1.5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)]  transition-all duration-300 ring-1 ring-gray-200 rounded-sm text-xs focus:ring-2 focus:ring-gray-500">
+                      <tr class="hover:bg-gray-50/40 transition-colors">
+                        <td class="px-6 py-4 whitespace-nowrap font-bold text-gray-900">#${item.campaignName}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-gray-500 font-medium">${item.brandName}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-gray-500 font-medium">${item.influencerName}</td>
+                        <td class="px-6 py-4 whitespace-nowrap font-extrabold text-gray-700">${window.utils.formatCurrency(item.amount)}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                          <select onchange="window.admin.quickApprove('${item.id}', this.value, ${item.isDeal})" 
+                            class="px-2.5 py-1.5 border border-gray-250 rounded-lg text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-[#804ee6]/20 focus:border-[#804ee6] bg-white transition duration-200">
                             <option value="pending">Pending</option>
                             <option value="active">Approve (Active)</option>
                             <option value="review">In Review</option>
