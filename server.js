@@ -503,8 +503,8 @@ app.get('/api/admin/stats', async (req, res) => {
   const db = readDB();
   const brands = db.users.filter(u => u.role === 'brand');
   const influencers = db.users.filter(u => u.role === 'influencer');
-  const campaigns = db.campaigns || [];
-  const deals = db.deals || [];
+  const campaigns = (db.campaigns || []).filter(c => !c.adminDeleted);
+  const deals = (db.deals || []).filter(d => !d.adminDeleted);
   const withdrawals = db.withdrawals || [];
   
   const totalTransactions = [...campaigns, ...deals];
@@ -588,7 +588,7 @@ app.get('/api/admin/campaigns', async (req, res) => {
   if (!isAdmin(req)) return res.status(403).json({ error: 'Admin access required' });
   
   const db = readDB();
-  res.json(db.campaigns || []);
+  res.json((db.campaigns || []).filter(c => !c.adminDeleted));
 });
 
 // Get all deals (admin view)
@@ -596,7 +596,7 @@ app.get('/api/admin/deals', async (req, res) => {
   if (!isAdmin(req)) return res.status(403).json({ error: 'Admin access required' });
   
   const db = readDB();
-  res.json(db.deals || []);
+  res.json((db.deals || []).filter(d => !d.adminDeleted));
 });
 
 // Get withdrawal requests
@@ -786,10 +786,12 @@ app.delete('/api/admin/campaigns', async (req, res) => {
   }
   
   const db = readDB();
-  db.campaigns = (db.campaigns || []).filter(c => !ids.includes(c.id));
+  db.campaigns = (db.campaigns || []).map(c => 
+    ids.includes(c.id) ? { ...c, adminDeleted: true } : c
+  );
   writeDB(db);
   
-  res.json({ success: true, message: `Successfully deleted ${ids.length} campaigns` });
+  res.json({ success: true, message: `Successfully deleted ${ids.length} campaigns from admin side` });
 });
 
 app.delete('/api/admin/deals', async (req, res) => {
@@ -800,10 +802,12 @@ app.delete('/api/admin/deals', async (req, res) => {
   }
   
   const db = readDB();
-  db.deals = (db.deals || []).filter(d => !ids.includes(d.id));
+  db.deals = (db.deals || []).map(d => 
+    ids.includes(d.id) ? { ...d, adminDeleted: true } : d
+  );
   writeDB(db);
   
-  res.json({ success: true, message: `Successfully deleted ${ids.length} deals` });
+  res.json({ success: true, message: `Successfully deleted ${ids.length} deals from admin side` });
 });
 
 app.get('/api/health', (req, res) => {

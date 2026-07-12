@@ -625,8 +625,16 @@ app.get('/api/admin/stats', async (req, res) => {
     data.id = d.id;
     return data;
   });
-  const campaigns = campaignsSnap.docs.map(d => d.data());
-  const deals = dealsSnap.docs.map(d => d.data());
+  const campaigns = campaignsSnap.docs.map(d => {
+    const data = d.data();
+    data.id = d.id;
+    return data;
+  }).filter(c => !c.adminDeleted);
+  const deals = dealsSnap.docs.map(d => {
+    const data = d.data();
+    data.id = d.id;
+    return data;
+  }).filter(d => !d.adminDeleted);
   const withdrawals = withdrawalsSnap.docs.map(d => d.data());
   
   const brands = users.filter(u => u.role === 'brand');
@@ -664,22 +672,26 @@ app.put('/api/admin/users/:id/verify', async (req, res) => {
 
 app.get('/api/admin/campaigns', async (req, res) => {
   const snapshot = await db.collection('campaigns').get();
-  const campaigns = snapshot.docs.map(doc => {
-    const data = doc.data();
-    data.id = doc.id;
-    return data;
-  });
+  const campaigns = snapshot.docs
+    .map(doc => {
+      const data = doc.data();
+      data.id = doc.id;
+      return data;
+    })
+    .filter(c => !c.adminDeleted);
   campaigns.sort((a, b) => b.id.localeCompare(a.id));
   res.json(campaigns);
 });
 
 app.get('/api/admin/deals', async (req, res) => {
   const snapshot = await db.collection('deals').get();
-  const deals = snapshot.docs.map(doc => {
-    const data = doc.data();
-    data.id = doc.id;
-    return data;
-  });
+  const deals = snapshot.docs
+    .map(doc => {
+      const data = doc.data();
+      data.id = doc.id;
+      return data;
+    })
+    .filter(d => !d.adminDeleted);
   deals.sort((a, b) => b.id.localeCompare(a.id));
   res.json(deals);
 });
@@ -717,11 +729,11 @@ app.delete('/api/admin/campaigns', async (req, res) => {
     const batch = db.batch();
     ids.forEach(id => {
       const docRef = db.collection('campaigns').doc(id);
-      batch.delete(docRef);
+      batch.update(docRef, { adminDeleted: true });
     });
     await batch.commit();
     
-    res.json({ success: true, message: `Successfully deleted ${ids.length} campaigns` });
+    res.json({ success: true, message: `Successfully deleted ${ids.length} campaigns from admin side` });
   } catch (err) {
     res.status(500).json({ error: 'Failed to delete campaigns', details: err.message });
   }
@@ -741,11 +753,11 @@ app.delete('/api/admin/deals', async (req, res) => {
     const batch = db.batch();
     ids.forEach(id => {
       const docRef = db.collection('deals').doc(id);
-      batch.delete(docRef);
+      batch.update(docRef, { adminDeleted: true });
     });
     await batch.commit();
     
-    res.json({ success: true, message: `Successfully deleted ${ids.length} deals` });
+    res.json({ success: true, message: `Successfully deleted ${ids.length} deals from admin side` });
   } catch (err) {
     res.status(500).json({ error: 'Failed to delete deals', details: err.message });
   }
