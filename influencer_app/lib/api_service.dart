@@ -81,12 +81,16 @@ class ApiService {
       return json.decode(response.body);
     } else {
       final body = response.body;
+      String errorMsg = 'Failed to create deal (Status ${response.statusCode})';
       try {
         final decoded = json.decode(body);
-        throw Exception('Failed to create deal: ${decoded['error']} - ${decoded['details']}');
-      } catch (e) {
-        throw Exception('Failed to create deal (Status ${response.statusCode}): $body');
+        final error = decoded['error'] ?? '';
+        final details = decoded['details'] ?? '';
+        errorMsg = 'Failed to create deal: $error${details.isNotEmpty ? ' - $details' : ''}';
+      } catch (_) {
+        errorMsg = '$errorMsg: $body';
       }
+      throw Exception(errorMsg);
     }
   }
 
