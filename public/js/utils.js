@@ -34,5 +34,24 @@ window.utils = {
     if (!dateString) return 'N/A';
     const date = new Date(dateString);
     return date.toLocaleDateString();
+  },
+
+  timeAgo(dateInput) {
+    if (!dateInput) return 'Just now';
+    if (typeof dateInput === 'string' && (dateInput.includes('ago') || dateInput === 'Just now')) {
+      return dateInput;
+    }
+    const date = new Date(dateInput);
+    if (isNaN(date.getTime())) return String(dateInput);
+    
+    const seconds = Math.floor((new Date() - date) / 1000);
+    if (seconds < 45) return 'Just now';
+    const minutes = Math.floor(seconds / 60);
+    if (minutes < 60) return `${minutes}m ago`;
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `${hours}h ago`;
+    const days = Math.floor(hours / 24);
+    if (days < 7) return `${days}d ago`;
+    return date.toLocaleDateString();
   }
 };

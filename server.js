@@ -196,6 +196,31 @@ function isAdmin(req) {
   return user && user.role === 'admin';
 }
 
+function notifyUser(notif, req) {
+  try {
+    const db = readDB();
+    db.notifications = db.notifications || [];
+    const fullNotif = {
+      id: notif.id || (Date.now().toString() + '_' + Math.random().toString(36).substring(2, 6)),
+      createdAt: notif.createdAt || new Date().toISOString(),
+      time: notif.time || 'Just now',
+      read: false,
+      ...notif
+    };
+    db.notifications.unshift(fullNotif);
+    writeDB(db);
+    
+    // Broadcast via Socket.IO if initialized
+    const io = req && req.app ? req.app.get('io') : null;
+    if (io) {
+      io.emit('notification', fullNotif);
+    }
+    return fullNotif;
+  } catch (err) {
+    console.error('Error creating notification:', err);
+  }
+}
+
 // ========== AUTH ROUTES ==========
 app.post('/api/login', async (req, res) => {
   const { email, password } = req.body;
@@ -353,19 +378,29 @@ app.post('/api/campaigns', async (req, res) => {
   };
   db.campaigns = db.campaigns || [];
   db.campaigns.push(campaign);
+  writeDB(db);
   
-  db.notifications = db.notifications || [];
-  db.notifications.push({
-    id: Date.now().toString(),
+  // Notification to Influencer
+  notifyUser({
     userId: influencerId,
     title: 'New Campaign Offer',
-    message: `${brand.profile.company} invited you to ${campaignName}`,
-    time: 'Just now',
-    read: false,
+    message: `${brand.profile.company || brand.email} invited you to "${campaignName}"`,
+    type: 'campaign',
+    campaignId: campaign.id,
     icon: '🎯'
-  });
+  }, req);
+
+  // Notification to Admin
+  notifyUser({
+    userId: 'admin_1',
+    forAdmin: true,
+    title: 'New Campaign Created',
+    message: `Brand "${brand.profile.company || brand.email}" created campaign "${campaignName}" for ${influencer.profile.name} (₹${amount})`,
+    type: 'campaign',
+    campaignId: campaign.id,
+    icon: '🚀'
+  }, req);
   
-  writeDB(db);
   res.json({ success: true, campaign });
 });
 
@@ -388,6 +423,31 @@ app.put('/api/campaigns/:id/status', async (req, res) => {
   if (progress !== undefined) campaign.progress = progress;
   db.campaigns[campaignIndex] = campaign;
   writeDB(db);
+
+  if (status) {
+    // Notify Brand if updated by Influencer, or notify Influencer if updated by Brand
+    const targetUserId = user.role === 'influencer' ? campaign.brandId : campaign.influencerId;
+    notifyUser({
+      userId: targetUserId,
+      title: `Campaign Status: ${status.charAt(0).toUpperCase() + status.slice(1)}`,
+      message: `Campaign "${campaign.campaignName}" is now ${status}`,
+      type: 'campaign',
+      campaignId: campaign.id,
+      icon: status === 'completed' ? '🎉' : '📊'
+    }, req);
+
+    // Notify Admin
+    notifyUser({
+      userId: 'admin_1',
+      forAdmin: true,
+      title: 'Campaign Status Updated',
+      message: `Campaign "${campaign.campaignName}" (${campaign.brandName} ➔ ${campaign.influencerName}) updated to "${status}"`,
+      type: 'campaign',
+      campaignId: campaign.id,
+      icon: '📊'
+    }, req);
+  }
+
   res.json({ success: true, campaign });
 });
 
@@ -417,19 +477,29 @@ app.post('/api/deals', async (req, res) => {
   };
   db.deals = db.deals || [];
   db.deals.push(deal);
+  writeDB(db);
   
-  db.notifications = db.notifications || [];
-  db.notifications.push({
-    id: Date.now().toString(),
+  // Notification to Influencer
+  notifyUser({
     userId: influencerId,
     title: 'New Hire Request',
-    message: `${brand.profile.company} wants to hire you for a ${packageType} (₹${amount})`,
-    time: 'Just now',
-    read: false,
+    message: `${brand.profile.company || brand.email} wants to hire you for a ${packageType} (₹${amount})`,
+    type: 'deal',
+    dealId: deal.id,
     icon: '💼'
-  });
+  }, req);
+
+  // Notification to Admin
+  notifyUser({
+    userId: 'admin_1',
+    forAdmin: true,
+    title: 'New Hire Deal Created',
+    message: `${brand.profile.company || brand.email} hired ${influencer.profile.name} for ${packageType} (₹${amount})`,
+    type: 'deal',
+    dealId: deal.id,
+    icon: '💼'
+  }, req);
   
-  writeDB(db);
   res.json({ success: true, deal });
 });
 
@@ -458,19 +528,29 @@ app.put('/api/deals/:id/status', async (req, res) => {
   }
   deal.status = status;
   db.deals[dealIndex] = deal;
+  writeDB(db);
   
-  db.notifications = db.notifications || [];
-  db.notifications.push({
-    id: Date.now().toString(),
+  // Notify Brand
+  notifyUser({
     userId: deal.brandId,
     title: `Deal ${status.charAt(0).toUpperCase() + status.slice(1)}`,
     message: `${deal.influencerName} has ${status} your hire request`,
-    time: 'Just now',
-    read: false,
-    icon: status === 'accepted' ? '✅' : '❌'
-  });
+    type: 'deal',
+    dealId: deal.id,
+    icon: status === 'accepted' ? '✅' : status === 'completed' ? '🎉' : status === 'dispute' ? '⚠️' : '❌'
+  }, req);
+
+  // Notify Admin
+  notifyUser({
+    userId: 'admin_1',
+    forAdmin: true,
+    title: `Deal ${status.charAt(0).toUpperCase() + status.slice(1)}`,
+    message: `${deal.influencerName} ${status} deal with ${deal.brandName} (₹${deal.amount})`,
+    type: 'deal',
+    dealId: deal.id,
+    icon: status === 'dispute' ? '⚠️' : '💼'
+  }, req);
   
-  writeDB(db);
   res.json({ success: true, deal });
 });
 
@@ -479,17 +559,96 @@ app.get('/api/notifications', async (req, res) => {
   const user = getUser(req);
   if (!user) return res.status(401).json({ error: 'Unauthorized' });
   const db = readDB();
-  const notifications = (db.notifications || []).filter(n => n.userId === user.id);
+  let notifications = db.notifications || [];
+  
+  if (user.role === 'admin') {
+    // Admin receives notifications assigned to admin or system alerts
+    notifications = notifications.filter(n => 
+      n.userId === user.id || 
+      n.userId === 'admin' || 
+      n.userId === 'admin_1' || 
+      n.forAdmin === true || 
+      n.isAdmin === true ||
+      !n.userId
+    );
+  } else {
+    notifications = notifications.filter(n => n.userId === user.id);
+  }
+  
+  // Sort descending (newest first)
+  notifications.sort((a, b) => {
+    const timeA = new Date(a.createdAt || (isNaN(Number(a.id)) ? 0 : Number(a.id))).getTime() || 0;
+    const timeB = new Date(b.createdAt || (isNaN(Number(b.id)) ? 0 : Number(b.id))).getTime() || 0;
+    return timeB - timeA;
+  });
+  
   res.json(notifications);
 });
 
+// Mark all notifications as read
 app.put('/api/notifications/read', async (req, res) => {
   const user = getUser(req);
   if (!user) return res.status(401).json({ error: 'Unauthorized' });
   const db = readDB();
-  db.notifications = (db.notifications || []).map(n => 
-    n.userId === user.id ? { ...n, read: true } : n
-  );
+  
+  if (user.role === 'admin') {
+    db.notifications = (db.notifications || []).map(n => 
+      (n.userId === user.id || n.userId === 'admin' || n.userId === 'admin_1' || n.forAdmin === true || !n.userId) 
+        ? { ...n, read: true } 
+        : n
+    );
+  } else {
+    db.notifications = (db.notifications || []).map(n => 
+      n.userId === user.id ? { ...n, read: true } : n
+    );
+  }
+  
+  writeDB(db);
+  res.json({ success: true });
+});
+
+// Mark single notification as read
+app.put('/api/notifications/:id/read', async (req, res) => {
+  const user = getUser(req);
+  if (!user) return res.status(401).json({ error: 'Unauthorized' });
+  const db = readDB();
+  
+  const index = (db.notifications || []).findIndex(n => n.id === req.params.id);
+  if (index !== -1) {
+    db.notifications[index].read = true;
+    writeDB(db);
+    res.json({ success: true, notification: db.notifications[index] });
+  } else {
+    res.status(404).json({ error: 'Notification not found' });
+  }
+});
+
+// Delete single notification
+app.delete('/api/notifications/:id', async (req, res) => {
+  const user = getUser(req);
+  if (!user) return res.status(401).json({ error: 'Unauthorized' });
+  const db = readDB();
+  
+  const beforeCount = (db.notifications || []).length;
+  db.notifications = (db.notifications || []).filter(n => n.id !== req.params.id);
+  writeDB(db);
+  res.json({ success: true, deleted: beforeCount !== db.notifications.length });
+});
+
+// Clear all notifications
+app.delete('/api/notifications', async (req, res) => {
+  const user = getUser(req);
+  if (!user) return res.status(401).json({ error: 'Unauthorized' });
+  const db = readDB();
+  
+  if (user.role === 'admin') {
+    db.notifications = (db.notifications || []).filter(n => 
+      !(n.userId === user.id || n.userId === 'admin' || n.userId === 'admin_1' || n.forAdmin === true || !n.userId)
+    );
+  } else {
+    db.notifications = (db.notifications || []).filter(n => n.userId !== user.id);
+  }
+  
   writeDB(db);
   res.json({ success: true });
 });
@@ -616,9 +775,20 @@ app.put('/api/admin/withdrawals/:id/process', async (req, res) => {
   const withdrawalIndex = db.withdrawals.findIndex(w => w.id === req.params.id);
   
   if (withdrawalIndex !== -1) {
-    db.withdrawals[withdrawalIndex].status = status;
-    db.withdrawals[withdrawalIndex].processedAt = new Date().toISOString();
+    const w = db.withdrawals[withdrawalIndex];
+    w.status = status;
+    w.processedAt = new Date().toISOString();
     writeDB(db);
+
+    // Notify influencer
+    notifyUser({
+      userId: w.userId,
+      title: `Withdrawal ${status === 'completed' ? 'Approved & Transferred' : 'Rejected'}`,
+      message: `Your payout withdrawal of ₹${w.amount} has been ${status === 'completed' ? 'processed successfully' : 'rejected'}.`,
+      type: 'withdrawal',
+      icon: status === 'completed' ? '💰' : '❌'
+    }, req);
+
     res.json({ success: true });
   } else {
     res.status(404).json({ error: 'Withdrawal not found' });

@@ -939,3 +939,57 @@ input:focus, select:focus {
 .sidebar-item.active .material-icons-outlined {
   color: #804ee6 !important;
 }
+
+/* Notification Dropdown Styling */
+#notificationDropdown {
+  transform-origin: top right;
+  transition: opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1), transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.notif-item {
+  transition: all 0.15s ease-in-out;
+}
+
+.notif-item:hover {
+  background-color: #f8fafc;
+}
+
+.notif-item.unread {
+  background-color: rgba(128, 78, 230, 0.04);
+}
+
+.notif-item.unread:hover {
+  background-color: rgba(128, 78, 230, 0.08);
+}
+
+.notif-dot-pulse {
+  animation: notifPulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes notifPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.85); }
+}
+
+.notif-scroll-area {
+  scrollbar-width: thin;
+  scrollbar-color: #e2e8f0 transparent;
+}
+
+.notif-scroll-area::-webkit-scrollbar {
+  width: 4px;
+}
+
+.notif-scroll-area::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.notif-scroll-area::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+.notif-scroll-area::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+

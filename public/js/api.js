@@ -93,6 +93,15 @@ window.api = {
   markNotificationsRead() {
     return this.request('/notifications/read', { method: 'PUT' });
   },
+  markNotificationAsRead(id) {
+    return this.request(`/notifications/${id}/read`, { method: 'PUT' });
+  },
+  deleteNotification(id) {
+    return this.request(`/notifications/${id}`, { method: 'DELETE' });
+  },
+  clearAllNotifications() {
+    return this.request('/notifications', { method: 'DELETE' });
+  },
   
   // Stats
   getStats() {

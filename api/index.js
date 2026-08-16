@@ -443,14 +443,50 @@ app.put('/api/deals/:id/status', async (req, res) => {
 // Notifications
 app.get('/api/notifications', async (req, res) => {
   const user = getUser(req);
-  const snapshot = await db.collection('notifications').where('userId', '==', user.id).get();
-  const notifs = snapshot.docs.map(doc => doc.data());
-  notifs.sort((a, b) => b.id.localeCompare(a.id));
+  if (!user) return res.status(401).json({ error: 'Unauthorized' });
+  let notifs = [];
+  if (user.role === 'admin') {
+    const snapshot = await db.collection('notifications').get();
+    notifs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })).filter(n => n.userId === user.id || n.userId === 'admin' || n.userId === 'admin_1' || n.forAdmin || !n.userId);
+  } else {
+    const snapshot = await db.collection('notifications').where('userId', '==', user.id).get();
+    notifs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  }
+  notifs.sort((a, b) => (b.createdAt || b.id || '').localeCompare(a.createdAt || a.id || ''));
   res.json(notifs);
+});
+
+app.put('/api/notifications/read', async (req, res) => {
+  const user = getUser(req);
+  if (!user) return res.status(401).json({ error: 'Unauthorized' });
+  const snapshot = await db.collection('notifications').where('userId', '==', user.id).get();
+  const batch = db.batch();
+  snapshot.docs.forEach(doc => {
+    batch.update(doc.ref, { read: true });
+  });
+  await batch.commit();
+  res.json({ success: true });
 });
 
 app.put('/api/notifications/:id/read', async (req, res) => {
   await db.collection('notifications').doc(req.params.id).update({ read: true });
+  res.json({ success: true });
+});
+
+app.delete('/api/notifications/:id', async (req, res) => {
+  await db.collection('notifications').doc(req.params.id).delete();
+  res.json({ success: true });
+});
+
+app.delete('/api/notifications', async (req, res) => {
+  const user = getUser(req);
+  if (!user) return res.status(401).json({ error: 'Unauthorized' });
+  const snapshot = await db.collection('notifications').where('userId', '==', user.id).get();
+  const batch = db.batch();
+  snapshot.docs.forEach(doc => {
+    batch.delete(doc.ref);
+  });
+  await batch.commit();
   res.json({ success: true });
 });
 

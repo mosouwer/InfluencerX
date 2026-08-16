@@ -1,1 +1,8 @@
 .vercel
+node_modules/
+.env
+.DS_Store
+.idea/
+firebase-service-account.json
+*.log
+

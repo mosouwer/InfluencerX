@@ -1557,5 +1557,250 @@ window.admin = {
         }
       }
     });
+  },
+
+  // ========== NOTIFICATIONS & LIVE AUDIT STREAM ==========
+  async renderNotifications() {
+    try {
+      const notifications = await window.api.getNotifications();
+      this.allNotifications = notifications;
+      this.currentNotifFilter = this.currentNotifFilter || 'all';
+      this.notifSearchTerm = this.notifSearchTerm || '';
+
+      const unreadCount = notifications.filter(n => !n.read).length;
+
+      document.getElementById('mainContent').innerHTML = `
+        <div class="page-transition space-y-6">
+          <!-- Top Header -->
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <div class="flex items-center gap-2 mb-1">
+                <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">System Notifications & Stream</h1>
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 notif-dot-pulse"></span> Live Sync
+                </span>
+              </div>
+              <p class="text-gray-500 text-sm">Real-time audit log of platform transactions, registrations, and creator updates.</p>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <button onclick="window.admin.renderNotifications()" 
+                class="px-3.5 py-2 bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-xs">
+                <span class="material-icons-outlined text-[16px]">refresh</span> Refresh
+              </button>
+              ${unreadCount > 0 ? `
+                <button onclick="window.admin.markAllNotificationsRead()" 
+                  class="px-4 py-2 bg-[#804ee6] text-white hover:bg-purple-700 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
+                  <span class="material-icons-outlined text-[16px]">done_all</span> Mark All Read (${unreadCount})
+                </button>
+              ` : ''}
+              ${notifications.length > 0 ? `
+                <button onclick="window.admin.clearAllNotifications()" 
+                  class="px-3 py-2 bg-red-50 text-red-600 hover:bg-red-100 rounded-xl text-xs font-bold transition flex items-center gap-1">
+                  <span class="material-icons-outlined text-[16px]">delete_sweep</span> Clear All
+                </button>
+              ` : ''}
+            </div>
+          </div>
+
+          <!-- Filter & Search Toolbar -->
+          <div class="bg-white p-4 rounded-xl border border-gray-150 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <!-- Filter Pills -->
+            <div class="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0">
+              <button onclick="window.admin.setNotificationFilter('all')" 
+                class="px-3 py-1.5 rounded-lg text-xs font-bold transition whitespace-nowrap ${this.currentNotifFilter === 'all' ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}">
+                All (${notifications.length})
+              </button>
+              <button onclick="window.admin.setNotificationFilter('unread')" 
+                class="px-3 py-1.5 rounded-lg text-xs font-bold transition whitespace-nowrap flex items-center gap-1 ${this.currentNotifFilter === 'unread' ? 'bg-[#804ee6] text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}">
+                Unread (${unreadCount})
+              </button>
+              <button onclick="window.admin.setNotificationFilter('deals')" 
+                class="px-3 py-1.5 rounded-lg text-xs font-bold transition whitespace-nowrap ${this.currentNotifFilter === 'deals' ? 'bg-purple-700 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}">
+                Deals
+              </button>
+              <button onclick="window.admin.setNotificationFilter('campaigns')" 
+                class="px-3 py-1.5 rounded-lg text-xs font-bold transition whitespace-nowrap ${this.currentNotifFilter === 'campaigns' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}">
+                Campaigns
+              </button>
+              <button onclick="window.admin.setNotificationFilter('withdrawals')" 
+                class="px-3 py-1.5 rounded-lg text-xs font-bold transition whitespace-nowrap ${this.currentNotifFilter === 'withdrawals' ? 'bg-emerald-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}">
+                Payouts
+              </button>
+              <button onclick="window.admin.setNotificationFilter('users')" 
+                class="px-3 py-1.5 rounded-lg text-xs font-bold transition whitespace-nowrap ${this.currentNotifFilter === 'users' ? 'bg-amber-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}">
+                Users
+              </button>
+            </div>
+
+            <!-- Search Input -->
+            <div class="relative w-full md:w-72">
+              <span class="material-icons-outlined absolute left-3 top-2.5 text-gray-400 text-sm">search</span>
+              <input type="text" id="notifSearchInput" value="${this.notifSearchTerm}" 
+                oninput="window.admin.searchNotifications(this.value)" 
+                placeholder="Search audit trail..." 
+                class="w-full pl-9 pr-3 py-1.5 border border-gray-200 rounded-lg text-xs focus:outline-none focus:border-[#804ee6]">
+            </div>
+          </div>
+
+          <!-- Notification Feed Container -->
+          <div id="notifFeedList" class="space-y-3">
+            ${this.renderNotificationFeedCards()}
+          </div>
+        </div>
+      `;
+
+      window.ui.updateSidebarActive('Notifications');
+    } catch (err) {
+      console.error(err);
+      window.ui.showToast('Failed to load notifications: ' + err.message, 'error');
+    }
+  },
+
+  setNotificationFilter(filter) {
+    this.currentNotifFilter = filter;
+    const feed = document.getElementById('notifFeedList');
+    if (feed) feed.innerHTML = this.renderNotificationFeedCards();
+    this.renderNotifications();
+  },
+
+  searchNotifications(val) {
+    this.notifSearchTerm = val.toLowerCase();
+    const feed = document.getElementById('notifFeedList');
+    if (feed) feed.innerHTML = this.renderNotificationFeedCards();
+  },
+
+  renderNotificationFeedCards() {
+    let list = this.allNotifications || [];
+
+    if (this.currentNotifFilter === 'unread') {
+      list = list.filter(n => !n.read);
+    } else if (this.currentNotifFilter === 'deals') {
+      list = list.filter(n => n.type === 'deal' || (n.title && n.title.toLowerCase().includes('deal')) || (n.message && n.message.toLowerCase().includes('hire')));
+    } else if (this.currentNotifFilter === 'campaigns') {
+      list = list.filter(n => n.type === 'campaign' || (n.title && n.title.toLowerCase().includes('campaign')));
+    } else if (this.currentNotifFilter === 'withdrawals') {
+      list = list.filter(n => n.type === 'withdrawal' || (n.title && n.title.toLowerCase().includes('withdrawal')) || (n.message && n.message.toLowerCase().includes('payout')));
+    } else if (this.currentNotifFilter === 'users') {
+      list = list.filter(n => n.type === 'user' || (n.title && n.title.toLowerCase().includes('creator')) || (n.title && n.title.toLowerCase().includes('user')));
+    }
+
+    if (this.notifSearchTerm) {
+      list = list.filter(n => 
+        (n.title && n.title.toLowerCase().includes(this.notifSearchTerm)) ||
+        (n.message && n.message.toLowerCase().includes(this.notifSearchTerm))
+      );
+    }
+
+    if (list.length === 0) {
+      return `
+        <div class="bg-white rounded-xl border border-gray-150 p-12 text-center">
+          <div class="w-16 h-16 rounded-full bg-purple-50 text-[#804ee6] mx-auto flex items-center justify-center mb-4">
+            <span class="material-icons-outlined text-3xl">notifications_off</span>
+          </div>
+          <h3 class="text-base font-extrabold text-gray-900">No Notifications Found</h3>
+          <p class="text-xs text-gray-500 mt-1 max-w-sm mx-auto">There are no updates matching your current filter criteria.</p>
+        </div>
+      `;
+    }
+
+    const getTheme = (item) => {
+      const type = (item.type || '').toLowerCase();
+      const title = (item.title || '').toLowerCase();
+      const msg = (item.message || '').toLowerCase();
+
+      if (type === 'deal' || title.includes('hire') || title.includes('deal') || msg.includes('hire')) {
+        return { bg: 'bg-purple-100 text-[#804ee6] border-purple-200', icon: 'work', label: 'Deal Activity' };
+      }
+      if (type === 'campaign' || title.includes('campaign')) {
+        return { bg: 'bg-blue-100 text-blue-600 border-blue-200', icon: 'rocket_launch', label: 'Campaign' };
+      }
+      if (type === 'withdrawal' || title.includes('withdrawal') || msg.includes('payout')) {
+        return { bg: 'bg-emerald-100 text-emerald-600 border-emerald-200', icon: 'payments', label: 'Payout' };
+      }
+      if (type === 'user' || title.includes('creator') || title.includes('user') || title.includes('verified')) {
+        return { bg: 'bg-amber-100 text-amber-600 border-amber-200', icon: 'person', label: 'User' };
+      }
+      if (type === 'dispute' || title.includes('dispute') || title.includes('rejected')) {
+        return { bg: 'bg-red-100 text-red-600 border-red-200', icon: 'warning', label: 'Alert' };
+      }
+      return { bg: 'bg-indigo-100 text-indigo-600 border-indigo-200', icon: 'notifications', label: 'System' };
+    };
+
+    return list.map(item => {
+      const theme = getTheme(item);
+      const timeStr = window.utils && window.utils.timeAgo ? window.utils.timeAgo(item.createdAt || item.time) : (item.time || 'Just now');
+
+      return `
+        <div class="bg-white rounded-xl border ${!item.read ? 'border-purple-200 bg-purple-50/20' : 'border-gray-150'} p-4.5 transition hover:shadow-md flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div class="flex items-start gap-3.5">
+            <div class="w-10 h-10 rounded-xl ${theme.bg} border flex items-center justify-center flex-shrink-0 mt-0.5">
+              <span class="material-icons-outlined text-[20px]">${theme.icon}</span>
+            </div>
+            
+            <div class="space-y-1">
+              <div class="flex items-center gap-2 flex-wrap">
+                <span class="text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-md ${theme.bg}">${theme.label}</span>
+                <h4 class="text-sm font-extrabold text-gray-900">${item.title || 'Platform Notification'}</h4>
+                ${!item.read ? '<span class="px-2 py-0.5 bg-[#804ee6] text-white text-[10px] font-extrabold rounded-full">New</span>' : ''}
+              </div>
+              <p class="text-xs text-gray-600 leading-relaxed">${item.message || ''}</p>
+              <div class="flex items-center gap-3 text-[11px] text-gray-400 font-medium pt-0.5">
+                <span class="flex items-center gap-1">
+                  <span class="material-icons-outlined text-[13px]">schedule</span> ${timeStr}
+                </span>
+                ${item.createdAt ? `<span>• ${new Date(item.createdAt).toLocaleString()}</span>` : ''}
+              </div>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-2 self-end sm:self-center flex-shrink-0">
+            <button onclick="window.app.handleNotificationClick('${item.id}')" 
+              class="px-3 py-1.5 bg-gray-50 hover:bg-[#804ee6] hover:text-white text-gray-700 rounded-lg text-xs font-bold transition flex items-center gap-1 border border-gray-200 hover:border-transparent">
+              <span>Inspect</span>
+              <span class="material-icons-outlined text-[14px]">arrow_forward</span>
+            </button>
+            ${!item.read ? `
+              <button onclick="window.admin.markNotificationAsRead('${item.id}')" 
+                class="p-1.5 text-gray-400 hover:text-[#804ee6] hover:bg-purple-50 rounded-lg transition" title="Mark as read">
+                <span class="material-icons-outlined text-[18px]">done</span>
+              </button>
+            ` : ''}
+            <button onclick="window.admin.deleteNotification('${item.id}')" 
+              class="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition" title="Delete notification">
+              <span class="material-icons-outlined text-[18px]">delete_outline</span>
+            </button>
+          </div>
+        </div>
+      `;
+    }).join('');
+  },
+
+  async markAllNotificationsRead() {
+    await window.app.markAllNotificationsRead();
+    await this.renderNotifications();
+  },
+
+  async markNotificationAsRead(id) {
+    await window.app.markNotificationAsRead(id);
+    await this.renderNotifications();
+  },
+
+  async deleteNotification(id) {
+    await window.app.deleteNotification(id);
+    await this.renderNotifications();
+  },
+
+  async clearAllNotifications() {
+    window.ui.showConfirm({
+      title: 'Clear All Notifications',
+      message: 'Are you sure you want to clear all notification logs? This cannot be undone.',
+      confirmText: 'Clear All',
+      confirmClass: 'bg-red-600 text-white hover:bg-red-700',
+      onConfirm: async () => {
+        await window.app.clearAllNotifications();
+        await this.renderNotifications();
+      }
+    });
   }
 };
