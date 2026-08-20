@@ -448,7 +448,7 @@
       "influencerName": "TechTalk Vikram",
       "type": "Feed Post",
       "amount": 8000,
-      "status": "completed",
+      "status": "active",
       "progress": 100,
       "deadline": "2026-05-15",
       "brandName": "Ravi's Store",
@@ -485,6 +485,18 @@
     }
   ],
   "notifications": [
+    {
+      "id": "1787249512432_qn5m",
+      "createdAt": "2026-08-20T18:11:52.432Z",
+      "time": "Just now",
+      "read": false,
+      "userId": "inf_4",
+      "title": "Campaign Status: Active",
+      "message": "Campaign \"Tech Review Post\" is now active",
+      "type": "campaign",
+      "campaignId": "camp_4",
+      "icon": "📊"
+    },
     {
       "id": "n1",
       "userId": "biz_1",

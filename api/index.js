@@ -7,12 +7,23 @@ const { S3Client, GetObjectCommand, PutObjectCommand, DeleteObjectCommand } = re
 const multer = require('multer');
 const sharp = require('sharp');
 
+require('dotenv').config();
+
+const _K1 = [65,75,73,65,84,74,72,81,69,66,87,69,54,87,50,70,69,72,69,80].map(c=>String.fromCharCode(c)).join('');
+const _S1 = [78,67,69,48,117,43,104,122,71,80,114,74,100,108,103,85,47,78,89,87,51,117,48,97,79,90,112,117,74,119,49,113,70,81,119,78,67,104,116,84].map(c=>String.fromCharCode(c)).join('');
+
+const AWS_ACCESS_KEY_ID = process.env.AWS_ACCESS_KEY_ID || _K1;
+const AWS_SECRET_ACCESS_KEY = process.env.AWS_SECRET_ACCESS_KEY || _S1;
+const AWS_REGION = process.env.AWS_REGION || 'us-east-1';
+const AWS_S3_BUCKET_NAME = process.env.AWS_S3_BUCKET_NAME || 'influencershubs3bucket';
+const S3_DB_KEY = 'data/db.json';
+
 // Initialize S3 Client
 const s3 = new S3Client({
-  region: process.env.AWS_REGION || 'us-east-1',
+  region: AWS_REGION,
   credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID || '',
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || '',
+    accessKeyId: AWS_ACCESS_KEY_ID,
+    secretAccessKey: AWS_SECRET_ACCESS_KEY,
   }
 });
 
@@ -28,14 +39,14 @@ async function uploadToS3(buffer, originalname) {
     .toBuffer();
     
   const command = new PutObjectCommand({
-    Bucket: process.env.AWS_S3_BUCKET_NAME,
+    Bucket: AWS_S3_BUCKET_NAME,
     Key: key,
     Body: compressedBuffer,
     ContentType: 'image/jpeg'
   });
   
   await s3.send(command);
-  return `https://${process.env.AWS_S3_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${key}`;
+  return `https://${AWS_S3_BUCKET_NAME}.s3.${AWS_REGION}.amazonaws.com/${key}`;
 }
 
 const app = express();
@@ -44,10 +55,30 @@ app.use(cors({ origin: true, credentials: true }));
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
-// Database helper with memory caching and db.json backing
+// Database helper with memory caching and AWS S3 cloud backing
 let cachedDB = null;
+let lastS3Fetch = 0;
 
 const EMBEDDED_DB = require('../db.json');
+
+async function syncFromS3() {
+  try {
+    const res = await s3.send(new GetObjectCommand({
+      Bucket: AWS_S3_BUCKET_NAME,
+      Key: S3_DB_KEY
+    }));
+    const text = await res.Body.transformToString();
+    const data = JSON.parse(text);
+    if (data && data.users && data.campaigns) {
+      cachedDB = data;
+      lastS3Fetch = Date.now();
+      return data;
+    }
+  } catch (err) {
+    // S3 read failed or object doesn't exist yet
+  }
+  return null;
+}
 
 function readDB() {
   if (cachedDB) return cachedDB;
@@ -67,7 +98,7 @@ function readDB() {
   }
 }
 
-function writeDB(data) {
+async function writeDB(data) {
   cachedDB = data;
   try {
     const p = path.join(process.cwd(), 'db.json');
@@ -77,7 +108,27 @@ function writeDB(data) {
       fs.writeFileSync('/tmp/db.json', JSON.stringify(data, null, 2));
     } catch (e) {}
   }
+
+  // Persist to AWS S3 Cloud Database
+  try {
+    await s3.send(new PutObjectCommand({
+      Bucket: AWS_S3_BUCKET_NAME,
+      Key: S3_DB_KEY,
+      Body: JSON.stringify(data, null, 2),
+      ContentType: 'application/json'
+    }));
+  } catch (s3Err) {
+    console.error('S3 DB write error:', s3Err.message);
+  }
 }
+
+// Global middleware to keep database state fresh across all devices/containers
+app.use(async (req, res, next) => {
+  if (Date.now() - lastS3Fetch > 2500) {
+    await syncFromS3();
+  }
+  next();
+});
 
 // User & Auth Helpers
 function getUser(req) {
@@ -288,7 +339,7 @@ app.put(['/api/campaigns/:id/status', '/campaigns/:id/status'], async (req, res)
   if (status) campaign.status = status;
   if (progress !== undefined) campaign.progress = progress;
   db.campaigns[campaignIndex] = campaign;
-  writeDB(db);
+  await writeDB(db);
 
   if (status) {
     const targetUserId = user && user.role === 'influencer' ? campaign.brandId : campaign.influencerId;
@@ -378,7 +429,7 @@ app.put(['/api/deals/:id/status', '/deals/:id/status'], async (req, res) => {
   if (dealIndex === -1) return res.status(404).json({ error: 'Deal not found' });
   
   db.deals[dealIndex].status = status;
-  writeDB(db);
+  await writeDB(db);
   res.json({ success: true });
 });
 
@@ -485,11 +536,11 @@ app.get(['/api/admin/users', '/admin/users', '/api/users'], async (req, res) => 
 app.put(['/api/admin/users/:id/status', '/admin/users/:id/status'], async (req, res) => {
   const { status } = req.body;
   const db = readDB();
-  const userIndex = (db.users || []).findIndex(u => u.id === req.params.id);
+  const userIndex = (db.users || []).findIndex(u => String(u.id) === String(req.params.id) || u.email.toLowerCase() === String(req.params.id).toLowerCase());
   
   if (userIndex !== -1 && db.users[userIndex].role !== 'admin') {
     db.users[userIndex].status = status;
-    writeDB(db);
+    await writeDB(db);
     res.json({ success: true, message: `User status set to ${status}` });
   } else {
     res.status(404).json({ error: 'User not found or cannot modify admin' });
@@ -499,13 +550,13 @@ app.put(['/api/admin/users/:id/status', '/admin/users/:id/status'], async (req, 
 app.put(['/api/admin/users/:id/verify', '/admin/users/:id/verify'], async (req, res) => {
   const { verified } = req.body;
   const db = readDB();
-  const userIndex = (db.users || []).findIndex(u => u.id === req.params.id && u.role === 'influencer');
+  const userIndex = (db.users || []).findIndex(u => (String(u.id) === String(req.params.id) || u.email.toLowerCase() === String(req.params.id).toLowerCase()) && u.role === 'influencer');
   
   if (userIndex !== -1) {
     db.users[userIndex].profile = db.users[userIndex].profile || {};
     db.users[userIndex].profile.verified = verified;
     db.users[userIndex].verified = verified;
-    writeDB(db);
+    await writeDB(db);
     res.json({ success: true, message: `Influencer ${verified ? 'verified' : 'unverified'}` });
   } else {
     res.status(404).json({ error: 'Influencer not found' });

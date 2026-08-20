@@ -26,16 +26,24 @@ class ApiService {
         Uri.parse('$baseUrl/login'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'email': email, 'password': password}),
-      ).timeout(const Duration(seconds: 5));
+      ).timeout(const Duration(seconds: 6));
       
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         _userId = data['user']['id'];
         _userRole = data['user']['role'];
         return data;
+      } else if (response.statusCode == 403) {
+        final data = json.decode(response.body);
+        throw Exception(data['error'] ?? 'Account suspended. Contact support.');
+      } else if (response.statusCode == 401) {
+        throw Exception('Invalid email or password');
       }
-    } catch (_) {
-      // Graceful fallback for demo accounts when network or backend cold-starts
+    } catch (e) {
+      if (e.toString().contains('suspended') || e.toString().contains('Invalid')) {
+        rethrow;
+      }
+      // Graceful fallback only when network is down
     }
 
     // Standard demo credentials verification
