@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import '../api_service.dart';
 import 'login_screen.dart';
+import 'campaign_details_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -237,6 +238,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 8.0),
         child: ListTile(
+          onTap: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => CampaignDetailsScreen(campaign: Map<String, dynamic>.from(campaign)),
+              ),
+            );
+          },
           leading: CircleAvatar(
             radius: 28,
             backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
@@ -269,20 +277,27 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
             ],
           ),
-          trailing: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.end,
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              Text(
-                'Paid',
-                style: Theme.of(context).textTheme.bodySmall,
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    'Paid',
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                  Text(
+                    '₹${campaign['amount'] ?? 0}',
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                ],
               ),
-              Text(
-                '₹${campaign['amount'] ?? 0}',
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w900,
-                ),
-              ),
+              const SizedBox(width: 8),
+              const Icon(Icons.chevron_right, color: Colors.black26, size: 20),
             ],
           ),
         ),
