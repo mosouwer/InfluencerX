@@ -130,46 +130,103 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
 
                   const SizedBox(height: 20),
 
-                  // Demo Fast-Fill Account Chip
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF9FAFB),
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: const Color(0xFFF3F4F6)),
-                    ),
-                    child: Row(
-                      children: [
-                        const Icon(Icons.bolt_rounded, color: Color(0xFF804EE6), size: 20),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text(
-                                'Demo Brand Credentials Active',
-                                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF111827)),
+                  // Demo Fast-Fill Account Selector
+                  Row(
+                    children: [
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () {
+                            setSheetState(() {
+                              _emailController.text = 'ravi@store.com';
+                              _passwordController.text = 'demo123';
+                              _errorMessage = '';
+                            });
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                            decoration: BoxDecoration(
+                              color: _emailController.text == 'ravi@store.com'
+                                  ? const Color(0xFF804EE6).withOpacity(0.08)
+                                  : const Color(0xFFF9FAFB),
+                              borderRadius: BorderRadius.circular(14),
+                              border: Border.all(
+                                color: _emailController.text == 'ravi@store.com'
+                                    ? const Color(0xFF804EE6)
+                                    : const Color(0xFFE5E7EB),
+                                width: _emailController.text == 'ravi@store.com' ? 1.5 : 1.0,
                               ),
-                              Text(
-                                'ravi@store.com • Tap sign in below',
-                                style: TextStyle(fontSize: 11, color: Colors.grey.shade500, fontWeight: FontWeight.w500),
-                              ),
-                            ],
+                            ),
+                            child: const Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Text('🏢', style: TextStyle(fontSize: 14)),
+                                    SizedBox(width: 6),
+                                    Text(
+                                      'Brand Demo',
+                                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF111827)),
+                                    ),
+                                  ],
+                                ),
+                                SizedBox(height: 2),
+                                Text(
+                                  'ravi@store.com',
+                                  style: TextStyle(fontSize: 10, color: Color(0xFF804EE6), fontWeight: FontWeight.w700),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF804EE6).withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: const Text(
-                            'AUTO-FILLED',
-                            style: TextStyle(fontSize: 9, fontWeight: FontWeight.w900, color: Color(0xFF804EE6)),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () {
+                            setSheetState(() {
+                              _emailController.text = 'admin@influencex.com';
+                              _passwordController.text = 'admin123';
+                              _errorMessage = '';
+                            });
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                            decoration: BoxDecoration(
+                              color: _emailController.text == 'admin@influencex.com'
+                                  ? const Color(0xFF804EE6).withOpacity(0.08)
+                                  : const Color(0xFFF9FAFB),
+                              borderRadius: BorderRadius.circular(14),
+                              border: Border.all(
+                                color: _emailController.text == 'admin@influencex.com'
+                                    ? const Color(0xFF804EE6)
+                                    : const Color(0xFFE5E7EB),
+                                width: _emailController.text == 'admin@influencex.com' ? 1.5 : 1.0,
+                              ),
+                            ),
+                            child: const Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Text('👑', style: TextStyle(fontSize: 14)),
+                                    SizedBox(width: 6),
+                                    Text(
+                                      'Admin Demo',
+                                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF111827)),
+                                    ),
+                                  ],
+                                ),
+                                SizedBox(height: 2),
+                                Text(
+                                  'admin@influencex',
+                                  style: TextStyle(fontSize: 10, color: Color(0xFF6B7280), fontWeight: FontWeight.w700),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
 
                   const SizedBox(height: 18),
