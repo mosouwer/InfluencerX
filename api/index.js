@@ -5,7 +5,13 @@ const path = require('path');
 const fs = require('fs');
 const { S3Client, GetObjectCommand, PutObjectCommand, DeleteObjectCommand } = require('@aws-sdk/client-s3');
 const multer = require('multer');
-const sharp = require('sharp');
+
+let sharp = null;
+try {
+  sharp = require('sharp');
+} catch (e) {
+  // sharp is optional in serverless
+}
 
 require('dotenv').config();
 
@@ -33,16 +39,22 @@ async function uploadToS3(buffer, originalname) {
   const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
   const key = uniqueSuffix + '-' + originalname.replace(/\.[^/.]+$/, "") + '.jpg';
   
-  const compressedBuffer = await sharp(buffer)
-    .resize(800, 800, { fit: 'inside', withoutEnlargement: true })
-    .jpeg({ quality: 80 })
-    .toBuffer();
-    
+  let finalBuffer = buffer;
+  let contentType = 'image/jpeg';
+  if (sharp) {
+    try {
+      finalBuffer = await sharp(buffer)
+        .resize(800, 800, { fit: 'inside', withoutEnlargement: true })
+        .jpeg({ quality: 80 })
+        .toBuffer();
+    } catch (e) {}
+  }
+  
   const command = new PutObjectCommand({
     Bucket: AWS_S3_BUCKET_NAME,
     Key: key,
-    Body: compressedBuffer,
-    ContentType: 'image/jpeg'
+    Body: finalBuffer,
+    ContentType: contentType
   });
   
   await s3.send(command);
@@ -59,7 +71,16 @@ app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 let cachedDB = null;
 let lastS3Fetch = 0;
 
-const EMBEDDED_DB = require('../db.json');
+let EMBEDDED_DB = {};
+try {
+  EMBEDDED_DB = require('./db.json');
+} catch (e) {
+  try {
+    EMBEDDED_DB = require('../db.json');
+  } catch (err) {
+    EMBEDDED_DB = { users: [], campaigns: [], deals: [], transactions: [], notifications: [] };
+  }
+}
 
 async function syncFromS3() {
   try {

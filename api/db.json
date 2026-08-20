@@ -1,0 +1,899 @@
+{
+  "users": [
+    {
+      "id": "admin_1",
+      "email": "admin@influencex.com",
+      "password": "$2a$10$kZAqiCKZQ1xr137OZG8G.ea7CdDSeuf1Xc1Ul5OJVxqujUWSfC.aS",
+      "role": "admin",
+      "profile": {
+        "name": "Platform Admin",
+        "permissions": [
+          "all"
+        ]
+      },
+      "status": "active",
+      "joinedAt": "2026-01-01"
+    },
+    {
+      "id": "biz_1",
+      "email": "ravi@store.com",
+      "password": "$2a$10$Vxb2vu3PQAsXDrWyrgKtY.B2n89VCo6R8IEqoG0V2tUMgWSKdncAe",
+      "role": "brand",
+      "profile": {
+        "company": "Ravi's Store",
+        "budget": 50000,
+        "spent": 32400,
+        "industry": "Fashion"
+      },
+      "status": "active",
+      "joinedAt": "2026-02-15"
+    },
+    {
+      "id": "inf_1",
+      "email": "priya@demo.com",
+      "password": "$2a$10$Vxb2vu3PQAsXDrWyrgKtY.B2n89VCo6R8IEqoG0V2tUMgWSKdncAe",
+      "role": "influencer",
+      "profile": {
+        "name": "Priya Sharma",
+        "niche": "Fashion",
+        "followers": 1200000,
+        "engagement": 6.4,
+        "location": "Mumbai",
+        "rates": {
+          "story": 5000,
+          "reel": 12000,
+          "post": 8000,
+          "youtube": 25000
+        },
+        "availability": true,
+        "avatar": "👗",
+        "rating": 4.8,
+        "campaigns": 47,
+        "bio": "Fashion influencer based in Mumbai",
+        "verified": true
+      },
+      "status": "active",
+      "joinedAt": "2026-01-13"
+    },
+    {
+      "id": "inf_2",
+      "email": "arjun@demo.com",
+      "password": "$2a$10$Vxb2vu3PQAsXDrWyrgKtY.B2n89VCo6R8IEqoG0V2tUMgWSKdncAe",
+      "role": "influencer",
+      "profile": {
+        "name": "Chef Arjun",
+        "niche": "Food",
+        "followers": 890000,
+        "engagement": 7.1,
+        "location": "Delhi",
+        "rates": {
+          "story": 8000,
+          "reel": 15000,
+          "post": 10000,
+          "youtube": 25000
+        },
+        "availability": true,
+        "avatar": "🍕",
+        "rating": 4.9,
+        "campaigns": 32,
+        "bio": "Food creator from Delhi",
+        "verified": true
+      },
+      "status": "active",
+      "joinedAt": "2026-01-22"
+    },
+    {
+      "id": "inf_3",
+      "email": "nikhil@demo.com",
+      "password": "$2a$10$Vxb2vu3PQAsXDrWyrgKtY.B2n89VCo6R8IEqoG0V2tUMgWSKdncAe",
+      "role": "influencer",
+      "profile": {
+        "name": "FitWithNikhil",
+        "niche": "Fitness",
+        "followers": 560000,
+        "engagement": 5.8,
+        "location": "Pune",
+        "rates": {
+          "story": 4500,
+          "reel": 8000,
+          "post": 5000
+        },
+        "availability": true,
+        "avatar": "💪",
+        "rating": 4.7,
+        "campaigns": 28,
+        "bio": "Fitness coach and wellness advocate",
+        "verified": true
+      },
+      "status": "active",
+      "joinedAt": "2026-01-13"
+    },
+    {
+      "id": "inf_4",
+      "email": "vikram@demo.com",
+      "password": "$2a$10$Vxb2vu3PQAsXDrWyrgKtY.B2n89VCo6R8IEqoG0V2tUMgWSKdncAe",
+      "role": "influencer",
+      "profile": {
+        "name": "TechTalk Vikram",
+        "niche": "Tech",
+        "followers": 180000,
+        "engagement": 8.2,
+        "location": "Bangalore",
+        "rates": {
+          "story": 3000,
+          "reel": 6000,
+          "post": 8000
+        },
+        "availability": true,
+        "avatar": "📱",
+        "rating": 4.9,
+        "campaigns": 19,
+        "bio": "Tech reviewer and gadget expert",
+        "verified": true
+      },
+      "status": "active",
+      "joinedAt": "2026-01-15"
+    },
+    {
+      "id": "inf_5",
+      "email": "ananya@demo.com",
+      "password": "$2a$10$Vxb2vu3PQAsXDrWyrgKtY.B2n89VCo6R8IEqoG0V2tUMgWSKdncAe",
+      "role": "influencer",
+      "profile": {
+        "name": "GreenLife Ananya",
+        "niche": "Lifestyle",
+        "followers": 210000,
+        "engagement": 4.9,
+        "location": "Delhi",
+        "rates": {
+          "story": 3500,
+          "reel": 7000,
+          "post": 5000
+        },
+        "availability": true,
+        "avatar": "🌿",
+        "rating": 4.6,
+        "campaigns": 15,
+        "bio": "Sustainable living advocate",
+        "verified": false
+      },
+      "status": "active",
+      "joinedAt": "2026-01-14"
+    },
+    {
+      "id": "inf_6",
+      "email": "kabir@demo.com",
+      "password": "$2a$10$Vxb2vu3PQAsXDrWyrgKtY.B2n89VCo6R8IEqoG0V2tUMgWSKdncAe",
+      "role": "influencer",
+      "profile": {
+        "name": "Wanderer Kabir",
+        "niche": "Travel",
+        "followers": 340000,
+        "engagement": 5.5,
+        "location": "Goa",
+        "rates": {
+          "story": 6000,
+          "reel": 12000,
+          "post": 9000
+        },
+        "availability": true,
+        "avatar": "✈️",
+        "rating": 4.7,
+        "campaigns": 22,
+        "bio": "Travel blogger exploring India",
+        "verified": false
+      },
+      "status": "active",
+      "joinedAt": "2026-01-26"
+    },
+    {
+      "id": "user_1779439322485",
+      "email": "randomdjango@gmail.com",
+      "password": "$2a$10$IIwPi5VuYXNxi2NF9GXrVe0jUiDA4uzT22p1KiBea9/tYZBAJK7N6",
+      "role": "influencer",
+      "profile": {
+        "name": "DjangoCICD",
+        "bio": "sample",
+        "niche": "Food",
+        "followers": 883944,
+        "engagement": 5,
+        "location": "Global",
+        "rates": {
+          "story": 1000,
+          "post": 1000,
+          "reel": 1000
+        },
+        "avatar": "https://influencershubs3bucket.s3.us-east-1.amazonaws.com/1779439322485-479678389-IMG20250905170955.jpg",
+        "rating": 5,
+        "campaigns": 0,
+        "verified": false,
+        "availability": true
+      },
+      "status": "active",
+      "joinedAt": "2026-05-22T08:42:06.332Z"
+    }
+  ],
+  "deals": [
+    {
+      "id": "deal_1",
+      "brandId": "biz_1",
+      "brandName": "Ravi's Store",
+      "influencerId": "inf_5",
+      "influencerName": "GreenLife Ananya",
+      "packageType": "post",
+      "amount": 3500,
+      "message": "Eco-friendly product collaboration",
+      "status": "completed",
+      "createdAt": "2026-05-10"
+    },
+    {
+      "id": "1779179955668",
+      "brandId": "biz_1",
+      "brandName": "Ravi's Store",
+      "influencerId": "inf_5",
+      "influencerName": "GreenLife Ananya",
+      "packageType": "reel",
+      "amount": 7000,
+      "message": "Interested in collaborating on a reel campaign.",
+      "status": "accepted",
+      "createdAt": "2026-05-19T08:39:15.668Z"
+    },
+    {
+      "id": "1779201894317",
+      "brandId": "biz_1",
+      "brandName": "Ravi's Store",
+      "influencerId": "inf_2",
+      "influencerName": "Chef Arjun",
+      "packageType": "story",
+      "amount": 8000,
+      "message": "Interested in collaborating on a story campaign.",
+      "status": "rejected",
+      "createdAt": "2026-05-19T14:44:54.317Z"
+    },
+    {
+      "id": "1779372313305",
+      "brandId": "biz_1",
+      "brandName": "Ravi's Store",
+      "influencerId": "inf_4",
+      "influencerName": "TechTalk Vikram",
+      "packageType": "story",
+      "amount": 3000,
+      "message": "Interested in collaborating on a story campaign.",
+      "status": "rejected",
+      "createdAt": "2026-05-21T14:05:13.305Z"
+    },
+    {
+      "id": "1779373514992",
+      "brandId": "biz_1",
+      "brandName": "Ravi's Store",
+      "influencerId": "inf_6",
+      "influencerName": "Wanderer Kabir",
+      "packageType": "reel",
+      "amount": 12000,
+      "message": "Interested in collaborating on a reel campaign.",
+      "status": "completed",
+      "createdAt": "2026-05-21T14:25:14.992Z"
+    },
+    {
+      "id": "1779375408075",
+      "brandId": "biz_1",
+      "brandName": "Ravi's Store",
+      "influencerId": "inf_1",
+      "influencerName": "Priya Sharma",
+      "packageType": "post",
+      "amount": 8000,
+      "message": "Interested in collaborating on a post campaign.",
+      "status": "completed",
+      "createdAt": "2026-05-21T14:56:48.075Z"
+    },
+    {
+      "id": "1779377176489",
+      "brandId": "biz_1",
+      "brandName": "Ravi's Store",
+      "influencerId": "inf_3",
+      "influencerName": "FitWithNikhil",
+      "packageType": "reel",
+      "amount": 8000,
+      "message": "Interested in collaborating on a reel campaign.",
+      "hasMedia": true,
+      "status": "completed",
+      "createdAt": "2026-05-21T15:26:16.489Z"
+    },
+    {
+      "id": "1779378013321",
+      "brandId": "biz_1",
+      "brandName": "Ravi's Store",
+      "influencerId": "inf_1",
+      "influencerName": "Priya Sharma",
+      "packageType": "reel",
+      "amount": 12000,
+      "message": "Interested in collaborating on a reel campaign.",
+      "hasMedia": false,
+      "mediaFile": null,
+      "status": "rejected",
+      "createdAt": "2026-05-21T15:40:13.321Z"
+    },
+    {
+      "id": "1779379970596",
+      "brandId": "biz_1",
+      "brandName": "Ravi's Store",
+      "influencerId": "inf_5",
+      "influencerName": "GreenLife Ananya",
+      "packageType": "post",
+      "amount": 5000,
+      "message": "sample text for post of 5000",
+      "hasMedia": true,
+      "mediaFile": null,
+      "status": "completed",
+      "createdAt": "2026-05-21T16:12:50.596Z"
+    },
+    {
+      "id": "1779381244921",
+      "brandId": "biz_1",
+      "brandName": "Ravi's Store",
+      "influencerId": "inf_6",
+      "influencerName": "Wanderer Kabir",
+      "packageType": "story",
+      "amount": 6000,
+      "message": "story of 6000",
+      "hasMedia": false,
+      "mediaFile": null,
+      "status": "completed",
+      "createdAt": "2026-05-21T16:34:04.921Z"
+    },
+    {
+      "id": "1779381731251",
+      "brandId": "biz_1",
+      "brandName": "Ravi's Store",
+      "influencerId": "inf_4",
+      "influencerName": "TechTalk Vikram",
+      "packageType": "story",
+      "amount": 3000,
+      "message": "Interested in collaborating on a story campaign.",
+      "hasMedia": false,
+      "mediaFile": null,
+      "status": "completed",
+      "createdAt": "2026-05-21T16:42:11.251Z"
+    },
+    {
+      "id": "1779384680054",
+      "brandId": "biz_1",
+      "brandName": "Ravi's Store",
+      "influencerId": "inf_4",
+      "influencerName": "TechTalk Vikram",
+      "packageType": "post",
+      "amount": 8000,
+      "message": "Interested in collaborating on a post campaign.",
+      "hasMedia": false,
+      "mediaFile": null,
+      "status": "review",
+      "createdAt": "2026-05-21T17:31:20.054Z"
+    },
+    {
+      "id": "1779384686919",
+      "brandId": "biz_1",
+      "brandName": "Ravi's Store",
+      "influencerId": "inf_3",
+      "influencerName": "FitWithNikhil",
+      "packageType": "post",
+      "amount": 5000,
+      "message": "Interested in collaborating on a post campaign.",
+      "hasMedia": false,
+      "mediaFile": null,
+      "status": "active",
+      "createdAt": "2026-05-21T17:31:26.919Z"
+    },
+    {
+      "id": "1779422990163",
+      "brandId": "biz_1",
+      "brandName": "Ravi's Store",
+      "influencerId": "inf_4",
+      "influencerName": "TechTalk Vikram",
+      "packageType": "reel",
+      "amount": 6000,
+      "message": "reel ad 6000",
+      "hasMedia": false,
+      "mediaFile": null,
+      "status": "completed",
+      "createdAt": "2026-05-22T04:09:50.163Z"
+    }
+  ],
+  "campaigns": [
+    {
+      "id": "camp_1",
+      "brandId": "biz_1",
+      "influencerId": "inf_1",
+      "influencerName": "Priya Sharma",
+      "type": "Instagram Reel",
+      "amount": 12000,
+      "status": "completed",
+      "progress": 75,
+      "deadline": "2026-05-20",
+      "brandName": "Ravi's Store",
+      "campaignName": "Summer Reel Campaign",
+      "createdAt": "2026-05-01"
+    },
+    {
+      "id": "camp_2",
+      "brandId": "biz_1",
+      "influencerId": "inf_2",
+      "influencerName": "Chef Arjun",
+      "type": "YouTube Video",
+      "amount": 25000,
+      "status": "completed",
+      "progress": 0,
+      "deadline": "2026-05-19",
+      "brandName": "Ravi's Store",
+      "campaignName": "Product Unboxing",
+      "createdAt": "2026-05-02"
+    },
+    {
+      "id": "camp_3",
+      "brandId": "biz_1",
+      "influencerId": "inf_3",
+      "influencerName": "FitWithNikhil",
+      "type": "Instagram Story",
+      "amount": 5000,
+      "status": "completed",
+      "progress": 20,
+      "deadline": "2026-05-24",
+      "brandName": "Ravi's Store",
+      "campaignName": "Brand Awareness Story",
+      "createdAt": "2026-05-03"
+    },
+    {
+      "id": "camp_4",
+      "brandId": "biz_1",
+      "influencerId": "inf_4",
+      "influencerName": "TechTalk Vikram",
+      "type": "Feed Post",
+      "amount": 8000,
+      "status": "active",
+      "progress": 100,
+      "deadline": "2026-05-15",
+      "brandName": "Ravi's Store",
+      "campaignName": "Tech Review Post",
+      "createdAt": "2026-04-20"
+    },
+    {
+      "id": "1779045919889",
+      "brandId": "biz_1",
+      "brandName": "Ravi's Store",
+      "influencerId": "inf_6",
+      "influencerName": "Wanderer Kabir",
+      "campaignName": "ravi demo prod",
+      "type": "Instagram Reel",
+      "amount": 5000,
+      "status": "completed",
+      "progress": 0,
+      "deadline": "2026-05-18",
+      "createdAt": "2026-05-17T19:25:19.889Z"
+    },
+    {
+      "id": "1779051533473",
+      "brandId": "biz_1",
+      "brandName": "Ravi's Store",
+      "influencerId": "inf_6",
+      "influencerName": "Wanderer Kabir",
+      "campaignName": "clothing",
+      "type": "Instagram Reel",
+      "amount": 8000,
+      "status": "completed",
+      "progress": 0,
+      "deadline": "2026-05-19",
+      "createdAt": "2026-05-17T20:58:53.473Z"
+    }
+  ],
+  "notifications": [
+    {
+      "id": "1787249512432_qn5m",
+      "createdAt": "2026-08-20T18:11:52.432Z",
+      "time": "Just now",
+      "read": false,
+      "userId": "inf_4",
+      "title": "Campaign Status: Active",
+      "message": "Campaign \"Tech Review Post\" is now active",
+      "type": "campaign",
+      "campaignId": "camp_4",
+      "icon": "📊"
+    },
+    {
+      "id": "n1",
+      "userId": "biz_1",
+      "title": "Campaign approved",
+      "message": "Campaign with Priya Sharma was approved",
+      "time": "2 minutes ago",
+      "read": false,
+      "icon": "🎉"
+    },
+    {
+      "id": "n2",
+      "userId": "biz_1",
+      "title": "New message",
+      "message": "Chef Arjun sent you a message",
+      "time": "18 minutes ago",
+      "read": false,
+      "icon": "💬"
+    },
+    {
+      "id": "n3",
+      "userId": "biz_1",
+      "title": "Content ready",
+      "message": "Content from FitWithNikhil is ready",
+      "time": "1 hour ago",
+      "read": false,
+      "icon": "✅"
+    },
+    {
+      "id": "n4",
+      "userId": "inf_1",
+      "title": "New Campaign",
+      "message": "Ravi's Store invited you to Summer Reel Campaign",
+      "time": "1 day ago",
+      "read": true,
+      "icon": "🎯"
+    },
+    {
+      "id": "n5",
+      "userId": "inf_2",
+      "title": "Payment Released",
+      "message": "₹25,000 has been released to your account",
+      "time": "2 days ago",
+      "read": true,
+      "icon": "💰"
+    },
+    {
+      "id": "1779045919889",
+      "userId": "inf_6",
+      "title": "New Campaign Offer",
+      "message": "Ravi's Store invited you to ravi demo prod",
+      "time": "Just now",
+      "read": false,
+      "icon": "🎯"
+    },
+    {
+      "id": "1779051533473",
+      "userId": "inf_6",
+      "title": "New Campaign Offer",
+      "message": "Ravi's Store invited you to clothing",
+      "time": "Just now",
+      "read": false,
+      "icon": "🎯"
+    },
+    {
+      "id": "1779179955668",
+      "userId": "inf_5",
+      "title": "New Hire Request",
+      "message": "Ravi's Store wants to hire you for a reel (₹7000)",
+      "time": "Just now",
+      "read": false,
+      "icon": "💼"
+    },
+    {
+      "id": "1779180131147",
+      "userId": "biz_1",
+      "title": "Deal Accepted",
+      "message": "GreenLife Ananya has accepted your hire request",
+      "time": "Just now",
+      "read": false,
+      "icon": "✅"
+    },
+    {
+      "id": "1779201894317",
+      "userId": "inf_2",
+      "title": "New Hire Request",
+      "message": "Ravi's Store wants to hire you for a story (₹8000)",
+      "time": "Just now",
+      "read": false,
+      "icon": "💼"
+    },
+    {
+      "id": "1779372313306",
+      "userId": "inf_4",
+      "title": "New Hire Request",
+      "message": "Ravi's Store wants to hire you for a story (₹3000)",
+      "time": "Just now",
+      "read": false,
+      "icon": "💼"
+    },
+    {
+      "id": "1779373120382",
+      "userId": "biz_1",
+      "title": "Deal Rejected",
+      "message": "TechTalk Vikram has rejected your hire request",
+      "time": "Just now",
+      "read": false,
+      "icon": "❌"
+    },
+    {
+      "id": "1779373514992",
+      "userId": "inf_6",
+      "title": "New Hire Request",
+      "message": "Ravi's Store wants to hire you for a reel (₹12000)",
+      "time": "Just now",
+      "read": false,
+      "icon": "💼"
+    },
+    {
+      "id": "1779375065992",
+      "userId": "biz_1",
+      "title": "Deal Review",
+      "message": "Wanderer Kabir has review your hire request",
+      "time": "Just now",
+      "read": false,
+      "icon": "❌"
+    },
+    {
+      "id": "1779375138176",
+      "userId": "biz_1",
+      "title": "Deal Rejected",
+      "message": "Chef Arjun has rejected your hire request",
+      "time": "Just now",
+      "read": false,
+      "icon": "❌"
+    },
+    {
+      "id": "1779375379556",
+      "userId": "biz_1",
+      "title": "Deal Completed",
+      "message": "Wanderer Kabir has completed your hire request",
+      "time": "Just now",
+      "read": false,
+      "icon": "❌"
+    },
+    {
+      "id": "1779375408075",
+      "userId": "admin_1",
+      "title": "New Hire Request (Admin Action Required)",
+      "message": "Ravi's Store wants to hire Priya Sharma for a post (₹8000)",
+      "time": "Just now",
+      "read": false,
+      "icon": "💼"
+    },
+    {
+      "id": "1779375433017",
+      "userId": "biz_1",
+      "title": "Deal Review",
+      "message": "Priya Sharma has review your hire request",
+      "time": "Just now",
+      "read": false,
+      "icon": "❌"
+    },
+    {
+      "id": "1779376116838",
+      "userId": "biz_1",
+      "title": "Deal Completed",
+      "message": "Priya Sharma has completed your hire request",
+      "time": "Just now",
+      "read": false,
+      "icon": "❌"
+    },
+    {
+      "id": "1779377176489",
+      "userId": "admin_1",
+      "title": "New Hire Request (Admin Action Required)",
+      "message": "Ravi's Store wants to hire FitWithNikhil for a reel (₹8000)",
+      "time": "Just now",
+      "read": false,
+      "icon": "💼"
+    },
+    {
+      "id": "1779377218854",
+      "userId": "biz_1",
+      "title": "Deal Rejected",
+      "message": "FitWithNikhil has rejected your hire request",
+      "time": "Just now",
+      "read": false,
+      "icon": "❌"
+    },
+    {
+      "id": "1779378013321",
+      "userId": "admin_1",
+      "title": "New Hire Request (Admin Action Required)",
+      "message": "Ravi's Store wants to hire Priya Sharma for a reel (₹12000)",
+      "time": "Just now",
+      "read": false,
+      "icon": "💼"
+    },
+    {
+      "id": "1779378050322",
+      "userId": "biz_1",
+      "title": "Deal Rejected",
+      "message": "Priya Sharma has rejected your hire request",
+      "time": "Just now",
+      "read": false,
+      "icon": "❌"
+    },
+    {
+      "id": "1779378091633",
+      "userId": "biz_1",
+      "title": "Deal Completed",
+      "message": "FitWithNikhil has completed your hire request",
+      "time": "Just now",
+      "read": false,
+      "icon": "❌"
+    },
+    {
+      "id": "1779379970596",
+      "userId": "admin_1",
+      "title": "New Hire Request (Admin Action Required)",
+      "message": "Ravi's Store wants to hire GreenLife Ananya for a post (₹5000)",
+      "time": "Just now",
+      "read": false,
+      "icon": "💼"
+    },
+    {
+      "id": "1779380010781",
+      "userId": "biz_1",
+      "title": "Deal Review",
+      "message": "GreenLife Ananya has review your hire request",
+      "time": "Just now",
+      "read": false,
+      "icon": "❌"
+    },
+    {
+      "id": "1779381244921",
+      "userId": "admin_1",
+      "title": "New Hire Request (Admin Action Required)",
+      "message": "Ravi's Store wants to hire Wanderer Kabir for a story (₹6000)",
+      "time": "Just now",
+      "read": false,
+      "icon": "💼"
+    },
+    {
+      "id": "1779381345488",
+      "userId": "biz_1",
+      "title": "Deal Review",
+      "message": "Wanderer Kabir has review your hire request",
+      "time": "Just now",
+      "read": false,
+      "icon": "❌"
+    },
+    {
+      "id": "1779381731251",
+      "userId": "admin_1",
+      "title": "New Hire Request (Admin Action Required)",
+      "message": "Ravi's Store wants to hire TechTalk Vikram for a story (₹3000)",
+      "time": "Just now",
+      "read": false,
+      "icon": "💼"
+    },
+    {
+      "id": "1779381900930",
+      "userId": "biz_1",
+      "title": "Deal Active",
+      "message": "TechTalk Vikram has active your hire request",
+      "time": "Just now",
+      "read": false,
+      "icon": "❌"
+    },
+    {
+      "id": "1779381911471",
+      "userId": "biz_1",
+      "title": "Deal Completed",
+      "message": "TechTalk Vikram has completed your hire request",
+      "time": "Just now",
+      "read": false,
+      "icon": "❌"
+    },
+    {
+      "id": "1779384012054",
+      "userId": "biz_1",
+      "title": "Deal Completed",
+      "message": "Wanderer Kabir has completed your hire request",
+      "time": "Just now",
+      "read": false,
+      "icon": "❌"
+    },
+    {
+      "id": "1779384022050",
+      "userId": "biz_1",
+      "title": "Deal Completed",
+      "message": "GreenLife Ananya has completed your hire request",
+      "time": "Just now",
+      "read": false,
+      "icon": "❌"
+    },
+    {
+      "id": "1779384680054",
+      "userId": "admin_1",
+      "title": "New Hire Request (Admin Action Required)",
+      "message": "Ravi's Store wants to hire TechTalk Vikram for a post (₹8000)",
+      "time": "Just now",
+      "read": false,
+      "icon": "💼"
+    },
+    {
+      "id": "1779384686919",
+      "userId": "admin_1",
+      "title": "New Hire Request (Admin Action Required)",
+      "message": "Ravi's Store wants to hire FitWithNikhil for a post (₹5000)",
+      "time": "Just now",
+      "read": false,
+      "icon": "💼"
+    },
+    {
+      "id": "1779386275547",
+      "userId": "biz_1",
+      "title": "Deal Active",
+      "message": "FitWithNikhil has active your hire request",
+      "time": "Just now",
+      "read": false,
+      "icon": "❌"
+    },
+    {
+      "id": "1779422990163",
+      "userId": "admin_1",
+      "title": "New Hire Request (Admin Action Required)",
+      "message": "Ravi's Store wants to hire TechTalk Vikram for a reel (₹6000)",
+      "time": "Just now",
+      "read": false,
+      "icon": "💼"
+    },
+    {
+      "id": "1779423077816",
+      "userId": "biz_1",
+      "title": "Deal Review",
+      "message": "TechTalk Vikram has review your hire request",
+      "time": "Just now",
+      "read": false,
+      "icon": "❌"
+    },
+    {
+      "id": "1779423088915",
+      "userId": "biz_1",
+      "title": "Deal Active",
+      "message": "TechTalk Vikram has active your hire request",
+      "time": "Just now",
+      "read": false,
+      "icon": "❌"
+    },
+    {
+      "id": "1779423110364",
+      "userId": "biz_1",
+      "title": "Deal Completed",
+      "message": "TechTalk Vikram has completed your hire request",
+      "time": "Just now",
+      "read": false,
+      "icon": "❌"
+    },
+    {
+      "id": "1779423443271",
+      "userId": "biz_1",
+      "title": "Deal Review",
+      "message": "TechTalk Vikram has review your hire request",
+      "time": "Just now",
+      "read": false,
+      "icon": "❌"
+    },
+    {
+      "id": "1780209309404",
+      "userId": "biz_1",
+      "title": "Deal Completed",
+      "message": "GreenLife Ananya has completed your hire request",
+      "time": "Just now",
+      "read": false,
+      "icon": "❌"
+    }
+  ],
+  "withdrawals": [
+    {
+      "id": "wd_1",
+      "userId": "inf_1",
+      "userName": "Priya Sharma",
+      "amount": 15000,
+      "status": "completed",
+      "requestedAt": "2026-05-16",
+      "processedAt": "2026-05-17T19:21:57.278Z"
+    },
+    {
+      "id": "wd_2",
+      "userId": "inf_2",
+      "userName": "Chef Arjun",
+      "amount": 25000,
+      "status": "completed",
+      "requestedAt": "2026-05-14",
+      "processedAt": "2026-05-15"
+    }
+  ]
+}
