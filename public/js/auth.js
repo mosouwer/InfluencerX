@@ -1,20 +1,19 @@
-// Authentication Module - Instant & Non-Blocking
+// Authentication Module - Instant Local-First Login
 window.auth = {
   currentUser: JSON.parse(localStorage.getItem('currentUser')) || null,
   activityInterval: null,
 
+  // Called by the Login button
   async login() {
     const emailInput = document.getElementById('loginEmail');
     const passwordInput = document.getElementById('loginPassword');
     const submitBtn = document.getElementById('loginSubmitBtn');
     
-    const email = (emailInput?.value || '').trim();
-    const password = (passwordInput?.value || '').trim();
+    const email = (emailInput ? emailInput.value : '').trim();
+    const password = (passwordInput ? passwordInput.value : '').trim();
 
     if (!email) {
-      if (window.ui && window.ui.showToast) {
-        window.ui.showToast('Please enter your email address', 'error');
-      }
+      alert('Please enter your email address.');
       return;
     }
 
@@ -23,11 +22,11 @@ window.auth = {
       submitBtn.disabled = true;
     }
 
-    const emailLower = email.toLowerCase();
-    let user = null;
+    var user = null;
 
-    // Instant validation for demo credentials (zero network lag)
-    if (emailLower === 'admin@influencex.com' && (password === 'admin123' || password === 'admin' || password.length > 0)) {
+    // Step 1: Instant local check for known demo accounts (no network needed)
+    var emailLower = email.toLowerCase();
+    if (emailLower === 'admin@influencex.com') {
       user = {
         id: 'admin_1',
         email: 'admin@influencex.com',
@@ -35,7 +34,7 @@ window.auth = {
         profile: { name: 'Platform Admin', permissions: ['all'] },
         status: 'active'
       };
-    } else if (emailLower === 'ravi@store.com' && (password === 'demo123' || password.length > 0)) {
+    } else if (emailLower === 'ravi@store.com') {
       user = {
         id: 'biz_1',
         email: 'ravi@store.com',
@@ -43,7 +42,7 @@ window.auth = {
         profile: { company: "Ravi's Store", budget: 50000, spent: 32400, industry: 'Fashion' },
         status: 'active'
       };
-    } else if (emailLower === 'priya@demo.com' && (password === 'demo123' || password.length > 0)) {
+    } else if (emailLower === 'priya@demo.com') {
       user = {
         id: 'inf_1',
         email: 'priya@demo.com',
@@ -53,101 +52,100 @@ window.auth = {
       };
     }
 
-    // If not a demo account, attempt backend API with strict 2s timeout
+    // Step 2: If not a known demo account, try the backend API
     if (!user) {
       try {
-        const controller = new AbortController();
-        const tid = setTimeout(() => controller.abort(), 2000);
-        const res = await fetch((window.CONFIG?.API_BASE || '/api') + '/login', {
+        var res = await fetch('/api/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, password }),
-          signal: controller.signal
+          body: JSON.stringify({ email: email, password: password })
         });
-        clearTimeout(tid);
         if (res.ok) {
-          const data = await res.json();
+          var data = await res.json();
           user = data.user;
         } else {
-          const err = await res.json().catch(() => ({}));
-          throw new Error(err.error || 'Invalid credentials');
+          var errData = await res.json().catch(function() { return {}; });
+          if (submitBtn) { submitBtn.textContent = 'Login'; submitBtn.disabled = false; }
+          alert(errData.error || 'Invalid credentials. Please try again.');
+          return;
         }
-      } catch (err) {
-        if (submitBtn) {
-          submitBtn.textContent = 'Login';
-          submitBtn.disabled = false;
-        }
-        if (window.ui && window.ui.showToast) {
-          window.ui.showToast(err.message || 'Login failed', 'error');
-        }
+      } catch (netErr) {
+        if (submitBtn) { submitBtn.textContent = 'Login'; submitBtn.disabled = false; }
+        alert('Network error. Please check your connection.');
         return;
       }
     }
 
+    if (!user) {
+      if (submitBtn) { submitBtn.textContent = 'Login'; submitBtn.disabled = false; }
+      alert('Login failed. Please check your credentials.');
+      return;
+    }
+
+    // Step 3: Store session
     this.currentUser = user;
     localStorage.setItem('currentUser', JSON.stringify(user));
-    localStorage.setItem('lastActivityTime', Date.now().toString());
+    localStorage.setItem('lastActivityTime', String(Date.now()));
 
-    // 1. Hide Login Modal immediately
-    const loginModal = document.getElementById('loginModal');
+    // Step 4: Hide Login Modal, show app — using multiple methods to be safe
+    var loginModal = document.getElementById('loginModal');
     if (loginModal) {
-      loginModal.style.setProperty('display', 'none', 'important');
-      loginModal.classList.add('hidden');
-      loginModal.classList.remove('flex');
+      loginModal.style.cssText += ';display:none!important';
+      loginModal.setAttribute('style', 'display:none!important');
     }
 
-    // 2. Show App Container immediately
-    const appEl = document.getElementById('app');
+    var appEl = document.getElementById('app');
     if (appEl) {
-      appEl.style.setProperty('display', 'block', 'important');
-      appEl.classList.remove('hidden');
+      appEl.style.cssText += ';display:block!important';
+      appEl.setAttribute('style', 'display:block!important');
     }
 
-    // 3. Update Admin vs User Navigation UI
+    // Step 5: Update nav UI based on role
+    var adminIndicator = document.getElementById('adminModeIndicator');
+    var modeSwitcher = document.getElementById('modeSwitcher');
     if (user.role === 'admin') {
-      const adminIndicator = document.getElementById('adminModeIndicator');
       if (adminIndicator) adminIndicator.classList.remove('hidden');
-      const modeSwitcher = document.getElementById('modeSwitcher');
       if (modeSwitcher) modeSwitcher.style.display = 'none';
     } else {
-      const adminIndicator = document.getElementById('adminModeIndicator');
       if (adminIndicator) adminIndicator.classList.add('hidden');
-      const modeSwitcher = document.getElementById('modeSwitcher');
       if (modeSwitcher) modeSwitcher.style.display = 'flex';
     }
 
-    // 4. Update Header Profile Info
-    const userAvatar = document.getElementById('userAvatar');
-    if (userAvatar) {
-      userAvatar.textContent = user.role === 'brand' ? 
-        (user.profile?.company?.charAt(0) || 'B') : 
-        (user.role === 'admin' ? 'A' : user.profile?.name?.charAt(0) || 'I');
-    }
+    var avatar = user.role === 'brand'
+      ? (user.profile && user.profile.company ? user.profile.company.charAt(0) : 'B')
+      : user.role === 'admin' ? 'A'
+      : (user.profile && user.profile.name ? user.profile.name.charAt(0) : 'I');
 
-    const userName = document.getElementById('userName');
-    if (userName) {
-      userName.textContent = user.role === 'brand' ? 
-        (user.profile?.company || 'Brand') : (user.role === 'admin' ? 'Admin' : (user.profile?.name || 'Influencer'));
-    }
-    
-    const emailEl = document.getElementById('userEmail');
-    if (emailEl) {
-      emailEl.textContent = user.email || 'admin@influencex.com';
-    }
+    var nameText = user.role === 'brand'
+      ? (user.profile && user.profile.company ? user.profile.company : 'Brand')
+      : user.role === 'admin' ? 'Admin'
+      : (user.profile && user.profile.name ? user.profile.name : 'Creator');
 
-    // 5. Render Sidebar & Dashboard immediately
-    try { window.app.renderSidebar(); } catch (e) { console.error(e); }
+    var userAvatar = document.getElementById('userAvatar');
+    if (userAvatar) userAvatar.textContent = avatar;
+
+    var userName = document.getElementById('userName');
+    if (userName) userName.textContent = nameText;
+
+    var emailEl = document.getElementById('userEmail');
+    if (emailEl) emailEl.textContent = user.email;
+
+    // Step 6: Render sidebar and dashboard
+    try { window.app.renderSidebar(); } catch(e) { console.warn('renderSidebar error:', e); }
 
     if (user.role === 'admin') {
-      try { await window.admin.renderDashboard(); } catch (e) { console.error(e); }
-    } else if (window.app.currentMode === 'brand') {
-      try { await window.brand.renderDashboard(); } catch (e) { console.error(e); }
+      try { await window.admin.renderDashboard(); } catch(e) { console.warn('admin dashboard error:', e); }
+    } else if (window.app && window.app.currentMode === 'brand') {
+      try { await window.brand.renderDashboard(); } catch(e) { console.warn('brand dashboard error:', e); }
     } else {
-      try { await window.influencer.renderDashboard(); } catch (e) { console.error(e); }
+      try { await window.influencer.renderDashboard(); } catch(e) { console.warn('influencer dashboard error:', e); }
     }
 
-    // 6. Background non-blocking sync
-    window.app.loadInitialData().catch(() => {});
+    // Step 7: Non-blocking background load
+    if (window.app && window.app.loadInitialData) {
+      window.app.loadInitialData().catch(function() {});
+    }
+
     this.startActivityTracking();
 
     if (submitBtn) {
@@ -156,166 +154,125 @@ window.auth = {
     }
 
     if (window.ui && window.ui.showToast) {
-      window.ui.showToast(`Welcome back, ${user.profile?.name || user.role}!`, 'success');
+      window.ui.showToast('Welcome back, ' + nameText + '!', 'success');
     }
   },
-  
+
   async logout() {
-    try {
-      await window.api.logout();
-    } catch (err) {}
+    try { await fetch('/api/logout', { method: 'POST' }); } catch(e) {}
     localStorage.removeItem('currentUser');
     localStorage.removeItem('lastActivityTime');
     if (this.activityInterval) clearInterval(this.activityInterval);
     location.reload();
   },
-  
-  isAdmin() {
-    return this.currentUser && this.currentUser.role === 'admin';
-  },
-  
-  isBrand() {
-    return this.currentUser && this.currentUser.role === 'brand';
-  },
-  
-  isInfluencer() {
-    return this.currentUser && this.currentUser.role === 'influencer';
-  },
-  
+
+  isAdmin() { return this.currentUser && this.currentUser.role === 'admin'; },
+  isBrand() { return this.currentUser && this.currentUser.role === 'brand'; },
+  isInfluencer() { return this.currentUser && this.currentUser.role === 'influencer'; },
+
   checkSessionOnLoad() {
-    const user = this.currentUser;
-    const loginModal = document.getElementById('loginModal');
-    const appEl = document.getElementById('app');
+    var user = this.currentUser;
+    var loginModal = document.getElementById('loginModal');
+    var appEl = document.getElementById('app');
 
     if (!user) {
-      if (loginModal) {
-        loginModal.style.setProperty('display', 'flex', 'important');
-        loginModal.classList.remove('hidden');
-        loginModal.classList.add('flex');
-      }
-      if (appEl) {
-        appEl.style.setProperty('display', 'none', 'important');
-        appEl.classList.add('hidden');
-      }
+      if (loginModal) loginModal.setAttribute('style', 'display:flex!important');
+      if (appEl) appEl.setAttribute('style', 'display:none!important');
       return;
     }
-    
-    const lastActivity = localStorage.getItem('lastActivityTime');
-    const now = Date.now();
-    const inactivityLimit = 10 * 60 * 1000;
-    
-    if (user.role === 'admin' && lastActivity && (now - parseInt(lastActivity) > inactivityLimit)) {
-      if (window.ui && window.ui.showToast) {
-        window.ui.showToast('Session expired due to inactivity. Please log in again.', 'warning');
-      }
+
+    var lastActivity = localStorage.getItem('lastActivityTime');
+    var inactivityLimit = 10 * 60 * 1000;
+    if (user.role === 'admin' && lastActivity && (Date.now() - parseInt(lastActivity) > inactivityLimit)) {
       this.logout();
       return;
     }
-    
+
     this.restoreSession(user);
   },
-  
+
   async restoreSession(user) {
-    try {
-      this.currentUser = user;
-      localStorage.setItem('lastActivityTime', Date.now().toString());
-      
-      const loginModal = document.getElementById('loginModal');
-      if (loginModal) {
-        loginModal.style.setProperty('display', 'none', 'important');
-        loginModal.classList.add('hidden');
-        loginModal.classList.remove('flex');
-      }
-      
-      const appEl = document.getElementById('app');
-      if (appEl) {
-        appEl.style.setProperty('display', 'block', 'important');
-        appEl.classList.remove('hidden');
-      }
-      
-      if (user.role === 'admin') {
-        const adminIndicator = document.getElementById('adminModeIndicator');
-        if (adminIndicator) adminIndicator.classList.remove('hidden');
-        const modeSwitcher = document.getElementById('modeSwitcher');
-        if (modeSwitcher) modeSwitcher.style.display = 'none';
-      }
-      
-      const userAvatar = document.getElementById('userAvatar');
-      if (userAvatar) {
-        userAvatar.textContent = user.role === 'brand' ? 
-          (user.profile?.company?.charAt(0) || 'B') : 
-          (user.role === 'admin' ? 'A' : user.profile?.name?.charAt(0) || 'I');
-      }
+    this.currentUser = user;
+    localStorage.setItem('lastActivityTime', String(Date.now()));
 
-      const userName = document.getElementById('userName');
-      if (userName) {
-        userName.textContent = user.role === 'brand' ? 
-          (user.profile?.company || 'Brand') : (user.role === 'admin' ? 'Admin' : (user.profile?.name || 'Influencer'));
-      }
+    var loginModal = document.getElementById('loginModal');
+    if (loginModal) loginModal.setAttribute('style', 'display:none!important');
 
-      const emailEl = document.getElementById('userEmail');
-      if (emailEl) {
-        emailEl.textContent = user.email || 'admin@influencex.com';
-      }
-      
-      try { window.app.renderSidebar(); } catch (_) {}
+    var appEl = document.getElementById('app');
+    if (appEl) appEl.setAttribute('style', 'display:block!important');
 
-      if (user.role === 'admin') {
-        try { await window.admin.renderDashboard(); } catch (_) {}
-      } else if (window.app.currentMode === 'brand') {
-        try { await window.brand.renderDashboard(); } catch (_) {}
-      } else {
-        try { await window.influencer.renderDashboard(); } catch (_) {}
-      }
-      
-      window.app.loadInitialData().catch(() => {});
-      this.startActivityTracking();
-    } catch (err) {
-      console.error('Error restoring session:', err);
+    if (user.role === 'admin') {
+      var adminIndicator = document.getElementById('adminModeIndicator');
+      if (adminIndicator) adminIndicator.classList.remove('hidden');
+      var modeSwitcher = document.getElementById('modeSwitcher');
+      if (modeSwitcher) modeSwitcher.style.display = 'none';
     }
+
+    var avatar = user.role === 'brand'
+      ? (user.profile && user.profile.company ? user.profile.company.charAt(0) : 'B')
+      : user.role === 'admin' ? 'A'
+      : (user.profile && user.profile.name ? user.profile.name.charAt(0) : 'I');
+
+    var nameText = user.role === 'brand'
+      ? (user.profile && user.profile.company ? user.profile.company : 'Brand')
+      : user.role === 'admin' ? 'Admin'
+      : (user.profile && user.profile.name ? user.profile.name : 'Creator');
+
+    var userAvatar = document.getElementById('userAvatar');
+    if (userAvatar) userAvatar.textContent = avatar;
+
+    var userName = document.getElementById('userName');
+    if (userName) userName.textContent = nameText;
+
+    var emailEl = document.getElementById('userEmail');
+    if (emailEl) emailEl.textContent = user.email;
+
+    try { window.app.renderSidebar(); } catch(e) {}
+
+    if (user.role === 'admin') {
+      try { await window.admin.renderDashboard(); } catch(e) {}
+    } else if (window.app && window.app.currentMode === 'brand') {
+      try { await window.brand.renderDashboard(); } catch(e) {}
+    } else {
+      try { await window.influencer.renderDashboard(); } catch(e) {}
+    }
+
+    if (window.app && window.app.loadInitialData) {
+      window.app.loadInitialData().catch(function() {});
+    }
+
+    this.startActivityTracking();
   },
-  
+
   startActivityTracking() {
     if (!this.currentUser) return;
-    
-    const updateActivity = () => {
-      if (!this.currentUser) return;
-      localStorage.setItem('lastActivityTime', Date.now().toString());
-    };
-    
-    const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'];
-    
-    let lastUpdate = 0;
-    const throttledUpdate = () => {
-      const now = Date.now();
+    var self = this;
+
+    var lastUpdate = 0;
+    var throttledUpdate = function() {
+      var now = Date.now();
       if (now - lastUpdate > 10000) {
         lastUpdate = now;
-        updateActivity();
+        localStorage.setItem('lastActivityTime', String(now));
       }
     };
-    
-    events.forEach(evt => {
+
+    ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'].forEach(function(evt) {
       window.addEventListener(evt, throttledUpdate, { passive: true });
     });
-    
+
     if (this.activityInterval) clearInterval(this.activityInterval);
-    this.activityInterval = setInterval(() => {
-      if (!this.currentUser) return;
-      
-      const lastActivity = localStorage.getItem('lastActivityTime');
-      const now = Date.now();
-      const inactivityLimit = 10 * 60 * 1000;
-      
-      if (this.currentUser.role === 'admin' && lastActivity && (now - parseInt(lastActivity) > inactivityLimit)) {
-        if (window.ui && window.ui.showToast) {
-          window.ui.showToast('Session expired due to inactivity.', 'warning');
-        }
-        this.logout();
+    this.activityInterval = setInterval(function() {
+      if (!self.currentUser) return;
+      var lastActivity = localStorage.getItem('lastActivityTime');
+      var inactivityLimit = 10 * 60 * 1000;
+      if (self.currentUser.role === 'admin' && lastActivity && (Date.now() - parseInt(lastActivity) > inactivityLimit)) {
+        self.logout();
       }
     }, 30000);
   }
 };
 
-window.addEventListener('DOMContentLoaded', () => {
+window.addEventListener('DOMContentLoaded', function() {
   window.auth.checkSessionOnLoad();
 });
