@@ -65,9 +65,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
     switch (status?.toLowerCase()) {
       case 'pending':
         return 1;
-      case 'active':
-        return 2;
       case 'review':
+        return 2;
+      case 'active':
         return 3;
       case 'completed':
         return 4;
@@ -681,7 +681,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _buildMilestonePoints(int currentStep, Color statusColor) {
-    final steps = ['Offer', 'Active', 'Review', 'Done'];
+    final steps = ['Offer', 'Review', 'Active', 'Done'];
 
     return Row(
       children: [

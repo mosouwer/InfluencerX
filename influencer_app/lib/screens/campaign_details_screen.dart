@@ -37,9 +37,9 @@ class CampaignDetailsScreen extends StatelessWidget {
     switch (status?.toLowerCase()) {
       case 'pending':
         return 1;
-      case 'active':
-        return 2;
       case 'review':
+        return 2;
+      case 'active':
         return 3;
       case 'completed':
         return 4;
@@ -383,7 +383,7 @@ class CampaignDetailsScreen extends StatelessWidget {
                               ),
                               const SizedBox(height: 6),
                               Text(
-                                ['Offer', 'Active', 'Review', 'Done'][i],
+                                ['Offer', 'Review', 'Active', 'Done'][i],
                                 style: TextStyle(
                                   fontSize: 10,
                                   fontWeight: currentStep == i + 1 ? FontWeight.w800 : FontWeight.w600,
@@ -414,10 +414,10 @@ class CampaignDetailsScreen extends StatelessWidget {
                   const SizedBox(height: 24),
 
                   // Workflow Steps
-                  _buildTimelineTile(1, 'Deal Initiated', 'Campaign proposal created', currentStep >= 1),
-                  _buildTimelineTile(2, 'Campaign Active', 'Creator accepted & working on content', currentStep >= 2),
-                  _buildTimelineTile(3, 'Under Review', 'Draft submission delivered for review', currentStep >= 3),
-                  _buildTimelineTile(4, 'Completed & Paid', 'Deliverables approved and payout settled', currentStep >= 4, isLast: true),
+                  _buildTimelineTile(1, 'Offer Sent', 'Campaign proposal initiated & sent to creator', currentStep >= 1),
+                  _buildTimelineTile(2, 'Under Review', 'Creator reviewing terms & proposal details', currentStep >= 2),
+                  _buildTimelineTile(3, 'Campaign Active', 'Proposal accepted, creator producing deliverables', currentStep >= 3),
+                  _buildTimelineTile(4, 'Done & Paid', 'Deliverables approved and payout settled', currentStep >= 4, isLast: true),
                 ],
               ),
             ),
