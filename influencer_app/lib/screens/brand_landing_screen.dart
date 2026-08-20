@@ -567,7 +567,7 @@ class _BrandLandingScreenState extends State<BrandLandingScreen> {
                         children: [
                           const Row(
                             children: [
-                              Icon(Icons.lock_clock_rounded, color: Color(0xFF804EE6), size: 20),
+                              Icon(Icons.verified_user_rounded, color: Color(0xFF804EE6), size: 20),
                               SizedBox(width: 8),
                               Text(
                                 'How InfluenceX Works',
@@ -576,13 +576,13 @@ class _BrandLandingScreenState extends State<BrandLandingScreen> {
                             ],
                           ),
                           const SizedBox(height: 14),
-                          _buildWorkflowStep('1', 'Explore & Select Creators', 'Search verified influencers by niche, followers, and engagement rates.'),
+                          _buildWorkflowStep('1', 'Brand Posts Campaign & Locks Escrow', 'Submit your campaign requirements. Budget is deposited securely in InfluenceX Escrow.'),
                           const SizedBox(height: 10),
-                          _buildWorkflowStep('2', 'Send Campaign Brief & Lock Escrow', 'Describe your goals. Budget is securely deposited in platform escrow.'),
+                          _buildWorkflowStep('2', 'InfluenceX QA Review & Dispatch', 'InfluenceX team verifies brief guidelines & compliance before passing the deal to the creator.'),
                           const SizedBox(height: 10),
-                          _buildWorkflowStep('3', 'Review Draft & Approve Content', 'Creator submits draft media for your feedback and approval.'),
+                          _buildWorkflowStep('3', 'Creator Production & Draft Submission', 'Creator produces required content and submits deliverables for verification.'),
                           const SizedBox(height: 10),
-                          _buildWorkflowStep('4', 'Settlement & Release', 'Once deliverables go live, funds are safely released to the creator.'),
+                          _buildWorkflowStep('4', 'InfluenceX Post Verification & Payout', 'InfluenceX verifies live links, hashtags, and deliverables before clearing final payout to the creator.'),
                         ],
                       ),
                     ),
@@ -738,7 +738,7 @@ class _BrandLandingScreenState extends State<BrandLandingScreen> {
             ),
             const SizedBox(height: 18),
             Text(
-              'When you book a creator on InfluenceX, your payment is safely deposited in our verified Escrow vault. Funds are only transferred after you review and approve the live deliverable.',
+              'When you book a creator on InfluenceX, every deal is managed through InfluenceX. Your budget is securely locked in platform escrow, the campaign is QA-reviewed by InfluenceX before being dispatched to creators, and creator deliverables are fully verified by InfluenceX before payout is cleared.',
               style: TextStyle(fontSize: 13.5, color: Colors.grey.shade700, height: 1.5),
             ),
             const SizedBox(height: 24),

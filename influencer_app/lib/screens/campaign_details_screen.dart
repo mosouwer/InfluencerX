@@ -414,10 +414,10 @@ class CampaignDetailsScreen extends StatelessWidget {
                   const SizedBox(height: 24),
 
                   // Workflow Steps
-                  _buildTimelineTile(1, 'Offer Sent', 'Campaign proposal initiated & sent to creator', currentStep >= 1),
-                  _buildTimelineTile(2, 'Under Review', 'Creator reviewing terms & proposal details', currentStep >= 2),
-                  _buildTimelineTile(3, 'Campaign Active', 'Proposal accepted, creator producing deliverables', currentStep >= 3),
-                  _buildTimelineTile(4, 'Done & Paid', 'Deliverables approved and payout settled', currentStep >= 4, isLast: true),
+                  _buildTimelineTile(1, 'Offer Initiated', 'Brand submitted requirements & locked escrow budget', currentStep >= 1),
+                  _buildTimelineTile(2, 'InfluenceX Review', 'InfluenceX QA team validating brief & dispatching to creator', currentStep >= 2),
+                  _buildTimelineTile(3, 'Campaign Active', 'Creator producing deliverables & submitting draft content for verification', currentStep >= 3),
+                  _buildTimelineTile(4, 'Verified & Paid', 'InfluenceX verified live deliverables & released escrow payout', currentStep >= 4, isLast: true),
                 ],
               ),
             ),
