@@ -5,7 +5,7 @@ window.brand = {
   async renderDashboard() {
     try {
       window.ui.updateSidebarActive('Dashboard');
-      window.ui.showMainLoading('Brand Dashboard', 'Fetching active campaigns, budget analytics, and creator stats...', 'dashboard');
+      window.ui.showMainLoading('dashboard');
 
       const [stats, campaigns, influencers] = await Promise.all([
         window.api.getStats(),
@@ -21,11 +21,11 @@ window.brand = {
         { icon: '💰', text: 'Payment of ₹8,000 released to TechTalk Vikram', time: '5 hours ago', color: '#22d3ee' },
         { icon: '⏰', text: 'Deadline reminder: Chef Arjun campaign due tomorrow', time: '1 day ago', color: '#fbbf24' }
       ];
-      const topPerformers = influencers.slice(0, 4);
+      const topPerformers = (influencers || []).slice(0, 4);
       
       document.getElementById('mainContent').innerHTML = `
         <div class="page-transition">
-          <h1 class="text-2xl font-bold mb-2">Good morning, ${window.auth.currentUser.profile.company} 👋</h1>
+          <h1 class="text-2xl font-bold mb-2">Good morning, ${window.auth.currentUser?.profile?.company || 'Brand'} 👋</h1>
           <p class="text-gray-500 mb-6">Here's what's happening with your campaigns today</p>
           
           <!-- Stats Row -->
@@ -42,7 +42,7 @@ window.brand = {
             </div>
             <div class="stat-card pink bg-white rounded-xl p-5 border">
               <div class="stat-label">Total Reach</div>
-              <div class="stat-value" style="color: #ec4899;">${(stats.totalReach / 1000000).toFixed(1)}M</div>
+              <div class="stat-value" style="color: #ec4899;">${((stats.totalReach || 0) / 1000000).toFixed(1)}M</div>
               <div class="stat-change up">↑ 12% vs last month</div>
             </div>
             <div class="stat-card purple bg-white rounded-xl p-5 border">
@@ -63,45 +63,44 @@ window.brand = {
                   <button onclick="window.brand.renderCampaigns()" class="text-purple-600 text-sm hover:text-purple-700">See all →</button>
                 </div>
                 <div class="overflow-x-auto">
-                  <table class="campaign-table w-full">
+                  <table class="campaign-table">
                     <thead>
                       <tr>
+                        <th>Campaign</th>
                         <th>Influencer</th>
-                        <th>Type</th>
                         <th>Status</th>
                         <th>Progress</th>
-                        <th>Deadline</th>
-                        <th>Amount</th>
+                        <th>Budget</th>
                       </tr>
                     </thead>
                     <tbody>
-                      ${campaigns.filter(c => c.status === 'active').slice(0, 3).map(c => `
-                        <tr onclick="window.brand.viewInfluencer('${c.influencerId}')">
-                          <td><div class="font-medium">${c.influencerName}</div><div class="text-xs text-gray-400">${c.type}</div></td>
-                          <td>${c.type}</td>
+                      ${(campaigns || []).slice(0, 3).map(c => `
+                        <tr>
+                          <td class="font-medium">${c.campaignName}</td>
+                          <td>${c.influencerName}</td>
                           <td><span class="status-badge status-${c.status}">${c.status}</span></td>
-                          <td><div class="w-24"><div class="progress-bar"><div class="progress-fill" style="width: ${c.progress}%"></div></div></div></td>
-                          <td class="text-gray-400">${c.deadline}</td>
+                          <td>
+                            <div class="progress-bar"><div class="progress-fill" style="width: ${c.progress}%"></div></div>
+                          </td>
                           <td class="text-purple-600 font-semibold">${window.utils.formatCurrency(c.amount)}</td>
                         </tr>
                       `).join('')}
-                      ${campaigns.filter(c => c.status === 'active').length === 0 ? '<tr><td colspan="6" class="text-center py-8 text-gray-400">No active campaigns</td></tr>' : ''}
                     </tbody>
                   </table>
                 </div>
               </div>
               
-              <!-- Spend Chart -->
+              <!-- Performance Chart -->
               <div class="bg-white rounded-xl border p-5">
                 <div class="flex justify-between items-center mb-4">
-                  <h2 class="font-semibold">Monthly Spend</h2>
+                  <h2 class="font-semibold">Campaign Spend Overview</h2>
                   <span class="text-xs text-gray-400">Last 6 months</span>
                 </div>
                 <div class="chart-area">
                   <div class="chart-line"></div>
                   ${['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'].map((month, i) => `
                     <div class="chart-bar-group">
-                      <div class="chart-bar ${i === 2 || i === 4 ? 'cyan' : ''}" style="height: ${monthlySpend[i] * 1.5}px;"></div>
+                      <div class="chart-bar" style="height: ${monthlySpend[i] * 1.5}px;"></div>
                       <div class="chart-label">${month}</div>
                     </div>
                   `).join('')}
@@ -111,39 +110,39 @@ window.brand = {
             
             <!-- Right Column -->
             <div>
-              <!-- Budget Card -->
-              <div class="budget-card mb-5">
-                <div class="budget-label">Monthly Budget</div>
-                <div class="budget-amount">${window.utils.formatCurrency(stats.budgetTotal || 50000)}</div>
-                <div class="budget-sub">${window.utils.formatCurrency(stats.budgetUsed || 0)} used · ${window.utils.formatCurrency((stats.budgetTotal || 50000) - (stats.budgetUsed || 0))} remaining</div>
-                <div class="budget-bar"><div class="budget-fill" style="width: ${((stats.budgetUsed || 0) / (stats.budgetTotal || 50000) * 100)}%"></div></div>
-                <div class="budget-info"><span>0%</span><span>${Math.round((stats.budgetUsed || 0) / (stats.budgetTotal || 50000) * 100)}% used</span><span>100%</span></div>
-              </div>
-              
-              <!-- Top Performers -->
-              <div class="bg-white rounded-xl border p-5 mb-5">
-                <div class="flex justify-between items-center mb-4">
-                  <h2 class="font-semibold">Top Performers</h2>
-                  <button onclick="window.brand.renderExplore()" class="text-purple-600 text-sm">View all →</button>
+              <!-- Top Performing Creators -->
+              <div class="bg-white rounded-xl border p-5 mb-6">
+                <h2 class="font-semibold mb-4">⭐ Top Creators</h2>
+                <div class="space-y-4">
+                  ${topPerformers.map(inf => `
+                    <div class="flex items-center justify-between">
+                      <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full gradient-bg flex items-center justify-center text-lg">${inf.avatar || '👤'}</div>
+                        <div>
+                          <div class="font-semibold text-sm">${inf.name}</div>
+                          <div class="text-xs text-gray-400">${inf.niche} · ${window.utils.formatNumber(inf.followers)}</div>
+                        </div>
+                      </div>
+                      <div class="text-right">
+                        <div class="text-xs text-green-500 font-semibold">⭐ ${inf.rating}</div>
+                        <div class="text-xs text-gray-400">${inf.engagement}% eng.</div>
+                      </div>
+                    </div>
+                  `).join('')}
                 </div>
-                ${topPerformers.map((inf, idx) => `
-                  <div class="performer-item" onclick="window.brand.viewInfluencer('${inf.id}')">
-                    <div class="performer-rank ${idx === 0 ? 'r1' : idx === 1 ? 'r2' : idx === 2 ? 'r3' : ''}">${idx + 1}</div>
-                    <div class="performer-avatar" style="background: linear-gradient(135deg, #667eea, #764ba2);">${inf.avatar || '👤'}</div>
-                    <div class="performer-info"><div class="performer-name">${inf.name}</div><div class="performer-niche">${inf.niche} · ${window.utils.formatNumber(inf.followers)}</div></div>
-                    <div class="performer-rate">${window.utils.formatCurrency(inf.rates?.post || 5000)}</div>
-                  </div>
-                `).join('')}
               </div>
               
-              <!-- Activity Feed -->
+              <!-- Recent Activity -->
               <div class="bg-white rounded-xl border p-5">
                 <h2 class="font-semibold mb-4">Recent Activity</h2>
                 <div class="activity-list">
                   ${recentActivity.map(act => `
                     <div class="activity-item">
-                      <div class="activity-icon" style="background: ${act.color}10; color: ${act.color};">${act.icon}</div>
-                      <div class="activity-text"><div class="activity-main">${act.text}</div><div class="activity-time">${act.time}</div></div>
+                      <div class="activity-icon" style="background: ${act.color}20; color: ${act.color};">${act.icon}</div>
+                      <div class="activity-text">
+                        <div class="activity-main">${act.text}</div>
+                        <div class="activity-time">${act.time}</div>
+                      </div>
                     </div>
                   `).join('')}
                 </div>
@@ -163,7 +162,7 @@ window.brand = {
   async renderExplore() {
     try {
       window.ui.updateSidebarActive('Explore');
-      window.ui.showMainLoading('Explore Creators', 'Loading creator directory, categories, and verified profiles...', 'users');
+      window.ui.showMainLoading('users');
 
       const influencers = await window.api.getInfluencers();
       this.allInfluencers = influencers || [];
@@ -266,7 +265,7 @@ window.brand = {
   async renderCampaigns() {
     try {
       window.ui.updateSidebarActive('Campaigns');
-      window.ui.showMainLoading('My Campaigns', 'Fetching brand campaigns, deliverables, and progress tracking...', 'campaigns');
+      window.ui.showMainLoading('campaigns');
 
       const campaigns = await window.api.getCampaigns();
       document.getElementById('mainContent').innerHTML = `

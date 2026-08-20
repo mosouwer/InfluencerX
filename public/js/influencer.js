@@ -5,7 +5,7 @@ window.influencer = {
   async renderDashboard() {
     try {
       window.ui.updateSidebarActive('Dashboard');
-      window.ui.showMainLoading('Creator Dashboard', 'Loading analytics, earnings balance, and campaign milestones...', 'dashboard');
+      window.ui.showMainLoading('dashboard');
 
       const [stats, campaigns, deals] = await Promise.all([
         window.api.getStats(),
@@ -170,9 +170,14 @@ window.influencer = {
   
   async renderCampaigns() {
     try {
-      const campaigns = await window.api.getCampaigns();
-      const deals = await window.api.getDeals();
-      const pendingOffers = deals.filter(d => d.status === 'pending');
+      window.ui.updateSidebarActive('Campaigns');
+      window.ui.showMainLoading('campaigns');
+
+      const [campaigns, deals] = await Promise.all([
+        window.api.getCampaigns(),
+        window.api.getDeals()
+      ]);
+      const pendingOffers = (deals || []).filter(d => d.status === 'pending');
       
       document.getElementById('mainContent').innerHTML = `
         <div class="page-transition">
@@ -240,7 +245,7 @@ window.influencer = {
   async renderEarnings() {
     try {
       window.ui.updateSidebarActive('Earnings');
-      window.ui.showMainLoading('Earnings & Payouts', 'Calculating revenue history, available balance, and payment transfers...', 'dashboard');
+      window.ui.showMainLoading('dashboard');
 
       const [stats, campaigns] = await Promise.all([
         window.api.getStats(),
@@ -302,7 +307,7 @@ window.influencer = {
   async renderProfile() {
     try {
       window.ui.updateSidebarActive('Profile');
-      window.ui.showMainLoading('Creator Profile', 'Loading profile rates, verified credentials, and performance stats...', 'dashboard');
+      window.ui.showMainLoading('dashboard');
 
       const userData = await window.api.getMe();
       const profile = userData.user?.profile || {};

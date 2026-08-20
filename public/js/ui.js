@@ -61,7 +61,7 @@ window.ui = {
     }
   },
 
-  showMainLoading(title = 'Loading...', subtitle = 'Fetching latest data...', layout = 'dashboard') {
+  showMainLoading(layout = 'dashboard') {
     const mainContent = document.getElementById('mainContent');
     this.startTopProgress();
     if (!mainContent) return;
@@ -127,30 +127,19 @@ window.ui = {
 
     mainContent.innerHTML = `
       <div class="page-transition min-h-[calc(100vh-120px)] flex flex-col justify-start relative">
-        <!-- Floating Modern Orbital Loader Overlay -->
-        <div class="absolute inset-0 z-20 flex flex-col items-center justify-center pointer-events-none backdrop-blur-[1px] bg-white/40 rounded-2xl transition-all duration-300">
-          <div class="bg-white/95 border border-purple-100/80 shadow-[0_20px_50px_rgba(128,78,230,0.15)] rounded-2xl p-6 sm:p-8 flex flex-col items-center max-w-sm text-center transform scale-100">
-            <!-- Modern Orbital Halo Animation -->
-            <div class="relative w-20 h-20 mb-4 flex items-center justify-center">
-              <!-- Outer glowing spinning ring -->
-              <div class="absolute inset-0 rounded-full border-2 border-transparent border-t-[#804ee6] border-r-[#ff8a3d] animate-spin"></div>
-              <!-- Inner reverse spinning ring -->
-              <div class="absolute inset-1 rounded-full border-2 border-transparent border-b-[#804ee6] border-l-[#a855f7] animate-spin-reverse opacity-70"></div>
-              <!-- Glowing pulse backdrop -->
-              <div class="absolute inset-3 rounded-full bg-gradient-to-tr from-[#804ee6]/20 to-[#ff8a3d]/20 blur-sm animate-pulse"></div>
-              <!-- Center IX Logo Badge -->
-              <div class="relative w-11 h-11 bg-white rounded-full shadow-md border border-purple-100 flex items-center justify-center">
-                <span class="text-sm font-black tracking-tighter bg-gradient-to-r from-[#804ee6] to-[#ff8a3d] bg-clip-text text-transparent">IX</span>
-                <span class="absolute top-2 right-2 w-1.5 h-1.5 rounded-full bg-[#ff8a3d] animate-ping"></span>
-              </div>
-            </div>
-
-            <h3 class="text-base font-extrabold text-gray-900 tracking-tight mb-1">${title}</h3>
-            <p class="text-xs text-gray-500 font-medium leading-relaxed mb-3.5">${subtitle}</p>
-            
-            <!-- Sleek loader micro slider -->
-            <div class="w-36 h-1.5 bg-gray-100 rounded-full overflow-hidden relative">
-              <div class="loading-bar-slider absolute inset-y-0 rounded-full bg-gradient-to-r from-[#804ee6] via-[#ff8a3d] to-[#804ee6]"></div>
+        <!-- Floating Modern Ring Loader Animation over Blur Screen -->
+        <div class="absolute inset-0 z-20 flex items-center justify-center pointer-events-none backdrop-blur-[2px] bg-white/40 rounded-2xl transition-all duration-300">
+          <div class="relative w-20 h-20 flex items-center justify-center">
+            <!-- Outer glowing spinning ring -->
+            <div class="absolute inset-0 rounded-full border-2 border-transparent border-t-[#804ee6] border-r-[#ff8a3d] animate-spin"></div>
+            <!-- Inner reverse spinning ring -->
+            <div class="absolute inset-1.5 rounded-full border-2 border-transparent border-b-[#804ee6] border-l-[#a855f7] animate-spin-reverse opacity-75"></div>
+            <!-- Glowing pulse backdrop -->
+            <div class="absolute inset-3 rounded-full bg-gradient-to-tr from-[#804ee6]/20 to-[#ff8a3d]/20 blur-sm animate-pulse"></div>
+            <!-- Center IX Logo Badge -->
+            <div class="relative w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full shadow-lg border border-purple-100/80 flex items-center justify-center">
+              <span class="text-xs font-black tracking-tighter bg-gradient-to-r from-[#804ee6] to-[#ff8a3d] bg-clip-text text-transparent">IX</span>
+              <span class="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-[#ff8a3d] animate-ping"></span>
             </div>
           </div>
         </div>

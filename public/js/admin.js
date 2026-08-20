@@ -5,7 +5,7 @@ window.admin = {
   async renderDashboard() {
     try {
       window.ui.updateSidebarActive('Dashboard');
-      window.ui.showMainLoading('Admin Dashboard', 'Aggregating platform metrics, bookings, and financial analytics...', 'dashboard');
+      window.ui.showMainLoading('dashboard');
       
       const [stats, rawCampaigns, rawDeals] = await Promise.all([
         window.api.getAdminStats(),
@@ -234,7 +234,7 @@ window.admin = {
   async renderUsers() {
     try {
       window.ui.updateSidebarActive('User Management');
-      window.ui.showMainLoading('User Management', 'Fetching creators, brands, and account verification statuses...', 'users');
+      window.ui.showMainLoading('users');
       this.allUsers = await window.api.getAdminUsers();
       this.renderUserTable(this.allUsers);
       window.ui.stopTopProgress();
@@ -637,7 +637,7 @@ window.admin = {
   async renderCampaigns() {
     try {
       window.ui.updateSidebarActive('Campaigns');
-      window.ui.showMainLoading('All Campaigns', 'Retrieving campaign briefs, milestones, and brand hires...', 'campaigns');
+      window.ui.showMainLoading('campaigns');
 
       const [rawCampaigns, rawDeals] = await Promise.all([
         window.api.getAdminCampaigns(),
@@ -972,7 +972,7 @@ window.admin = {
   async renderDeals() {
     try {
       window.ui.updateSidebarActive('All Deals');
-      window.ui.showMainLoading('Completed Deals', 'Calculating platform commission earnings and settlements...', 'deals');
+      window.ui.showMainLoading('deals');
 
       const allDeals = await window.api.getAdminDeals();
       const deals = (allDeals || []).filter(deal => deal.status === 'completed');
@@ -1045,7 +1045,7 @@ window.admin = {
   async renderWithdrawals() {
     try {
       window.ui.updateSidebarActive('Withdrawals');
-      window.ui.showMainLoading('Withdrawal Requests', 'Syncing creator payout queues and banking details...', 'withdrawals');
+      window.ui.showMainLoading('withdrawals');
 
       const withdrawals = await window.api.getAdminWithdrawals();
       document.getElementById('mainContent').innerHTML = `
@@ -1586,7 +1586,7 @@ window.admin = {
   async renderNotifications() {
     try {
       window.ui.updateSidebarActive('Notifications');
-      window.ui.showMainLoading('Live Audit Stream', 'Connecting to real-time notification ledger and system updates...', 'table');
+      window.ui.showMainLoading('table');
 
       const notifications = await window.api.getNotifications();
       this.allNotifications = notifications;
