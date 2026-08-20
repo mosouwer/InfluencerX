@@ -4,10 +4,15 @@ window.brand = {
   
   async renderDashboard() {
     try {
-      const stats = await window.api.getStats();
-      const campaigns = await window.api.getCampaigns();
-      const influencers = await window.api.getInfluencers();
-      this.allInfluencers = influencers;
+      window.ui.updateSidebarActive('Dashboard');
+      window.ui.showMainLoading('Brand Dashboard', 'Fetching active campaigns, budget analytics, and creator stats...', 'dashboard');
+
+      const [stats, campaigns, influencers] = await Promise.all([
+        window.api.getStats(),
+        window.api.getCampaigns(),
+        window.api.getInfluencers()
+      ]);
+      this.allInfluencers = influencers || [];
       
       // Mock data for charts and activity
       const monthlySpend = [45, 62, 58, 78, 92, 108];
@@ -147,8 +152,9 @@ window.brand = {
           </div>
         </div>
       `;
-      window.ui.updateSidebarActive('Dashboard');
+      window.ui.stopTopProgress();
     } catch (err) { 
+      window.ui.stopTopProgress();
       console.error(err);
       window.ui.showToast(err.message, 'error'); 
     }
@@ -156,8 +162,11 @@ window.brand = {
   
   async renderExplore() {
     try {
+      window.ui.updateSidebarActive('Explore');
+      window.ui.showMainLoading('Explore Creators', 'Loading creator directory, categories, and verified profiles...', 'users');
+
       const influencers = await window.api.getInfluencers();
-      this.allInfluencers = influencers;
+      this.allInfluencers = influencers || [];
       
       document.getElementById('mainContent').innerHTML = `
         <div class="page-transition">
@@ -191,22 +200,24 @@ window.brand = {
             <div class="text-purple-600 text-xs cursor-pointer">✕ Clear all</div>
           </div>
           
-          <div class="text-sm text-gray-400 mb-4">Showing <b class="text-gray-700">${influencers.length} creators</b> matching your filters</div>
+          <div class="text-sm text-gray-400 mb-4">Showing <b class="text-gray-700">${(influencers || []).length} creators</b> matching your filters</div>
           
           <div class="grid grid-cols-3 gap-6" id="influencerGrid">
-            ${influencers.map(inf => this.renderInfluencerCard(inf)).join('')}
+            ${(influencers || []).map(inf => this.renderInfluencerCard(inf)).join('')}
           </div>
         </div>
       `;
       
       document.getElementById('searchInput')?.addEventListener('input', window.utils.debounce((e) => {
         const term = e.target.value.toLowerCase();
-        const filtered = this.allInfluencers.filter(i => i.name.toLowerCase().includes(term) || i.niche.toLowerCase().includes(term) || i.location.toLowerCase().includes(term));
-        document.getElementById('influencerGrid').innerHTML = filtered.map(inf => this.renderInfluencerCard(inf)).join('');
+        const filtered = this.allInfluencers.filter(i => (i.name || '').toLowerCase().includes(term) || (i.niche || '').toLowerCase().includes(term) || (i.location || '').toLowerCase().includes(term));
+        const grid = document.getElementById('influencerGrid');
+        if (grid) grid.innerHTML = filtered.map(inf => this.renderInfluencerCard(inf)).join('');
       }, 300));
       
-      window.ui.updateSidebarActive('Explore');
+      window.ui.stopTopProgress();
     } catch (err) { 
+      window.ui.stopTopProgress();
       console.error(err);
       window.ui.showToast(err.message, 'error'); 
     }
@@ -220,18 +231,18 @@ window.brand = {
         <div class="h-24 gradient-bg flex items-center justify-center text-4xl relative">${inf.avatar || '👤'}${inf.verified ? '<span class="absolute bottom-1 right-2 text-xs bg-green-500 text-white px-1 rounded">✓</span>' : ''}</div>
         <div class="p-4">
           <h3 class="font-bold">${inf.name}</h3>
-          <p class="text-xs text-gray-400">@${inf.name.toLowerCase().replace(/\s/g, '')} · ${inf.location}</p>
+          <p class="text-xs text-gray-400">@${(inf.name || '').toLowerCase().replace(/\s/g, '')} · ${inf.location || ''}</p>
           <div class="flex gap-2 mt-2">
-            <span class="text-xs bg-gray-100 px-2 py-1 rounded">${window.utils.formatNumber(inf.followers)} followers</span>
-            <span class="text-xs bg-gray-100 px-2 py-1 rounded">${inf.engagement}% eng.</span>
+            <span class="text-xs bg-gray-100 px-2 py-1 rounded">${window.utils.formatNumber(inf.followers || 0)} followers</span>
+            <span class="text-xs bg-gray-100 px-2 py-1 rounded">${inf.engagement || 0}% eng.</span>
             ${inf.verified ? '<span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">✓ Verified</span>' : ''}
           </div>
           <div class="flex justify-between items-center mt-3">
             <div>
+              <div class="text-xs text-gray-400">Starting from</div>
               <div class="font-bold text-purple-600">${window.utils.formatCurrency(inf.rates?.post || 5000)}</div>
-              <div class="text-xs text-gray-400">⭐ ${inf.rating} · ${inf.campaigns} campaigns</div>
             </div>
-            <button class="px-3 py-1.5 bg-purple-600 text-white rounded-lg text-xs font-medium hover:bg-purple-700 transition" onclick="event.stopPropagation(); window.brand.viewInfluencer('${inf.id}')">Book</button>
+            <button onclick="event.stopPropagation(); window.brand.hireInfluencer('${inf.id}')" class="px-3 py-1.5 bg-black text-white text-xs font-semibold rounded-lg hover:bg-gray-800 transition">Hire Now</button>
           </div>
         </div>
       </div>
@@ -240,7 +251,8 @@ window.brand = {
   
   filterNiche(niche) {
     const filtered = niche === 'all' ? this.allInfluencers : this.allInfluencers.filter(i => i.niche === niche);
-    document.getElementById('influencerGrid').innerHTML = filtered.map(inf => this.renderInfluencerCard(inf)).join('');
+    const grid = document.getElementById('influencerGrid');
+    if (grid) grid.innerHTML = filtered.map(inf => this.renderInfluencerCard(inf)).join('');
     
     // Update active state on filter pills
     document.querySelectorAll('.filter-pill').forEach(pill => {
@@ -253,6 +265,9 @@ window.brand = {
   
   async renderCampaigns() {
     try {
+      window.ui.updateSidebarActive('Campaigns');
+      window.ui.showMainLoading('My Campaigns', 'Fetching brand campaigns, deliverables, and progress tracking...', 'campaigns');
+
       const campaigns = await window.api.getCampaigns();
       document.getElementById('mainContent').innerHTML = `
         <div class="page-transition">
@@ -260,18 +275,18 @@ window.brand = {
           <p class="text-gray-500 mb-6">Track and manage all your influencer campaigns</p>
           
           <div class="grid grid-cols-4 gap-5 mb-8">
-            <div class="stat-card bg-white rounded-xl p-5 border"><div class="stat-label">Total Campaigns</div><div class="stat-value" style="color: #06b6d4;">${campaigns.length}</div><div class="stat-change up">↑ 5 this month</div></div>
-            <div class="stat-card bg-white rounded-xl p-5 border"><div class="stat-label">Active Now</div><div class="stat-value" style="color: #10b981;">${campaigns.filter(c => c.status === 'active').length}</div><div class="stat-change up">↑ 2 this week</div></div>
-            <div class="stat-card bg-white rounded-xl p-5 border"><div class="stat-label">Completed</div><div class="stat-value" style="color: #ec4899;">${campaigns.filter(c => c.status === 'completed').length}</div><div class="stat-change up">100% success rate</div></div>
-            <div class="stat-card bg-white rounded-xl p-5 border"><div class="stat-label">Total Spent</div><div class="stat-value" style="color: #8b5cf6;">${window.utils.formatCurrency(campaigns.reduce((s, c) => s + c.amount, 0))}</div><div class="stat-change up">↑ this quarter</div></div>
+            <div class="stat-card bg-white rounded-xl p-5 border"><div class="stat-label">Total Campaigns</div><div class="stat-value" style="color: #06b6d4;">${(campaigns || []).length}</div><div class="stat-change up">↑ 5 this month</div></div>
+            <div class="stat-card bg-white rounded-xl p-5 border"><div class="stat-label">Active Now</div><div class="stat-value" style="color: #10b981;">${(campaigns || []).filter(c => c.status === 'active').length}</div><div class="stat-change up">↑ 2 this week</div></div>
+            <div class="stat-card bg-white rounded-xl p-5 border"><div class="stat-label">Completed</div><div class="stat-value" style="color: #ec4899;">${(campaigns || []).filter(c => c.status === 'completed').length}</div><div class="stat-change up">100% success rate</div></div>
+            <div class="stat-card bg-white rounded-xl p-5 border"><div class="stat-label">Total Spent</div><div class="stat-value" style="color: #8b5cf6;">${window.utils.formatCurrency((campaigns || []).reduce((s, c) => s + (c.amount || 0), 0))}</div><div class="stat-change up">↑ this quarter</div></div>
           </div>
           
           <div class="bg-white rounded-xl border overflow-hidden">
             <div class="flex gap-2 p-4 border-b">
-              <button class="px-3 py-1.5 bg-purple-600 text-white rounded-lg text-xs font-medium">All (${campaigns.length})</button>
-              <button class="px-3 py-1.5 bg-gray-100 text-gray-600 rounded-lg text-xs font-medium">Active (${campaigns.filter(c => c.status === 'active').length})</button>
-              <button class="px-3 py-1.5 bg-gray-100 text-gray-600 rounded-lg text-xs font-medium">Pending (${campaigns.filter(c => c.status === 'pending').length})</button>
-              <button class="px-3 py-1.5 bg-gray-100 text-gray-600 rounded-lg text-xs font-medium">Completed (${campaigns.filter(c => c.status === 'completed').length})</button>
+              <button class="px-3 py-1.5 bg-purple-600 text-white rounded-lg text-xs font-medium">All (${(campaigns || []).length})</button>
+              <button class="px-3 py-1.5 bg-gray-100 text-gray-600 rounded-lg text-xs font-medium">Active (${(campaigns || []).filter(c => c.status === 'active').length})</button>
+              <button class="px-3 py-1.5 bg-gray-100 text-gray-600 rounded-lg text-xs font-medium">Pending (${(campaigns || []).filter(c => c.status === 'pending').length})</button>
+              <button class="px-3 py-1.5 bg-gray-100 text-gray-600 rounded-lg text-xs font-medium">Completed (${(campaigns || []).filter(c => c.status === 'completed').length})</button>
             </div>
             <div class="overflow-x-auto">
               <table class="campaign-table w-full">
@@ -287,7 +302,7 @@ window.brand = {
                   </tr>
                 </thead>
                 <tbody>
-                  ${campaigns.map(c => `
+                  ${(campaigns || []).map(c => `
                     <tr>
                       <td class="font-medium">${c.campaignName}</td>
                       <td>${c.influencerName}</td>
@@ -306,8 +321,9 @@ window.brand = {
           <div class="mt-6"><button onclick="window.brand.openCreateCampaignModal()" class="px-6 py-2.5 rounded-lg gradient-bg text-white font-semibold hover:opacity-90 transition">+ Create New Campaign</button></div>
         </div>
       `;
-      window.ui.updateSidebarActive('Campaigns');
+      window.ui.stopTopProgress();
     } catch (err) { 
+      window.ui.stopTopProgress();
       console.error(err);
       window.ui.showToast(err.message, 'error'); 
     }

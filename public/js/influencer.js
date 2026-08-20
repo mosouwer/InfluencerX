@@ -4,10 +4,15 @@ window.influencer = {
   
   async renderDashboard() {
     try {
-      const stats = await window.api.getStats();
-      const campaigns = await window.api.getCampaigns();
-      const deals = await window.api.getDeals();
-      const pendingOffers = deals.filter(d => d.status === 'pending');
+      window.ui.updateSidebarActive('Dashboard');
+      window.ui.showMainLoading('Creator Dashboard', 'Loading analytics, earnings balance, and campaign milestones...', 'dashboard');
+
+      const [stats, campaigns, deals] = await Promise.all([
+        window.api.getStats(),
+        window.api.getCampaigns(),
+        window.api.getDeals()
+      ]);
+      const pendingOffers = (deals || []).filter(d => d.status === 'pending');
       
       // Mock monthly earnings for chart
       const monthlyEarnings = [12, 18, 22, 35, 42, 38];
@@ -15,7 +20,7 @@ window.influencer = {
       document.getElementById('mainContent').innerHTML = `
         <div class="page-transition">
           <h1 class="text-2xl font-bold mb-2">Creator Dashboard ✨</h1>
-          <p class="text-gray-500 mb-6">Your performance at a glance, ${window.auth.currentUser.profile.name}</p>
+          <p class="text-gray-500 mb-6">Your performance at a glance, ${window.auth.currentUser?.profile?.name || 'Creator'}</p>
           
           <!-- Earnings Banner -->
           <div class="earnings-banner mb-8">
@@ -26,8 +31,8 @@ window.influencer = {
                 <div class="earnings-sub">+${window.utils.formatCurrency(stats.pendingAmount || 0)} pending release · ${window.utils.formatCurrency((stats.totalEarned || 0) - (stats.pendingAmount || 0))} available</div>
               </div>
               <div class="flex gap-3">
-                <button class="px-4 py-2 bg-white/20 backdrop-blur-sm rounded-lg text-sm font-semibold hover:bg-white/30 transition">View History</button>
-                <button class="px-4 py-2 bg-white text-purple-600 rounded-lg text-sm font-semibold hover:bg-gray-100 transition">Withdraw →</button>
+                <button onclick="window.influencer.renderEarnings()" class="px-4 py-2 bg-white/20 backdrop-blur-sm rounded-lg text-sm font-semibold hover:bg-white/30 transition">View History</button>
+                <button onclick="window.influencer.renderEarnings()" class="px-4 py-2 bg-white text-purple-600 rounded-lg text-sm font-semibold hover:bg-gray-100 transition">Withdraw →</button>
               </div>
             </div>
           </div>
@@ -68,33 +73,35 @@ window.influencer = {
                     <button onclick="window.influencer.renderCampaigns()" class="text-purple-600 text-sm">See all →</button>
                   </div>
                   ${pendingOffers.map(offer => `
-                    <div class="flex justify-between items-center p-4 bg-gray-50 rounded-xl mb-3">
-                      <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 flex items-center justify-center text-white">${offer.brandName.charAt(0)}</div>
-                        <div><div class="font-semibold">${offer.brandName}</div><div class="text-xs text-gray-500">${offer.packageType} · Due in 7 days</div></div>
+                    <div class="offer-item flex justify-between items-center p-3 bg-gray-50 rounded-lg mb-3">
+                      <div>
+                        <div class="font-bold">${offer.brandName}</div>
+                        <div class="text-xs text-gray-500">${offer.packageType || 'Post'} · ${offer.message || 'New campaign deal'}</div>
                       </div>
-                      <div class="text-purple-600 font-bold">${window.utils.formatCurrency(offer.amount)}</div>
-                      <div class="flex gap-2">
-                        <button onclick="window.influencer.respondToDeal('${offer.id}', 'accepted')" class="px-4 py-1.5 bg-purple-600 text-white rounded-lg text-sm font-medium">Accept</button>
-                        <button onclick="window.influencer.respondToDeal('${offer.id}', 'rejected')" class="px-4 py-1.5 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium">Decline</button>
+                      <div class="flex items-center gap-3">
+                        <span class="font-bold text-purple-600">${window.utils.formatCurrency(offer.amount || 0)}</span>
+                        <button onclick="window.influencer.respondToDeal('${offer.id}', 'accepted')" class="px-3 py-1 bg-green-600 text-white rounded text-xs">Accept</button>
+                        <button onclick="window.influencer.respondToDeal('${offer.id}', 'rejected')" class="px-3 py-1 bg-red-500 text-white rounded text-xs">Decline</button>
                       </div>
                     </div>
                   `).join('')}
                 </div>
               ` : ''}
               
-              <!-- Earnings Chart -->
-              <div class="bg-white rounded-xl border p-5">
-                <div class="flex justify-between items-center mb-4">
-                  <h2 class="font-semibold">Earnings This Year</h2>
-                  <span class="text-xs text-gray-400">2026</span>
-                </div>
-                <div class="chart-area">
-                  <div class="chart-line"></div>
-                  ${['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'].map((month, i) => `
-                    <div class="chart-bar-group">
-                      <div class="chart-bar ${i > 2 ? 'pink' : ''}" style="height: ${monthlyEarnings[i] * 3}px;"></div>
-                      <div class="chart-label">${month}</div>
+              <!-- Active Deliverables -->
+              <div class="bg-white rounded-xl border p-5 mb-6">
+                <h2 class="font-semibold mb-4">Active Deliverables</h2>
+                <div class="space-y-4">
+                  ${(campaigns || []).slice(0, 3).map(c => `
+                    <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                      <div>
+                        <div class="font-bold">${c.campaignName}</div>
+                        <div class="text-xs text-gray-500">${c.brandName} · Due: ${c.deadline || 'Soon'}</div>
+                      </div>
+                      <div class="text-right">
+                        <span class="status-badge status-${c.status}">${c.status}</span>
+                        <div class="text-xs font-bold text-purple-600 mt-1">${window.utils.formatCurrency(c.amount || 0)}</div>
+                      </div>
                     </div>
                   `).join('')}
                 </div>
@@ -103,13 +110,6 @@ window.influencer = {
             
             <!-- Right Column -->
             <div>
-              <!-- Profile Strength -->
-              <div class="bg-white rounded-xl border p-5 mb-5">
-                <div class="flex justify-between items-center mb-4">
-                  <h2 class="font-semibold">Profile Strength</h2>
-                  <span class="text-xs text-purple-600">82%</span>
-                </div>
-                <div class="progress-bar mb-4"><div class="progress-fill" style="width: 82%"></div></div>
                 <div class="space-y-2">
                   <div class="profile-strength-item completed"><span>✅</span><span>Profile photo & bio</span></div>
                   <div class="profile-strength-item completed"><span>✅</span><span>Instagram connected</span></div>
@@ -211,7 +211,7 @@ window.influencer = {
                       <td><button onclick="window.influencer.respondToDeal('${offer.id}', 'accepted')" class="px-3 py-1 bg-purple-600 text-white rounded text-xs">Accept</button></td>
                     </tr>
                   `).join('')}
-                  ${campaigns.map(c => `
+                  ${(campaigns || []).map(c => `
                     <tr>
                       <td class="font-medium">${c.brandName}</td>
                       <td>${c.campaignName}</td>
@@ -229,8 +229,9 @@ window.influencer = {
           </div>
         </div>
       `;
-      window.ui.updateSidebarActive('Campaigns');
+      window.ui.stopTopProgress();
     } catch (err) { 
+      window.ui.stopTopProgress();
       console.error(err);
       window.ui.showToast(err.message, 'error'); 
     }
@@ -238,8 +239,13 @@ window.influencer = {
   
   async renderEarnings() {
     try {
-      const stats = await window.api.getStats();
-      const campaigns = await window.api.getCampaigns();
+      window.ui.updateSidebarActive('Earnings');
+      window.ui.showMainLoading('Earnings & Payouts', 'Calculating revenue history, available balance, and payment transfers...', 'dashboard');
+
+      const [stats, campaigns] = await Promise.all([
+        window.api.getStats(),
+        window.api.getCampaigns()
+      ]);
       
       document.getElementById('mainContent').innerHTML = `
         <div class="page-transition">
@@ -270,7 +276,7 @@ window.influencer = {
                   </tr>
                 </thead>
                 <tbody>
-                  ${campaigns.map(c => `
+                  ${(campaigns || []).map(c => `
                     <tr>
                       <td class="p-4 font-medium">${c.campaignName}</td>
                       <td>${c.brandName}</td>
@@ -285,8 +291,9 @@ window.influencer = {
           </div>
         </div>
       `;
-      window.ui.updateSidebarActive('Earnings');
+      window.ui.stopTopProgress();
     } catch (err) { 
+      window.ui.stopTopProgress();
       console.error(err);
       window.ui.showToast(err.message, 'error'); 
     }
@@ -294,8 +301,11 @@ window.influencer = {
   
   async renderProfile() {
     try {
+      window.ui.updateSidebarActive('Profile');
+      window.ui.showMainLoading('Creator Profile', 'Loading profile rates, verified credentials, and performance stats...', 'dashboard');
+
       const userData = await window.api.getMe();
-      const profile = userData.user.profile;
+      const profile = userData.user?.profile || {};
       this.currentRates = profile.rates;
       
       document.getElementById('mainContent').innerHTML = `
@@ -314,9 +324,9 @@ window.influencer = {
             <div class="flex items-center gap-6 mb-6">
               <div class="w-20 h-20 rounded-full gradient-bg flex items-center justify-center text-3xl">${profile.avatar || '👤'}</div>
               <div>
-                <h2 class="text-xl font-bold">${profile.name} ${profile.verified ? '<span class="verified-badge ml-2">✓ Verified</span>' : ''}</h2>
-                <p class="text-gray-500">${profile.niche} Creator · ${profile.location}</p>
-                <div class="flex text-yellow-400 mt-1">${window.utils.getStars(profile.rating)}</div>
+                <h2 class="text-xl font-bold">${profile.name || 'Creator'} ${profile.verified ? '<span class="verified-badge ml-2">✓ Verified</span>' : ''}</h2>
+                <p class="text-gray-500">${profile.niche || 'Lifestyle'} Creator · ${profile.location || 'India'}</p>
+                <div class="flex text-yellow-400 mt-1">${window.utils.getStars(profile.rating || 5)}</div>
               </div>
             </div>
             
@@ -352,7 +362,7 @@ window.influencer = {
                   <span class="text-2xl">📸</span>
                   <div>
                     <div class="font-medium">Instagram</div>
-                    <div class="text-gray-500">${(profile.followers / 1000000).toFixed(1)}M followers</div>
+                    <div class="text-gray-500">${((profile.followers || 0) / 1000000).toFixed(1)}M followers</div>
                   </div>
                 </div>
                 <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
@@ -367,8 +377,9 @@ window.influencer = {
           </div>
         </div>
       `;
-      window.ui.updateSidebarActive('Profile');
+      window.ui.stopTopProgress();
     } catch (err) { 
+      window.ui.stopTopProgress();
       console.error(err);
       window.ui.showToast(err.message, 'error'); 
     }

@@ -4,12 +4,17 @@ window.admin = {
   
   async renderDashboard() {
     try {
-      const stats = await window.api.getAdminStats();
-      const rawCampaigns = await window.api.getAdminCampaigns();
-      const rawDeals = await window.api.getAdminDeals();
+      window.ui.updateSidebarActive('Dashboard');
+      window.ui.showMainLoading('Admin Dashboard', 'Aggregating platform metrics, bookings, and financial analytics...', 'dashboard');
       
-      const pendingCampaigns = rawCampaigns.filter(c => c.status === 'pending').map(c => ({...c, isDeal: false}));
-      const pendingDeals = rawDeals.filter(d => d.status === 'pending').map(d => ({
+      const [stats, rawCampaigns, rawDeals] = await Promise.all([
+        window.api.getAdminStats(),
+        window.api.getAdminCampaigns(),
+        window.api.getAdminDeals()
+      ]);
+      
+      const pendingCampaigns = (rawCampaigns || []).filter(c => c.status === 'pending').map(c => ({...c, isDeal: false}));
+      const pendingDeals = (rawDeals || []).filter(d => d.status === 'pending').map(d => ({
         id: d.id,
         isDeal: true,
         campaignName: d.id,
@@ -203,8 +208,9 @@ window.admin = {
           </div>
         </div>
       `;
-      window.ui.updateSidebarActive('Dashboard');
+      window.ui.stopTopProgress();
     } catch (err) { 
+      window.ui.stopTopProgress();
       console.error(err);
       window.ui.showToast(err.message, 'error'); 
     }
@@ -228,9 +234,12 @@ window.admin = {
   async renderUsers() {
     try {
       window.ui.updateSidebarActive('User Management');
+      window.ui.showMainLoading('User Management', 'Fetching creators, brands, and account verification statuses...', 'users');
       this.allUsers = await window.api.getAdminUsers();
       this.renderUserTable(this.allUsers);
+      window.ui.stopTopProgress();
     } catch (err) { 
+      window.ui.stopTopProgress();
       console.error(err);
       window.ui.showToast(err.message, 'error'); 
     }
@@ -627,10 +636,15 @@ window.admin = {
   
   async renderCampaigns() {
     try {
-      const rawCampaigns = await window.api.getAdminCampaigns();
-      const rawDeals = await window.api.getAdminDeals();
+      window.ui.updateSidebarActive('Campaigns');
+      window.ui.showMainLoading('All Campaigns', 'Retrieving campaign briefs, milestones, and brand hires...', 'campaigns');
+
+      const [rawCampaigns, rawDeals] = await Promise.all([
+        window.api.getAdminCampaigns(),
+        window.api.getAdminDeals()
+      ]);
       
-      const dealCampaigns = rawDeals.map(d => ({
+      const dealCampaigns = (rawDeals || []).map(d => ({
         id: d.id,
         isDeal: true,
         campaignName: d.id,
@@ -646,7 +660,7 @@ window.admin = {
         hasMedia: d.hasMedia
       }));
       
-      const campaigns = [...rawCampaigns.map(c => ({...c, isDeal: false})), ...dealCampaigns]
+      const campaigns = [...(rawCampaigns || []).map(c => ({...c, isDeal: false})), ...dealCampaigns]
         .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
       
       document.getElementById('mainContent').innerHTML = `
@@ -716,8 +730,9 @@ window.admin = {
       // Store campaigns for filtering
       this.allCampaigns = campaigns;
       this.currentCampaignFilter = 'all';
-      window.ui.updateSidebarActive('Campaigns');
+      window.ui.stopTopProgress();
     } catch (err) { 
+      window.ui.stopTopProgress();
       console.error(err);
       window.ui.showToast(err.message, 'error'); 
     }
@@ -956,8 +971,11 @@ window.admin = {
   
   async renderDeals() {
     try {
+      window.ui.updateSidebarActive('All Deals');
+      window.ui.showMainLoading('Completed Deals', 'Calculating platform commission earnings and settlements...', 'deals');
+
       const allDeals = await window.api.getAdminDeals();
-      const deals = allDeals.filter(deal => deal.status === 'completed');
+      const deals = (allDeals || []).filter(deal => deal.status === 'completed');
       document.getElementById('mainContent').innerHTML = `
         <div class="page-transition space-y-6">
           <div class="flex justify-between items-center">
@@ -1016,8 +1034,9 @@ window.admin = {
           </div>
         </div>
       `;
-      window.ui.updateSidebarActive('Deals');
+      window.ui.stopTopProgress();
     } catch (err) { 
+      window.ui.stopTopProgress();
       console.error(err);
       window.ui.showToast(err.message, 'error'); 
     }
@@ -1025,6 +1044,9 @@ window.admin = {
   
   async renderWithdrawals() {
     try {
+      window.ui.updateSidebarActive('Withdrawals');
+      window.ui.showMainLoading('Withdrawal Requests', 'Syncing creator payout queues and banking details...', 'withdrawals');
+
       const withdrawals = await window.api.getAdminWithdrawals();
       document.getElementById('mainContent').innerHTML = `
         <div class="page-transition space-y-6">
@@ -1046,7 +1068,7 @@ window.admin = {
                   </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-150">
-                  ${withdrawals.map(w => `
+                  ${(withdrawals || []).map(w => `
                     <tr class="hover:bg-gray-50/40 transition-colors">
                       <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">${w.userName}</td>
                       <td class="px-6 py-4 whitespace-nowrap text-sm font-extrabold text-gray-700">${window.utils.formatCurrency(w.amount)}</td>
@@ -1074,8 +1096,9 @@ window.admin = {
           </div>
         </div>
       `;
-      window.ui.updateSidebarActive('Withdrawals');
+      window.ui.stopTopProgress();
     } catch (err) { 
+      window.ui.stopTopProgress();
       console.error(err);
       window.ui.showToast(err.message, 'error'); 
     }
@@ -1562,12 +1585,15 @@ window.admin = {
   // ========== NOTIFICATIONS & LIVE AUDIT STREAM ==========
   async renderNotifications() {
     try {
+      window.ui.updateSidebarActive('Notifications');
+      window.ui.showMainLoading('Live Audit Stream', 'Connecting to real-time notification ledger and system updates...', 'table');
+
       const notifications = await window.api.getNotifications();
       this.allNotifications = notifications;
       this.currentNotifFilter = this.currentNotifFilter || 'all';
       this.notifSearchTerm = this.notifSearchTerm || '';
 
-      const unreadCount = notifications.filter(n => !n.read).length;
+      const unreadCount = (notifications || []).filter(n => !n.read).length;
 
       document.getElementById('mainContent').innerHTML = `
         <div class="page-transition space-y-6">
@@ -1590,68 +1616,62 @@ window.admin = {
               </button>
               ${unreadCount > 0 ? `
                 <button onclick="window.admin.markAllNotificationsRead()" 
-                  class="px-4 py-2 bg-[#804ee6] text-white hover:bg-purple-700 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
-                  <span class="material-icons-outlined text-[16px]">done_all</span> Mark All Read (${unreadCount})
-                </button>
-              ` : ''}
-              ${notifications.length > 0 ? `
-                <button onclick="window.admin.clearAllNotifications()" 
-                  class="px-3 py-2 bg-red-50 text-red-600 hover:bg-red-100 rounded-xl text-xs font-bold transition flex items-center gap-1">
-                  <span class="material-icons-outlined text-[16px]">delete_sweep</span> Clear All
+                  class="px-3.5 py-2 bg-[#804ee6] hover:bg-purple-700 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-xs">
+                  <span class="material-icons-outlined text-[16px]">done_all</span> Mark All Read
                 </button>
               ` : ''}
             </div>
           </div>
 
-          <!-- Filter & Search Toolbar -->
-          <div class="bg-white p-4 rounded-xl border border-gray-150 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <!-- Filter Pills -->
-            <div class="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0">
-              <button onclick="window.admin.setNotificationFilter('all')" 
-                class="px-3 py-1.5 rounded-lg text-xs font-bold transition whitespace-nowrap ${this.currentNotifFilter === 'all' ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}">
-                All (${notifications.length})
-              </button>
-              <button onclick="window.admin.setNotificationFilter('unread')" 
-                class="px-3 py-1.5 rounded-lg text-xs font-bold transition whitespace-nowrap flex items-center gap-1 ${this.currentNotifFilter === 'unread' ? 'bg-[#804ee6] text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}">
-                Unread (${unreadCount})
-              </button>
-              <button onclick="window.admin.setNotificationFilter('deals')" 
-                class="px-3 py-1.5 rounded-lg text-xs font-bold transition whitespace-nowrap ${this.currentNotifFilter === 'deals' ? 'bg-purple-700 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}">
-                Deals
-              </button>
-              <button onclick="window.admin.setNotificationFilter('campaigns')" 
-                class="px-3 py-1.5 rounded-lg text-xs font-bold transition whitespace-nowrap ${this.currentNotifFilter === 'campaigns' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}">
-                Campaigns
-              </button>
-              <button onclick="window.admin.setNotificationFilter('withdrawals')" 
-                class="px-3 py-1.5 rounded-lg text-xs font-bold transition whitespace-nowrap ${this.currentNotifFilter === 'withdrawals' ? 'bg-emerald-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}">
-                Payouts
-              </button>
-              <button onclick="window.admin.setNotificationFilter('users')" 
-                class="px-3 py-1.5 rounded-lg text-xs font-bold transition whitespace-nowrap ${this.currentNotifFilter === 'users' ? 'bg-amber-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}">
-                Users
-              </button>
-            </div>
-
-            <!-- Search Input -->
-            <div class="relative w-full md:w-72">
-              <span class="material-icons-outlined absolute left-3 top-2.5 text-gray-400 text-sm">search</span>
-              <input type="text" id="notifSearchInput" value="${this.notifSearchTerm}" 
-                oninput="window.admin.searchNotifications(this.value)" 
-                placeholder="Search audit trail..." 
-                class="w-full pl-9 pr-3 py-1.5 border border-gray-200 rounded-lg text-xs focus:outline-none focus:border-[#804ee6]">
-            </div>
+          <!-- Notification Feed Filter Tabs -->
+          <div class="flex items-center gap-2 overflow-x-auto pb-1 notif-scroll-area">
+            <button onclick="window.admin.setNotificationFilter('all')" 
+              class="px-3.5 py-2 rounded-xl text-xs font-bold transition whitespace-nowrap ${this.currentNotifFilter === 'all' ? 'bg-gray-900 text-white shadow-xs' : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'}">
+              All Activity (${(notifications || []).length})
+            </button>
+            <button onclick="window.admin.setNotificationFilter('unread')" 
+              class="px-3.5 py-2 rounded-xl text-xs font-bold transition whitespace-nowrap flex items-center gap-1.5 ${this.currentNotifFilter === 'unread' ? 'bg-[#804ee6] text-white shadow-xs' : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'}">
+              Unread Updates ${unreadCount > 0 ? `<span class="px-1.5 py-0.5 rounded-full text-[10px] ${this.currentNotifFilter === 'unread' ? 'bg-white/20 text-white' : 'bg-red-500 text-white'}">${unreadCount}</span>` : ''}
+            </button>
+            <button onclick="window.admin.setNotificationFilter('deals')" 
+              class="px-3.5 py-2 rounded-xl text-xs font-bold transition whitespace-nowrap ${this.currentNotifFilter === 'deals' ? 'bg-purple-700 text-white shadow-xs' : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'}">
+              Deals & Hires
+            </button>
+            <button onclick="window.admin.setNotificationFilter('campaigns')" 
+              class="px-3.5 py-2 rounded-xl text-xs font-bold transition whitespace-nowrap ${this.currentNotifFilter === 'campaigns' ? 'bg-blue-600 text-white shadow-xs' : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'}">
+              Campaigns
+            </button>
+            <button onclick="window.admin.setNotificationFilter('withdrawals')" 
+              class="px-3.5 py-2 rounded-xl text-xs font-bold transition whitespace-nowrap ${this.currentNotifFilter === 'withdrawals' ? 'bg-emerald-600 text-white shadow-xs' : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'}">
+              Payouts & Financials
+            </button>
+            <button onclick="window.admin.setNotificationFilter('users')" 
+              class="px-3.5 py-2 rounded-xl text-xs font-bold transition whitespace-nowrap ${this.currentNotifFilter === 'users' ? 'bg-amber-600 text-white shadow-xs' : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'}">
+              Users & Verification
+            </button>
           </div>
 
-          <!-- Notification Feed Container -->
+          <!-- Search Input -->
+          <div class="relative max-w-md w-full">
+            <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-gray-400">
+              <span class="material-icons-outlined text-lg">search</span>
+            </span>
+            <input type="text" id="notifSearch" placeholder="Filter audit stream by keyword..." 
+              value="${this.notifSearchTerm}"
+              oninput="window.admin.searchNotifications(this.value)"
+              class="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl text-xs sm:text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#804ee6]/20 focus:border-[#804ee6] transition duration-200">
+          </div>
+
+          <!-- Feed Cards Container -->
           <div id="notifFeedList" class="space-y-3">
             ${this.renderNotificationFeedCards()}
           </div>
         </div>
       `;
 
-      window.ui.updateSidebarActive('Notifications');
+      window.ui.stopTopProgress();
     } catch (err) {
+      window.ui.stopTopProgress();
       console.error(err);
       window.ui.showToast('Failed to load notifications: ' + err.message, 'error');
     }
