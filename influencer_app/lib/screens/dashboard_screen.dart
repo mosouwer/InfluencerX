@@ -252,51 +252,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
               const SizedBox(height: 4),
               Text('Type: ${campaign['type']?.toString().toUpperCase() ?? 'N/A'}'),
               const SizedBox(height: 8),
-              PopupMenuButton<String>(
-                offset: const Offset(0, 30),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                onSelected: (newStatus) async {
-                  try {
-                    if (campaign['isDeal'] == true) {
-                      await ApiService.updateDealStatus(campaign['id'], newStatus);
-                    } else {
-                      await ApiService.updateCampaignStatus(campaign['id'], newStatus);
-                    }
-                    setState(() {
-                      _fetchData();
-                    });
-                  } catch (e) {
-                    if (!mounted) return;
-                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
-                  }
-                },
-                itemBuilder: (context) => const [
-                  PopupMenuItem(value: 'pending', child: Text('Pending')),
-                  PopupMenuItem(value: 'active', child: Text('Active')),
-                  PopupMenuItem(value: 'review', child: Text('Review')),
-                  PopupMenuItem(value: 'completed', child: Text('Completed')),
-                  PopupMenuItem(value: 'dispute', child: Text('Dispute')),
-                ],
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: _getStatusColor(campaign['status']).withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        (campaign['status'] ?? 'pending').toString().toUpperCase(),
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w800,
-                          color: _getStatusColor(campaign['status']),
-                        ),
-                      ),
-                      const SizedBox(width: 4),
-                      Icon(Icons.arrow_drop_down, size: 16, color: _getStatusColor(campaign['status'])),
-                    ],
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: _getStatusColor(campaign['status']).withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  (campaign['status'] ?? 'pending').toString().toUpperCase(),
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w800,
+                    color: _getStatusColor(campaign['status']),
                   ),
                 ),
               ),
