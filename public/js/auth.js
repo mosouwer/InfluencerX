@@ -22,10 +22,10 @@ window.auth = {
       }
       
       document.getElementById('userAvatar').textContent = this.currentUser.role === 'brand' ? 
-        (this.currentUser.profile.company?.charAt(0) || 'B') : 
-        (this.currentUser.role === 'admin' ? 'A' : this.currentUser.profile.name?.charAt(0) || 'I');
+        (this.currentUser.profile?.company?.charAt(0) || 'B') : 
+        (this.currentUser.role === 'admin' ? 'A' : this.currentUser.profile?.name?.charAt(0) || 'I');
       document.getElementById('userName').textContent = this.currentUser.role === 'brand' ? 
-        this.currentUser.profile.company : (this.currentUser.role === 'admin' ? 'Admin' : this.currentUser.profile.name);
+        (this.currentUser.profile?.company || 'Brand') : (this.currentUser.role === 'admin' ? 'Admin' : (this.currentUser.profile?.name || 'Influencer'));
       
       const emailEl = document.getElementById('userEmail');
       if (emailEl) {
@@ -93,37 +93,59 @@ window.auth = {
     this.restoreSession(user);
   },
   
-  restoreSession(user) {
-    this.currentUser = user;
-    localStorage.setItem('lastActivityTime', Date.now().toString());
-    
-    document.getElementById('loginModal').style.display = 'none';
-    document.getElementById('app').style.display = 'block';
-    
-    if (user.role === 'admin') {
-      document.getElementById('adminModeIndicator').classList.remove('hidden');
-      document.getElementById('modeSwitcher').style.display = 'none';
-      document.getElementById('mainLogo').className = 'text-xl font-bold bg-gradient-to-r from-red-500 to-red-600 bg-clip-text text-transparent';
-    }
-    
-    document.getElementById('userAvatar').textContent = user.role === 'brand' ? 
-      (user.profile.company?.charAt(0) || 'B') : 
-      (user.role === 'admin' ? 'A' : user.profile.name?.charAt(0) || 'I');
-    document.getElementById('userName').textContent = user.role === 'brand' ? 
-      user.profile.company : (user.role === 'admin' ? 'Admin' : user.profile.name);
-    
-    window.app.loadInitialData().then(() => {
+  async restoreSession(user) {
+    try {
+      this.currentUser = user;
+      localStorage.setItem('lastActivityTime', Date.now().toString());
+      
+      const loginModal = document.getElementById('loginModal');
+      if (loginModal) loginModal.style.display = 'none';
+      
+      const appEl = document.getElementById('app');
+      if (appEl) appEl.style.display = 'block';
+      
+      if (user.role === 'admin') {
+        const adminIndicator = document.getElementById('adminModeIndicator');
+        if (adminIndicator) adminIndicator.classList.remove('hidden');
+        const modeSwitcher = document.getElementById('modeSwitcher');
+        if (modeSwitcher) modeSwitcher.style.display = 'none';
+      }
+      
+      const userAvatar = document.getElementById('userAvatar');
+      if (userAvatar) {
+        userAvatar.textContent = user.role === 'brand' ? 
+          (user.profile?.company?.charAt(0) || 'B') : 
+          (user.role === 'admin' ? 'A' : user.profile?.name?.charAt(0) || 'I');
+      }
+
+      const userName = document.getElementById('userName');
+      if (userName) {
+        userName.textContent = user.role === 'brand' ? 
+          (user.profile?.company || 'Brand') : (user.role === 'admin' ? 'Admin' : (user.profile?.name || 'Influencer'));
+      }
+
+      const emailEl = document.getElementById('userEmail');
+      if (emailEl) {
+        emailEl.textContent = user.email || 'user@influencex.com';
+      }
+      
+      await window.app.loadInitialData();
       window.app.renderSidebar();
       if (user.role === 'admin') {
-        window.admin.renderDashboard();
+        await window.admin.renderDashboard();
       } else if (window.app.currentMode === 'brand') {
-        window.brand.renderDashboard();
+        await window.brand.renderDashboard();
       } else {
-        window.influencer.renderDashboard();
+        await window.influencer.renderDashboard();
       }
-    });
-    
-    this.startActivityTracking();
+      
+      this.startActivityTracking();
+    } catch (err) {
+      console.error('Error restoring session:', err);
+      if (window.ui && window.ui.showToast) {
+        window.ui.showToast('Error restoring session: ' + err.message, 'error');
+      }
+    }
   },
   
   startActivityTracking() {
