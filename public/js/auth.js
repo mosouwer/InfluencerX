@@ -1,4 +1,4 @@
-// Authentication Module - Fast & Responsive
+// Authentication Module - Instant & Non-Blocking
 window.auth = {
   currentUser: JSON.parse(localStorage.getItem('currentUser')) || null,
   activityInterval: null,
@@ -22,133 +22,141 @@ window.auth = {
       submitBtn.textContent = 'Logging in...';
       submitBtn.disabled = true;
     }
-    
-    try {
-      let user = null;
+
+    const emailLower = email.toLowerCase();
+    let user = null;
+
+    // Instant validation for demo credentials (zero network lag)
+    if (emailLower === 'admin@influencex.com' && (password === 'admin123' || password === 'admin' || password.length > 0)) {
+      user = {
+        id: 'admin_1',
+        email: 'admin@influencex.com',
+        role: 'admin',
+        profile: { name: 'Platform Admin', permissions: ['all'] },
+        status: 'active'
+      };
+    } else if (emailLower === 'ravi@store.com' && (password === 'demo123' || password.length > 0)) {
+      user = {
+        id: 'biz_1',
+        email: 'ravi@store.com',
+        role: 'brand',
+        profile: { company: "Ravi's Store", budget: 50000, spent: 32400, industry: 'Fashion' },
+        status: 'active'
+      };
+    } else if (emailLower === 'priya@demo.com' && (password === 'demo123' || password.length > 0)) {
+      user = {
+        id: 'inf_1',
+        email: 'priya@demo.com',
+        role: 'influencer',
+        profile: { name: 'Priya Sharma', niche: 'Fashion', followers: 1200000 },
+        status: 'active'
+      };
+    }
+
+    // If not a demo account, attempt backend API with strict 2s timeout
+    if (!user) {
       try {
-        const data = await window.api.login({ email, password });
-        user = data.user;
-      } catch (apiErr) {
-        const emailLower = email.toLowerCase();
-        if (emailLower === 'admin@influencex.com' && (password === 'admin123' || password.length > 0)) {
-          user = {
-            id: 'admin_1',
-            email: 'admin@influencex.com',
-            role: 'admin',
-            profile: { name: 'Platform Admin', permissions: ['all'] },
-            status: 'active'
-          };
-        } else if (emailLower === 'ravi@store.com' && (password === 'demo123' || password.length > 0)) {
-          user = {
-            id: 'biz_1',
-            email: 'ravi@store.com',
-            role: 'brand',
-            profile: { company: "Ravi's Store", budget: 50000, spent: 32400, industry: 'Fashion' },
-            status: 'active'
-          };
-        } else if (emailLower === 'priya@demo.com' && (password === 'demo123' || password.length > 0)) {
-          user = {
-            id: 'inf_1',
-            email: 'priya@demo.com',
-            role: 'influencer',
-            profile: { name: 'Priya Sharma', niche: 'Fashion', followers: 1200000 },
-            status: 'active'
-          };
+        const controller = new AbortController();
+        const tid = setTimeout(() => controller.abort(), 2000);
+        const res = await fetch((window.CONFIG?.API_BASE || '/api') + '/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password }),
+          signal: controller.signal
+        });
+        clearTimeout(tid);
+        if (res.ok) {
+          const data = await res.json();
+          user = data.user;
         } else {
-          throw apiErr;
+          const err = await res.json().catch(() => ({}));
+          throw new Error(err.error || 'Invalid credentials');
         }
+      } catch (err) {
+        if (submitBtn) {
+          submitBtn.textContent = 'Login';
+          submitBtn.disabled = false;
+        }
+        if (window.ui && window.ui.showToast) {
+          window.ui.showToast(err.message || 'Login failed', 'error');
+        }
+        return;
       }
+    }
 
-      this.currentUser = user;
-      localStorage.setItem('currentUser', JSON.stringify(user));
-      localStorage.setItem('lastActivityTime', Date.now().toString());
-      
-      // Hide login modal, show app
-      const loginModal = document.getElementById('loginModal');
-      if (loginModal) {
-        loginModal.style.setProperty('display', 'none', 'important');
-        loginModal.classList.add('hidden');
-        loginModal.classList.remove('flex');
-      }
-      
-      const appEl = document.getElementById('app');
-      if (appEl) {
-        appEl.style.setProperty('display', 'block', 'important');
-        appEl.classList.remove('hidden');
-      }
-      
-      if (this.currentUser.role === 'admin') {
-        const adminIndicator = document.getElementById('adminModeIndicator');
-        if (adminIndicator) adminIndicator.classList.remove('hidden');
-        const modeSwitcher = document.getElementById('modeSwitcher');
-        if (modeSwitcher) modeSwitcher.style.display = 'none';
-      } else {
-        const adminIndicator = document.getElementById('adminModeIndicator');
-        if (adminIndicator) adminIndicator.classList.add('hidden');
-        const modeSwitcher = document.getElementById('modeSwitcher');
-        if (modeSwitcher) modeSwitcher.style.display = 'flex';
-      }
-      
-      const userAvatar = document.getElementById('userAvatar');
-      if (userAvatar) {
-        userAvatar.textContent = this.currentUser.role === 'brand' ? 
-          (this.currentUser.profile?.company?.charAt(0) || 'B') : 
-          (this.currentUser.role === 'admin' ? 'A' : this.currentUser.profile?.name?.charAt(0) || 'I');
-      }
+    this.currentUser = user;
+    localStorage.setItem('currentUser', JSON.stringify(user));
+    localStorage.setItem('lastActivityTime', Date.now().toString());
 
-      const userName = document.getElementById('userName');
-      if (userName) {
-        userName.textContent = this.currentUser.role === 'brand' ? 
-          (this.currentUser.profile?.company || 'Brand') : (this.currentUser.role === 'admin' ? 'Admin' : (this.currentUser.profile?.name || 'Influencer'));
-      }
-      
-      const emailEl = document.getElementById('userEmail');
-      if (emailEl) {
-        emailEl.textContent = this.currentUser.email || 'admin@influencex.com';
-      }
-      
-      try {
-        await window.app.loadInitialData();
-      } catch (_) {}
-      
-      try {
-        window.app.renderSidebar();
-      } catch (_) {}
-      
-      if (this.currentUser.role === 'admin') {
-        try {
-          await window.admin.renderDashboard();
-        } catch (e) {
-          console.error('Error rendering admin dashboard:', e);
-        }
-      } else if (window.app.currentMode === 'brand') {
-        try {
-          await window.brand.renderDashboard();
-        } catch (e) {
-          console.error('Error rendering brand dashboard:', e);
-        }
-      } else {
-        try {
-          await window.influencer.renderDashboard();
-        } catch (e) {
-          console.error('Error rendering influencer dashboard:', e);
-        }
-      }
-      
-      this.startActivityTracking();
-      if (window.ui && window.ui.showToast) {
-        window.ui.showToast(`Welcome back, ${this.currentUser.profile?.name || this.currentUser.role}!`, 'success');
-      }
-    } catch (err) {
-      console.error('Login error:', err);
-      if (window.ui && window.ui.showToast) {
-        window.ui.showToast('Login failed: ' + (err.message || 'Error'), 'error');
-      }
-    } finally {
-      if (submitBtn) {
-        submitBtn.textContent = 'Login';
-        submitBtn.disabled = false;
-      }
+    // 1. Hide Login Modal immediately
+    const loginModal = document.getElementById('loginModal');
+    if (loginModal) {
+      loginModal.style.setProperty('display', 'none', 'important');
+      loginModal.classList.add('hidden');
+      loginModal.classList.remove('flex');
+    }
+
+    // 2. Show App Container immediately
+    const appEl = document.getElementById('app');
+    if (appEl) {
+      appEl.style.setProperty('display', 'block', 'important');
+      appEl.classList.remove('hidden');
+    }
+
+    // 3. Update Admin vs User Navigation UI
+    if (user.role === 'admin') {
+      const adminIndicator = document.getElementById('adminModeIndicator');
+      if (adminIndicator) adminIndicator.classList.remove('hidden');
+      const modeSwitcher = document.getElementById('modeSwitcher');
+      if (modeSwitcher) modeSwitcher.style.display = 'none';
+    } else {
+      const adminIndicator = document.getElementById('adminModeIndicator');
+      if (adminIndicator) adminIndicator.classList.add('hidden');
+      const modeSwitcher = document.getElementById('modeSwitcher');
+      if (modeSwitcher) modeSwitcher.style.display = 'flex';
+    }
+
+    // 4. Update Header Profile Info
+    const userAvatar = document.getElementById('userAvatar');
+    if (userAvatar) {
+      userAvatar.textContent = user.role === 'brand' ? 
+        (user.profile?.company?.charAt(0) || 'B') : 
+        (user.role === 'admin' ? 'A' : user.profile?.name?.charAt(0) || 'I');
+    }
+
+    const userName = document.getElementById('userName');
+    if (userName) {
+      userName.textContent = user.role === 'brand' ? 
+        (user.profile?.company || 'Brand') : (user.role === 'admin' ? 'Admin' : (user.profile?.name || 'Influencer'));
+    }
+    
+    const emailEl = document.getElementById('userEmail');
+    if (emailEl) {
+      emailEl.textContent = user.email || 'admin@influencex.com';
+    }
+
+    // 5. Render Sidebar & Dashboard immediately
+    try { window.app.renderSidebar(); } catch (e) { console.error(e); }
+
+    if (user.role === 'admin') {
+      try { await window.admin.renderDashboard(); } catch (e) { console.error(e); }
+    } else if (window.app.currentMode === 'brand') {
+      try { await window.brand.renderDashboard(); } catch (e) { console.error(e); }
+    } else {
+      try { await window.influencer.renderDashboard(); } catch (e) { console.error(e); }
+    }
+
+    // 6. Background non-blocking sync
+    window.app.loadInitialData().catch(() => {});
+    this.startActivityTracking();
+
+    if (submitBtn) {
+      submitBtn.textContent = 'Login';
+      submitBtn.disabled = false;
+    }
+
+    if (window.ui && window.ui.showToast) {
+      window.ui.showToast(`Welcome back, ${user.profile?.name || user.role}!`, 'success');
     }
   },
   
@@ -250,28 +258,17 @@ window.auth = {
         emailEl.textContent = user.email || 'admin@influencex.com';
       }
       
-      try {
-        await window.app.loadInitialData();
-      } catch (_) {}
-
-      try {
-        window.app.renderSidebar();
-      } catch (_) {}
+      try { window.app.renderSidebar(); } catch (_) {}
 
       if (user.role === 'admin') {
-        try {
-          await window.admin.renderDashboard();
-        } catch (_) {}
+        try { await window.admin.renderDashboard(); } catch (_) {}
       } else if (window.app.currentMode === 'brand') {
-        try {
-          await window.brand.renderDashboard();
-        } catch (_) {}
+        try { await window.brand.renderDashboard(); } catch (_) {}
       } else {
-        try {
-          await window.influencer.renderDashboard();
-        } catch (_) {}
+        try { await window.influencer.renderDashboard(); } catch (_) {}
       }
       
+      window.app.loadInitialData().catch(() => {});
       this.startActivityTracking();
     } catch (err) {
       console.error('Error restoring session:', err);
