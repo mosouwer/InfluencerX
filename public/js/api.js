@@ -10,11 +10,17 @@ window.api = {
         headers['x-user-id'] = window.auth.currentUser.id;
         headers['x-user-role'] = window.auth.currentUser.role;
       }
-      
+
+      // 3-second timeout — prevents cold-start hangs from blocking the UI
+      const controller = new AbortController();
+      const tid = setTimeout(() => controller.abort(), 3000);
+
       const res = await fetch(window.CONFIG.API_BASE + url, {
         headers,
+        signal: controller.signal,
         ...options
       });
+      clearTimeout(tid);
 
       if (!res.ok) {
         const text = await res.text();
