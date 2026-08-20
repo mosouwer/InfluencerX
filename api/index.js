@@ -56,13 +56,27 @@ function readDB() {
     cachedDB = JSON.parse(data);
     return cachedDB;
   } catch (err) {
-    cachedDB = JSON.parse(JSON.stringify(EMBEDDED_DB));
-    return cachedDB;
+    try {
+      const data = fs.readFileSync('/tmp/db.json', 'utf8');
+      cachedDB = JSON.parse(data);
+      return cachedDB;
+    } catch (e) {
+      cachedDB = JSON.parse(JSON.stringify(EMBEDDED_DB));
+      return cachedDB;
+    }
   }
 }
 
 function writeDB(data) {
   cachedDB = data;
+  try {
+    const p = path.join(process.cwd(), 'db.json');
+    fs.writeFileSync(p, JSON.stringify(data, null, 2));
+  } catch (err) {
+    try {
+      fs.writeFileSync('/tmp/db.json', JSON.stringify(data, null, 2));
+    } catch (e) {}
+  }
 }
 
 // User & Auth Helpers
@@ -267,7 +281,7 @@ app.put(['/api/campaigns/:id/status', '/campaigns/:id/status'], async (req, res)
   const user = getUser(req);
   const { status, progress } = req.body;
   const db = readDB();
-  const campaignIndex = (db.campaigns || []).findIndex(c => c.id === req.params.id);
+  const campaignIndex = (db.campaigns || []).findIndex(c => String(c.id) === String(req.params.id));
   if (campaignIndex === -1) return res.status(404).json({ error: 'Campaign not found' });
   
   const campaign = db.campaigns[campaignIndex];
@@ -360,7 +374,7 @@ app.get(['/api/deals', '/deals'], async (req, res) => {
 app.put(['/api/deals/:id/status', '/deals/:id/status'], async (req, res) => {
   const { status } = req.body;
   const db = readDB();
-  const dealIndex = (db.deals || []).findIndex(d => d.id === req.params.id);
+  const dealIndex = (db.deals || []).findIndex(d => String(d.id) === String(req.params.id));
   if (dealIndex === -1) return res.status(404).json({ error: 'Deal not found' });
   
   db.deals[dealIndex].status = status;

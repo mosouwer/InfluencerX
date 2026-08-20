@@ -968,26 +968,17 @@ window.admin = {
   },
   
   async updateUnifiedCampaignStatus(id, newStatus, isDeal) {
-    window.ui.showConfirm({
-      title: 'Update Status',
-      message: `Are you sure you want to change this status to ${newStatus.toUpperCase()}?`,
-      icon: '',
-      confirmText: 'Yes, Update',
-      confirmClass: 'confirm-btn-success',
-      onConfirm: async () => {
-        try {
-          if (isDeal) {
-            await window.api.updateDealStatus(id, newStatus);
-          } else {
-            await window.api.updateCampaignStatus(id, newStatus, 0);
-          }
-          window.ui.showToast(`Status updated to ${newStatus}!`, 'success');
-          await this.renderCampaigns();
-        } catch (err) {
-          window.ui.showToast(err.message, 'error');
-        }
+    try {
+      if (isDeal) {
+        await window.api.updateDealStatus(id, newStatus);
+      } else {
+        await window.api.updateCampaignStatus(id, newStatus);
       }
-    });
+      window.ui.showToast(`Campaign status updated to ${newStatus.toUpperCase()}!`, 'success');
+      await this.renderCampaigns();
+    } catch (err) {
+      window.ui.showToast(err.message, 'error');
+    }
   },
   
   async renderDeals() {

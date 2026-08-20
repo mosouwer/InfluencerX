@@ -16,25 +16,69 @@ window.ui = {
   },
   
   showConfirm(options) {
-    document.getElementById('confirmIcon').innerHTML = options.icon || '⚠️';
-    document.getElementById('confirmTitle').innerHTML = options.title || 'Confirm';
-    document.getElementById('confirmMessage').innerHTML = options.message || 'Are you sure?';
-    
+    let modal = document.getElementById('confirmModal');
+    if (!modal) {
+      modal = document.createElement('div');
+      modal.id = 'confirmModal';
+      modal.className = 'fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs transition-opacity';
+      modal.style.display = 'none';
+      modal.innerHTML = `
+        <div class="bg-white rounded-2xl p-6 max-w-sm w-full mx-4 shadow-2xl border border-gray-100 transform transition-all">
+          <div class="flex items-center gap-3 mb-3">
+            <span id="confirmIcon" class="text-2xl">⚠️</span>
+            <h3 id="confirmTitle" class="text-base font-bold text-gray-900">Confirm</h3>
+          </div>
+          <p id="confirmMessage" class="text-sm text-gray-600 mb-6">Are you sure?</p>
+          <div class="flex justify-end gap-2.5">
+            <button type="button" onclick="window.ui.hideConfirmModal()" 
+              class="px-4 py-2 text-xs font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition active:scale-95">
+              Cancel
+            </button>
+            <button type="button" id="confirmActionBtn" onclick="window.ui.executeConfirm()" 
+              class="px-4 py-2 text-xs font-bold text-white bg-[#804ee6] hover:bg-[#6c2bd9] rounded-lg shadow-sm transition active:scale-95">
+              Confirm
+            </button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(modal);
+    }
+
+    const iconEl = document.getElementById('confirmIcon');
+    const titleEl = document.getElementById('confirmTitle');
+    const msgEl = document.getElementById('confirmMessage');
     const btn = document.getElementById('confirmActionBtn');
-    btn.innerHTML = options.confirmText || 'Confirm';
-    btn.className = `confirm-btn ${options.confirmClass || 'confirm-btn-confirm'}`;
-    
+
+    if (iconEl) iconEl.innerHTML = options.icon || '⚠️';
+    if (titleEl) titleEl.innerHTML = options.title || 'Confirm';
+    if (msgEl) msgEl.innerHTML = options.message || 'Are you sure?';
+    if (btn) {
+      btn.innerHTML = options.confirmText || 'Confirm';
+      btn.className = `px-4 py-2 text-xs font-bold text-white rounded-lg shadow-sm transition active:scale-95 ${
+        options.confirmClass && options.confirmClass.includes('btn-danger') 
+          ? 'bg-rose-600 hover:bg-rose-700' 
+          : 'bg-[#804ee6] hover:bg-[#6c2bd9]'
+      }`;
+    }
+
     this.pendingConfirm = options.onConfirm;
-    document.getElementById('confirmModal').style.display = 'flex';
+    modal.style.display = 'flex';
   },
-  
+
   hideConfirmModal() {
-    document.getElementById('confirmModal').style.display = 'none';
+    const modal = document.getElementById('confirmModal');
+    if (modal) modal.style.display = 'none';
     this.pendingConfirm = null;
   },
-  
+
   executeConfirm() {
-    if (this.pendingConfirm) this.pendingConfirm();
+    if (this.pendingConfirm) {
+      try {
+        this.pendingConfirm();
+      } catch (e) {
+        console.error('Confirm execution error:', e);
+      }
+    }
     this.hideConfirmModal();
   },
   
