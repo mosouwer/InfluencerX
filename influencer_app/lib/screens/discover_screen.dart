@@ -3,8 +3,6 @@ import '../widgets/influencer_card.dart';
 import '../api_service.dart';
 import 'login_screen.dart';
 
-
-
 class DiscoverScreen extends StatefulWidget {
   const DiscoverScreen({super.key});
 
@@ -12,27 +10,21 @@ class DiscoverScreen extends StatefulWidget {
   State<DiscoverScreen> createState() => _DiscoverScreenState();
 }
 
-class _DiscoverScreenState extends State<DiscoverScreen>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _animController;
-  late Animation<double> _fadeAnimation;
-
-
+class _DiscoverScreenState extends State<DiscoverScreen> {
   late Future<List<dynamic>> _influencersFuture;
 
   String _selectedCategory = 'All';
-  final List<String> _categories = [
-    'All',
-    'Fashion',
-    'Food',
-    'Travel',
-    'Fitness',
-    'Tech',
-    'Lifestyle',
-    'Beauty'
+  final List<Map<String, String>> _categories = [
+    {'name': 'All', 'icon': '✨'},
+    {'name': 'Fashion', 'icon': '👗'},
+    {'name': 'Food', 'icon': '🍔'},
+    {'name': 'Travel', 'icon': '✈️'},
+    {'name': 'Fitness', 'icon': '💪'},
+    {'name': 'Tech', 'icon': '💻'},
+    {'name': 'Lifestyle', 'icon': '☕️'},
+    {'name': 'Beauty', 'icon': '💄'},
   ];
 
-  bool _isSearching = false;
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
 
@@ -40,265 +32,434 @@ class _DiscoverScreenState extends State<DiscoverScreen>
   void initState() {
     super.initState();
     _influencersFuture = ApiService.getInfluencers();
-
-    _animController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 800),
-    );
-    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _animController, curve: Curves.easeOutQuint),
-    );
-    _animController.forward();
   }
 
   @override
   void dispose() {
-
-    _animController.dispose();
     _searchController.dispose();
     super.dispose();
+  }
+
+  void _refreshData() {
+    setState(() {
+      _influencersFuture = ApiService.getInfluencers();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      backgroundColor: const Color(0xFFF9FAFB),
       body: SafeArea(
         child: RefreshIndicator(
+          color: const Color(0xFF804EE6),
           onRefresh: () async {
-            setState(() {
-              _influencersFuture = ApiService.getInfluencers();
-            });
+            _refreshData();
             await _influencersFuture;
           },
           child: CustomScrollView(
             physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
             slivers: [
-            SliverAppBar(
-              backgroundColor: Colors.white,
-              surfaceTintColor: Colors.transparent,
-              elevation: 0,
-              pinned: false,
-              floating: true,
-              titleSpacing: 24,
-              title: _isSearching
-                  ? SizedBox(
-                      height: 48,
-                      child: SearchBar(
-                        controller: _searchController,
-                        hintText: 'Search influencers...',
-                        autoFocus: true,
-                        elevation: MaterialStateProperty.all(0),
-                        backgroundColor: MaterialStateProperty.all(
-                            Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.5)),
-                        padding: MaterialStateProperty.all(const EdgeInsets.symmetric(horizontal: 16)),
-                        onChanged: (value) {
-                          setState(() {
-                            _searchQuery = value;
-                          });
-                        },
-                      ),
-                    )
-                  : const Text(
-                      'Influencers',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 28,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: -0.5,
-                      ),
-                    ),
-              bottom: const PreferredSize(
-                preferredSize: Size.fromHeight(16.0),
-                child: SizedBox(),
-              ),
-              actions: [
-                IconButton(
-                  icon: Icon(_isSearching ? Icons.close : Icons.search_rounded),
-                  onPressed: () {
-                    setState(() {
-                      if (_isSearching) {
-                        _isSearching = false;
-                        _searchQuery = '';
-                        _searchController.clear();
-                      } else {
-                        _isSearching = true;
-                      }
-                    });
-                  },
-                ),
-                if (!_isSearching) ...[
-                  IconButton(
-                    icon: const Icon(Icons.menu, color: Colors.black, size: 24),
-                    onPressed: () {},
-                  ),
-                  PopupMenuButton<String>(
-                    icon:
-                        const Icon(Icons.person, color: Colors.black, size: 24),
-                    offset: const Offset(0, 50),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16)),
-                    onSelected: (value) {
-                      if (value == 'logout') {
-                        Navigator.of(context).pushReplacement(
-                          MaterialPageRoute(
-                              builder: (_) => const LoginScreen()),
-                        );
-                      }
-                    },
-                    itemBuilder: (context) => [
-                      const PopupMenuItem(
-                        value: 'logout',
-                        child: Row(
-                          children: [
-                            Icon(Icons.logout,
-                                color: Colors.redAccent, size: 20),
-                            SizedBox(width: 12),
-                            Text('Logout',
+              // Modern App Bar & Header
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Text(
+                                'Verified Talent Hub',
                                 style: TextStyle(
-                                    color: Colors.redAccent,
-                                    fontWeight: FontWeight.w600)),
-                          ],
-                        ),
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w700,
+                                  color: const Color(0xFF804EE6).withOpacity(0.9),
+                                  letterSpacing: 0.5,
+                                ),
+                              ),
+                              const SizedBox(width: 6),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF804EE6).withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: const Text(
+                                  'PRO',
+                                  style: TextStyle(
+                                    fontSize: 9,
+                                    fontWeight: FontWeight.w900,
+                                    color: Color(0xFF804EE6),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 4),
+                          const Text(
+                            'Discover Creators 🚀',
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.w900,
+                              color: Color(0xFF111827),
+                              letterSpacing: -0.6,
+                            ),
+                          ),
+                        ],
+                      ),
+                      Row(
+                        children: [
+                          Container(
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(14),
+                              border: Border.all(color: const Color(0xFFE5E7EB)),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.03),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: IconButton(
+                              icon: const Icon(Icons.notifications_outlined, color: Color(0xFF374151), size: 22),
+                              onPressed: () {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text('No new creator notifications'), duration: Duration(seconds: 1)),
+                                );
+                              },
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          PopupMenuButton<String>(
+                            offset: const Offset(0, 48),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                            onSelected: (value) {
+                              if (value == 'logout') {
+                                Navigator.of(context).pushReplacement(
+                                  MaterialPageRoute(builder: (_) => const LoginScreen()),
+                                );
+                              }
+                            },
+                            itemBuilder: (context) => [
+                              const PopupMenuItem(
+                                value: 'logout',
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.logout_rounded, color: Colors.redAccent, size: 18),
+                                    SizedBox(width: 10),
+                                    Text('Sign Out', style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.w600, fontSize: 14)),
+                                  ],
+                                ),
+                              ),
+                            ],
+                            child: Container(
+                              width: 44,
+                              height: 44,
+                              decoration: BoxDecoration(
+                                gradient: const LinearGradient(
+                                  colors: [Color(0xFF804EE6), Color(0xFFFF8A3D)],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                ),
+                                borderRadius: BorderRadius.circular(14),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: const Color(0xFF804EE6).withOpacity(0.25),
+                                    blurRadius: 10,
+                                    offset: const Offset(0, 4),
+                                  ),
+                                ],
+                              ),
+                              child: const Center(
+                                child: Text(
+                                  'IX',
+                                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 15, letterSpacing: -0.5),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
-                  const SizedBox(width: 8),
-                ],
-              ],
-            ),
-            SliverToBoxAdapter(
-              child: SizedBox(
-                height: 56,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  physics: const BouncingScrollPhysics(),
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  itemCount: _categories.length,
-                  itemBuilder: (context, index) {
-                    final category = _categories[index];
-                    final isSelected = _selectedCategory == category;
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                      child: FilterChip(
-                        label: Text(category),
-                        selected: isSelected,
-                        onSelected: (bool selected) {
-                          setState(() {
-                            _selectedCategory = category;
-                            _animController.reset();
-                            _animController.forward();
-                          });
-                        },
-                      ),
-                    );
-                  },
                 ),
               ),
-            ),
-            SliverPadding(
-              padding: const EdgeInsets.only(
-                  left: 24.0, right: 24.0, top: 16.0, bottom: 8.0),
-              sliver: FutureBuilder<List<dynamic>>(
-                future: _influencersFuture,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const SliverToBoxAdapter(
-                      child: Center(
-                          child:
-                              CircularProgressIndicator(color: Colors.black)),
-                    );
-                  } else if (snapshot.hasError) {
-                    return SliverToBoxAdapter(
-                      child: Center(
-                          child: Text('Error: ${snapshot.error}',
-                              style: const TextStyle(color: Colors.red))),
-                    );
-                  } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                    return const SliverToBoxAdapter(
-                      child: Center(child: Text('No influencers found.')),
-                    );
-                  }
 
-                  // Filter influencers
-                  var influencers = snapshot.data!;
-                  if (_selectedCategory != 'All') {
-                    influencers = influencers.where((inf) {
-                      final niche =
-                          (inf['niche'] as String? ?? '').toLowerCase();
-                      return niche.contains(_selectedCategory.toLowerCase());
-                    }).toList();
-                  }
-
-                  if (_searchQuery.isNotEmpty) {
-                    final query = _searchQuery.toLowerCase().trim();
-                    influencers = influencers.where((inf) {
-                      final name = (inf['name'] as String? ?? '').toLowerCase();
-                      final username = '@${name.replaceAll(' ', '')}';
-                      final niche =
-                          (inf['niche'] as String? ?? '').toLowerCase();
-
-                      return name.contains(query) ||
-                          username.contains(query) ||
-                          niche.contains(query);
-                    }).toList();
-                  }
-
-                  if (influencers.isEmpty) {
-                    return const SliverToBoxAdapter(
-                      child: Padding(
-                        padding: EdgeInsets.all(40.0),
-                        child: Center(
-                            child: Text('No influencers in this category.',
-                                style: TextStyle(color: Colors.black54))),
+              // Search Bar
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: const Color(0xFFE5E7EB)),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.02),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: TextField(
+                      controller: _searchController,
+                      onChanged: (val) {
+                        setState(() {
+                          _searchQuery = val;
+                        });
+                      },
+                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                      decoration: InputDecoration(
+                        hintText: 'Search by creator name, niche, handle...',
+                        hintStyle: TextStyle(fontSize: 13, color: Colors.grey.shade400, fontWeight: FontWeight.w500),
+                        prefixIcon: const Icon(Icons.search_rounded, color: Color(0xFF9CA3AF), size: 20),
+                        suffixIcon: _searchQuery.isNotEmpty
+                            ? IconButton(
+                                icon: const Icon(Icons.clear_rounded, size: 18, color: Colors.grey),
+                                onPressed: () {
+                                  _searchController.clear();
+                                  setState(() {
+                                    _searchQuery = '';
+                                  });
+                                },
+                              )
+                            : null,
+                        border: InputBorder.none,
+                        enabledBorder: InputBorder.none,
+                        focusedBorder: InputBorder.none,
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                       ),
-                    );
-                  }
+                    ),
+                  ),
+                ),
+              ),
 
-                  return SliverList(
-                    key: ValueKey(_selectedCategory),
-                    delegate: SliverChildBuilderDelegate(
-                      (context, index) {
-                        final influencer =
-                            influencers[index] as Map<String, dynamic>;
-                        final imageUrl = influencer['image']?.toString() ?? '';
-                        if (!imageUrl.startsWith('http')) {
-                          influencer['image'] =
-                              'https://i.pravatar.cc/150?u=${influencer['id']}';
-                        }
+              // Horizontal Niche Tabs
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  child: SizedBox(
+                    height: 44,
+                    child: ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      physics: const BouncingScrollPhysics(),
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      itemCount: _categories.length,
+                      itemBuilder: (context, index) {
+                        final cat = _categories[index];
+                        final catName = cat['name']!;
+                        final catIcon = cat['icon']!;
+                        final isSelected = _selectedCategory == catName;
 
-                        return FadeTransition(
-                          opacity: _fadeAnimation,
-                          child: SlideTransition(
-                            position: Tween<Offset>(
-                              begin: const Offset(0, 0.2),
-                              end: Offset.zero,
-                            ).animate(CurvedAnimation(
-                              parent: _animController,
-                              curve: Interval(
-                                (index / influencers.length) * 0.5,
-                                1.0,
-                                curve: Curves.easeOutQuart,
+                        return GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              _selectedCategory = catName;
+                            });
+                          },
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 200),
+                            margin: const EdgeInsets.only(right: 8),
+                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                            decoration: BoxDecoration(
+                              color: isSelected ? const Color(0xFF804EE6) : Colors.white,
+                              borderRadius: BorderRadius.circular(14),
+                              border: Border.all(
+                                color: isSelected ? const Color(0xFF804EE6) : const Color(0xFFE5E7EB),
                               ),
-                            )),
-                            child: Padding(
-                              padding: const EdgeInsets.only(bottom: 0.0),
-                              child: InfluencerCard(influencer: influencer),
+                              boxShadow: isSelected
+                                  ? [
+                                      BoxShadow(
+                                        color: const Color(0xFF804EE6).withOpacity(0.25),
+                                        blurRadius: 8,
+                                        offset: const Offset(0, 2),
+                                      ),
+                                    ]
+                                  : null,
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(catIcon, style: const TextStyle(fontSize: 13)),
+                                const SizedBox(width: 6),
+                                Text(
+                                  catName,
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w700,
+                                    color: isSelected ? Colors.white : const Color(0xFF4B5563),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         );
                       },
-                      childCount: influencers.length,
+                    ),
+                  ),
+                ),
+              ),
+
+              // Influencers Feed
+              FutureBuilder<List<dynamic>>(
+                future: _influencersFuture,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return SliverToBoxAdapter(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 40),
+                        child: Center(
+                          child: Column(
+                            children: [
+                              const CircularProgressIndicator(color: Color(0xFF804EE6)),
+                              const SizedBox(height: 16),
+                              Text(
+                                'Loading verified influencers...',
+                                style: TextStyle(color: Colors.grey.shade500, fontSize: 13, fontWeight: FontWeight.w500),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  } else if (snapshot.hasError) {
+                    return SliverToBoxAdapter(
+                      child: Padding(
+                        padding: const EdgeInsets.all(24.0),
+                        child: Center(
+                          child: Text('Error: ${snapshot.error}', style: const TextStyle(color: Colors.red)),
+                        ),
+                      ),
+                    );
+                  }
+
+                  final allInfluencers = snapshot.data ?? [];
+
+                  // Apply Filter & Search
+                  var filteredInfluencers = allInfluencers.where((inf) {
+                    final niche = (inf['niche'] as String? ?? '').toLowerCase();
+                    if (_selectedCategory != 'All') {
+                      if (!niche.contains(_selectedCategory.toLowerCase())) {
+                        return false;
+                      }
+                    }
+                    if (_searchQuery.isNotEmpty) {
+                      final name = (inf['name'] as String? ?? '').toLowerCase();
+                      final handle = '@${name.replaceAll(' ', '')}';
+                      final q = _searchQuery.toLowerCase().trim();
+                      return name.contains(q) || handle.contains(q) || niche.contains(q);
+                    }
+                    return true;
+                  }).toList();
+
+                  return SliverPadding(
+                    padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
+                    sliver: SliverList(
+                      delegate: SliverChildListDelegate([
+                        // Section Header
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 14),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                _selectedCategory == 'All'
+                                    ? 'Top Recommended Creators'
+                                    : '$_selectedCategory Creators',
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w800,
+                                  color: Color(0xFF111827),
+                                ),
+                              ),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF804EE6).withOpacity(0.08),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Text(
+                                  '${filteredInfluencers.length} Available',
+                                  style: const TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w800,
+                                    color: Color(0xFF804EE6),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        // List or Empty State
+                        if (filteredInfluencers.isEmpty)
+                          Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.all(36),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(color: const Color(0xFFF3F4F6)),
+                            ),
+                            child: Column(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(16),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFF804EE6).withOpacity(0.08),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(Icons.person_search_rounded, size: 36, color: Color(0xFF804EE6)),
+                                ),
+                                const SizedBox(height: 16),
+                                const Text(
+                                  'No Creators Found',
+                                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF111827)),
+                                ),
+                                const SizedBox(height: 6),
+                                Text(
+                                  _searchQuery.isNotEmpty
+                                      ? 'No matching creators found for "$_searchQuery". Try searching other keywords or categories.'
+                                      : 'No creators available in "$_selectedCategory" niche.',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(fontSize: 13, color: Colors.grey.shade500, height: 1.4),
+                                ),
+                                const SizedBox(height: 16),
+                                TextButton.icon(
+                                  onPressed: () {
+                                    _searchController.clear();
+                                    setState(() {
+                                      _searchQuery = '';
+                                      _selectedCategory = 'All';
+                                    });
+                                  },
+                                  icon: const Icon(Icons.refresh_rounded, size: 16),
+                                  label: const Text('Reset Search & Filters', style: TextStyle(fontWeight: FontWeight.w700)),
+                                  style: TextButton.styleFrom(
+                                    foregroundColor: const Color(0xFF804EE6),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          )
+                        else
+                          ...filteredInfluencers.map((inf) => InfluencerCard(influencer: Map<String, dynamic>.from(inf))),
+                      ]),
                     ),
                   );
                 },
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
-    ),
-   );
+    );
   }
 }
