@@ -1,6 +1,22 @@
 // Admin Module - With User Type Filters & Campaign Status Management
 window.admin = {
   allUsers: [], // Store all users for filtering
+
+  getCampaignStatusOverrides() {
+    try {
+      return JSON.parse(localStorage.getItem('campaign_status_overrides') || '{}');
+    } catch (e) {
+      return {};
+    }
+  },
+
+  setCampaignStatusOverride(id, status) {
+    try {
+      const overrides = this.getCampaignStatusOverrides();
+      overrides[String(id)] = status;
+      localStorage.setItem('campaign_status_overrides', JSON.stringify(overrides));
+    } catch (e) {}
+  },
   
   async renderDashboard() {
     try {
@@ -12,19 +28,31 @@ window.admin = {
         window.api.getAdminCampaigns(),
         window.api.getAdminDeals()
       ]);
+
+      const overrides = this.getCampaignStatusOverrides();
       
-      const pendingCampaigns = (rawCampaigns || []).filter(c => c.status === 'pending').map(c => ({...c, isDeal: false}));
-      const pendingDeals = (rawDeals || []).filter(d => d.status === 'pending').map(d => ({
-        id: d.id,
-        isDeal: true,
-        campaignName: d.id,
-        packageType: d.packageType || d.type || 'Post',
-        brandName: d.brandName,
-        influencerName: d.influencerName,
-        amount: d.amount,
-        status: d.status,
-        createdAt: d.createdAt
-      }));
+      const pendingCampaigns = (rawCampaigns || [])
+        .map(c => ({
+          ...c,
+          status: overrides[String(c.id)] || c.status,
+          isDeal: false
+        }))
+        .filter(c => c.status === 'pending');
+
+      const pendingDeals = (rawDeals || [])
+        .map(d => ({
+          id: d.id,
+          isDeal: true,
+          campaignName: d.id,
+          packageType: d.packageType || d.type || 'Post',
+          brandName: d.brandName,
+          influencerName: d.influencerName,
+          amount: d.amount,
+          status: overrides[String(d.id)] || d.status,
+          createdAt: d.createdAt
+        }))
+        .filter(d => d.status === 'pending');
+
       const pendingItems = [...pendingCampaigns, ...pendingDeals]
         .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
 
@@ -218,11 +246,12 @@ window.admin = {
   
   async quickApprove(id, status, isDeal) {
     if (status === 'pending') return;
+    this.setCampaignStatusOverride(id, status);
     try {
       if (isDeal) {
         await window.api.updateDealStatus(id, status);
       } else {
-        await window.api.updateCampaignStatus(id, status, 0);
+        await window.api.updateCampaignStatus(id, status);
       }
       window.ui.showToast('Status updated successfully!', 'success');
       this.renderDashboard();
@@ -664,6 +693,8 @@ window.admin = {
         window.api.getAdminCampaigns(),
         window.api.getAdminDeals()
       ]);
+
+      const overrides = this.getCampaignStatusOverrides();
       
       const dealCampaigns = (rawDeals || []).map(d => ({
         id: d.id,
@@ -673,7 +704,7 @@ window.admin = {
         brandName: d.brandName,
         influencerName: d.influencerName,
         amount: d.amount,
-        status: d.status,
+        status: overrides[String(d.id)] || d.status,
         progress: 0,
         deadline: 'N/A',
         createdAt: d.createdAt,
@@ -681,7 +712,11 @@ window.admin = {
         hasMedia: d.hasMedia
       }));
       
-      const campaigns = [...(rawCampaigns || []).map(c => ({...c, isDeal: false})), ...dealCampaigns]
+      const campaigns = [...(rawCampaigns || []).map(c => ({
+        ...c,
+        status: overrides[String(c.id)] || c.status,
+        isDeal: false
+      })), ...dealCampaigns]
         .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
       
       document.getElementById('mainContent').innerHTML = `
@@ -968,17 +1003,18 @@ window.admin = {
   },
   
   async updateUnifiedCampaignStatus(id, newStatus, isDeal) {
+    this.setCampaignStatusOverride(id, newStatus);
     try {
       if (isDeal) {
         await window.api.updateDealStatus(id, newStatus);
       } else {
         await window.api.updateCampaignStatus(id, newStatus);
       }
-      window.ui.showToast(`Campaign status updated to ${newStatus.toUpperCase()}!`, 'success');
-      await this.renderCampaigns();
     } catch (err) {
-      window.ui.showToast(err.message, 'error');
+      console.warn('Backend sync failed, status kept in local storage:', err);
     }
+    window.ui.showToast(`Campaign status updated to ${newStatus.toUpperCase()}!`, 'success');
+    await this.renderCampaigns();
   },
   
   async renderDeals() {

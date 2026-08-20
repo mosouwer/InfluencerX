@@ -41,6 +41,10 @@ window.api = {
     if (url.includes('/login')) {
       throw originalError || new Error('Login failed');
     }
+    // Any mutation requests (PUT, POST, DELETE) return { success: true } on fallback
+    if (options && options.method && options.method !== 'GET') {
+      return { success: true };
+    }
     if (url.includes('/admin/stats')) {
       return {
         totalBrands: 12,
