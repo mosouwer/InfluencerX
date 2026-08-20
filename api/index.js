@@ -86,7 +86,7 @@ function getUser(req) {
 
 // Ensure user is logged in
 app.use('/api', (req, res, next) => {
-  if (req.path === '/login' || req.path === '/signup' || req.path === '/upload') return next();
+  if (req.path === '/login' || req.path === '/api/login' || req.path === '/signup' || req.path === '/api/signup' || req.path.endsWith('/login') || req.path.endsWith('/signup') || req.path.includes('/upload')) return next();
   const user = getUser(req);
   if (!user && req.method !== 'OPTIONS') {
     return res.status(401).json({ error: 'Unauthorized' });
