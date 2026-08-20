@@ -47,6 +47,8 @@ app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 // Database helper with memory caching and db.json backing
 let cachedDB = null;
 
+const EMBEDDED_DB = require('../db.json');
+
 function readDB() {
   if (cachedDB) return cachedDB;
   try {
@@ -54,60 +56,8 @@ function readDB() {
     cachedDB = JSON.parse(data);
     return cachedDB;
   } catch (err) {
-    try {
-      cachedDB = require('../db.json');
-      return cachedDB;
-    } catch (e) {
-      cachedDB = {
-        users: [
-          {
-            id: 'admin_1',
-            email: 'admin@influencex.com',
-            password: '$2a$10$kZAqiCKZQ1xr137OZG8G.ea7CdDSeuf1Xc1Ul5OJVxqujUWSfC.aS',
-            role: 'admin',
-            profile: { name: 'Platform Admin', permissions: ['all'] },
-            status: 'active',
-            joinedAt: '2026-01-01'
-          },
-          {
-            id: 'biz_1',
-            email: 'ravi@store.com',
-            password: '$2a$10$Vxb2vu3PQAsXDrWyrgKtY.B2n89VCo6R8IEqoG0V2tUMgWSKdncAe',
-            role: 'brand',
-            profile: { company: "Ravi's Store", budget: 50000, spent: 32400, industry: 'Fashion' },
-            status: 'active',
-            joinedAt: '2026-02-15'
-          },
-          {
-            id: 'inf_1',
-            email: 'priya@demo.com',
-            password: '$2a$10$Vxb2vu3PQAsXDrWyrgKtY.B2n89VCo6R8IEqoG0V2tUMgWSKdncAe',
-            role: 'influencer',
-            profile: {
-              name: 'Priya Sharma',
-              niche: 'Fashion',
-              followers: 1200000,
-              engagement: 6.4,
-              location: 'Mumbai',
-              rates: { story: 5000, reel: 12000, post: 8000, youtube: 25000 },
-              avatar: '👗',
-              rating: 4.8,
-              campaigns: 47,
-              bio: 'Fashion influencer based in Mumbai',
-              verified: true,
-              availability: true
-            },
-            status: 'active',
-            joinedAt: '2026-01-13'
-          }
-        ],
-        deals: [],
-        campaigns: [],
-        notifications: [],
-        withdrawals: []
-      };
-      return cachedDB;
-    }
+    cachedDB = JSON.parse(JSON.stringify(EMBEDDED_DB));
+    return cachedDB;
   }
 }
 

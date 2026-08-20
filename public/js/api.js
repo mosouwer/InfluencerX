@@ -57,24 +57,32 @@ window.api = {
         verifiedInfluencers: 4
       };
     }
-    if (url.includes('/admin/campaigns')) {
+    if (url.includes('/admin/campaigns') || url.includes('/campaigns')) {
       return [
-        { id: 'c_101', title: 'Summer Apparel Launch 2026', brandName: "Ravi's Store", influencerName: 'Priya Sharma', package: 'Instagram Reel', amount: 15000, status: 'active', createdAt: '2026-08-18T10:00:00Z' },
-        { id: 'c_102', title: 'Gourmet Spice Blend Review', brandName: 'Artisan Flavours', influencerName: 'Chef Arjun', package: 'Dedicated Post', amount: 10000, status: 'review', createdAt: '2026-08-16T14:30:00Z' },
-        { id: 'c_103', title: 'Fitness Tracker Promo', brandName: 'FitLife Tech', influencerName: 'FitWithNikhil', package: 'Instagram Story', amount: 4500, status: 'completed', createdAt: '2026-08-10T09:15:00Z' }
+        { id: 'camp_1', campaignName: 'Summer Reel Campaign', brandName: "Ravi's Store", influencerName: 'Priya Sharma', packageType: 'Instagram Reel', type: 'Instagram Reel', amount: 12000, status: 'active', deadline: '2026-05-20', createdAt: '2026-05-01' },
+        { id: 'camp_2', campaignName: 'Product Unboxing', brandName: "Ravi's Store", influencerName: 'Chef Arjun', packageType: 'YouTube Video', type: 'YouTube Video', amount: 25000, status: 'review', deadline: '2026-05-19', createdAt: '2026-05-02' },
+        { id: 'camp_3', campaignName: 'Brand Awareness Story', brandName: "Ravi's Store", influencerName: 'FitWithNikhil', packageType: 'Instagram Story', type: 'Instagram Story', amount: 5000, status: 'completed', deadline: '2026-05-24', createdAt: '2026-05-03' },
+        { id: 'camp_4', campaignName: 'Tech Review Post', brandName: "Ravi's Store", influencerName: 'TechTalk Vikram', packageType: 'Feed Post', type: 'Feed Post', amount: 8000, status: 'active', deadline: '2026-05-15', createdAt: '2026-04-20' },
+        { id: 'camp_5', campaignName: 'Summer Apparel Launch 2026', brandName: "Ravi's Store", influencerName: 'GreenLife Ananya', packageType: 'Instagram Reel', type: 'Instagram Reel', amount: 15000, status: 'pending', deadline: '2026-06-01', createdAt: '2026-05-10' },
+        { id: 'camp_6', campaignName: 'Travel VLOG Goa', brandName: "Ravi's Store", influencerName: 'Wanderer Kabir', packageType: 'Instagram Reel', type: 'Instagram Reel', amount: 9000, status: 'completed', deadline: '2026-05-19', createdAt: '2026-05-12' }
       ];
     }
-    if (url.includes('/admin/deals')) {
+    if (url.includes('/admin/deals') || url.includes('/deals')) {
       return [
-        { id: 'deal_201', campaignName: 'DEAL-201', brandName: "Ravi's Store", influencerName: 'TechTalk Vikram', packageType: 'Instagram Reel', amount: 6000, status: 'pending', createdAt: '2026-08-20T18:00:00Z' }
+        { id: 'deal_1', campaignName: 'DEAL-Eco Collaboration', brandName: "Ravi's Store", influencerName: 'GreenLife Ananya', packageType: 'Instagram Post', amount: 3500, status: 'completed', createdAt: '2026-05-10' },
+        { id: 'deal_201', campaignName: 'DEAL-Tech Spotlight', brandName: "Ravi's Store", influencerName: 'TechTalk Vikram', packageType: 'Instagram Reel', amount: 6000, status: 'pending', createdAt: '2026-08-20T18:00:00Z' }
       ];
     }
     if (url.includes('/admin/users') || url.includes('/users')) {
       return [
-        { id: 'admin_1', email: 'admin@influencex.com', role: 'admin', profile: { name: 'Platform Admin' }, status: 'active', joinedAt: '2026-01-01' },
-        { id: 'biz_1', email: 'ravi@store.com', role: 'brand', profile: { company: "Ravi's Store", industry: 'Fashion' }, status: 'active', joinedAt: '2026-02-15' },
-        { id: 'inf_1', email: 'priya@demo.com', role: 'influencer', profile: { name: 'Priya Sharma', niche: 'Fashion', followers: 1200000, rates: { story: 5000, reel: 12000, post: 8000 } }, verified: true, status: 'active', joinedAt: '2026-01-13' },
-        { id: 'inf_2', email: 'arjun@demo.com', role: 'influencer', profile: { name: 'Chef Arjun', niche: 'Food', followers: 890000, rates: { story: 8000, reel: 15000, post: 10000 } }, verified: true, status: 'active', joinedAt: '2026-01-15' }
+        { id: 'admin_1', email: 'admin@influencex.com', role: 'admin', name: 'Platform Admin', profile: { name: 'Platform Admin' }, status: 'active', joinedAt: '2026-01-01', verified: null },
+        { id: 'biz_1', email: 'ravi@store.com', role: 'brand', name: "Ravi's Store", profile: { company: "Ravi's Store", industry: 'Fashion' }, status: 'active', joinedAt: '2026-02-15', verified: null },
+        { id: 'inf_1', email: 'priya@demo.com', role: 'influencer', name: 'Priya Sharma', profile: { name: 'Priya Sharma', niche: 'Fashion', followers: 1200000, rates: { story: 5000, reel: 12000, post: 8000 } }, verified: true, status: 'active', joinedAt: '2026-01-13' },
+        { id: 'inf_2', email: 'arjun@demo.com', role: 'influencer', name: 'Chef Arjun', profile: { name: 'Chef Arjun', niche: 'Food', followers: 890000, rates: { story: 8000, reel: 15000, post: 10000 } }, verified: true, status: 'active', joinedAt: '2026-01-15' },
+        { id: 'inf_3', email: 'nikhil@demo.com', role: 'influencer', name: 'FitWithNikhil', profile: { name: 'FitWithNikhil', niche: 'Fitness', followers: 560000, rates: { story: 4500, reel: 8000, post: 5000 } }, verified: true, status: 'active', joinedAt: '2026-01-13' },
+        { id: 'inf_4', email: 'vikram@demo.com', role: 'influencer', name: 'TechTalk Vikram', profile: { name: 'TechTalk Vikram', niche: 'Tech', followers: 180000, rates: { story: 3000, reel: 6000, post: 8000 } }, verified: true, status: 'active', joinedAt: '2026-01-15' },
+        { id: 'inf_5', email: 'ananya@demo.com', role: 'influencer', name: 'GreenLife Ananya', profile: { name: 'GreenLife Ananya', niche: 'Lifestyle', followers: 210000, rates: { story: 3500, reel: 7000, post: 5000 } }, verified: false, status: 'active', joinedAt: '2026-01-14' },
+        { id: 'inf_6', email: 'kabir@demo.com', role: 'influencer', name: 'Wanderer Kabir', profile: { name: 'Wanderer Kabir', niche: 'Travel', followers: 340000, rates: { story: 6000, reel: 12000, post: 9000 } }, verified: true, status: 'active', joinedAt: '2026-01-26' }
       ];
     }
     if (url.includes('/admin/withdrawals')) {
@@ -88,9 +96,12 @@ window.api = {
     }
     if (url.includes('/influencers')) {
       return [
-        { id: 'inf_1', name: 'Priya Sharma', niche: 'Fashion', followers: 1200000, engagement: 6.4, rates: { story: 5000, reel: 12000, post: 8000 }, verified: true, rating: 4.8, image: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=500&auto=format&fit=crop&q=80', bio: 'Fashion & luxury lifestyle creator.' },
-        { id: 'inf_2', name: 'Chef Arjun', niche: 'Food', followers: 890000, engagement: 7.1, rates: { story: 8000, reel: 15000, post: 10000 }, verified: true, rating: 4.9, image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=500&auto=format&fit=crop&q=80', bio: 'Culinary artist and food reviewer.' },
-        { id: 'inf_3', name: 'FitWithNikhil', niche: 'Fitness', followers: 560000, engagement: 5.8, rates: { story: 4500, reel: 8000, post: 5000 }, verified: false, rating: 4.7, image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=500&auto=format&fit=crop&q=80', bio: 'Fitness coach and wellness advocate.' }
+        { id: 'inf_1', name: 'Priya Sharma', niche: 'Fashion', followers: 1200000, engagement: 6.4, location: 'Mumbai', rates: { story: 5000, reel: 12000, post: 8000 }, verified: true, rating: 4.8, avatar: '👗', image: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=500&auto=format&fit=crop&q=80', bio: 'Fashion influencer based in Mumbai.' },
+        { id: 'inf_2', name: 'Chef Arjun', niche: 'Food', followers: 890000, engagement: 7.1, location: 'Delhi', rates: { story: 8000, reel: 15000, post: 10000 }, verified: true, rating: 4.9, avatar: '🍕', image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=500&auto=format&fit=crop&q=80', bio: 'Food creator from Delhi.' },
+        { id: 'inf_3', name: 'FitWithNikhil', niche: 'Fitness', followers: 560000, engagement: 5.8, location: 'Pune', rates: { story: 4500, reel: 8000, post: 5000 }, verified: true, rating: 4.7, avatar: '💪', image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=500&auto=format&fit=crop&q=80', bio: 'Fitness coach and wellness advocate.' },
+        { id: 'inf_4', name: 'TechTalk Vikram', niche: 'Tech', followers: 180000, engagement: 8.2, location: 'Bangalore', rates: { story: 3000, reel: 6000, post: 8000 }, verified: true, rating: 4.9, avatar: '📱', image: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=500&auto=format&fit=crop&q=80', bio: 'Tech reviewer and gadget expert.' },
+        { id: 'inf_5', name: 'GreenLife Ananya', niche: 'Lifestyle', followers: 210000, engagement: 4.9, location: 'Delhi', rates: { story: 3500, reel: 7000, post: 5000 }, verified: false, rating: 4.6, avatar: '🌿', image: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=500&auto=format&fit=crop&q=80', bio: 'Sustainable living advocate.' },
+        { id: 'inf_6', name: 'Wanderer Kabir', niche: 'Travel', followers: 340000, engagement: 5.5, location: 'Goa', rates: { story: 6000, reel: 12000, post: 9000 }, verified: true, rating: 4.7, avatar: '✈️', image: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=500&auto=format&fit=crop&q=80', bio: 'Travel blogger exploring India.' }
       ];
     }
     return { success: true };

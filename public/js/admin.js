@@ -231,6 +231,27 @@ window.admin = {
     }
   },
   
+  async showBrandsDetails() {
+    await this.renderUsers();
+    this.filterUsers('brand');
+  },
+
+  async showInfluencersDetails() {
+    await this.renderUsers();
+    this.filterUsers('influencer');
+  },
+
+  async showCampaignsDetails(status = 'all') {
+    await this.renderCampaigns();
+    if (status && status !== 'all') {
+      setTimeout(() => this.filterCampaigns(status), 50);
+    }
+  },
+
+  async showRevenueDetails() {
+    await this.renderDeals();
+  },
+
   async renderUsers() {
     try {
       window.ui.updateSidebarActive('User Management');
@@ -315,7 +336,7 @@ window.admin = {
               <tbody class="divide-y divide-gray-150" id="userTableBody">
                 ${this.renderUserRows(users)}
               </tbody>
-            <table>
+            </table>
           </div>
         </div>
         
@@ -758,7 +779,7 @@ window.admin = {
         <td class="px-6 py-4 text-sm cursor-pointer" onclick="window.admin.openCampaignModal('${campaign.id}', ${campaign.isDeal})">
           <div class="flex flex-col gap-1.5">
             <div class="font-bold text-gray-900 hover:text-black transition-colors tracking-wide">
-              ${campaign.isDeal ? '#' + campaign.campaignName : campaign.campaignName}
+              ${campaign.isDeal ? '#' + (campaign.campaignName || campaign.title || campaign.id) : (campaign.campaignName || campaign.title || 'Campaign #' + campaign.id)}
             </div>
             <div class="flex items-center gap-2 text-xs font-medium text-gray-500">
               <span class="capitalize px-1.5 py-0.5 bg-gray-100 text-gray-700 rounded-sm border border-gray-200/50">
