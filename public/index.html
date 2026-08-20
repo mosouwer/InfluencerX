@@ -82,7 +82,7 @@
             <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-gray-400">
               <span class="material-icons-outlined text-lg">mail</span>
             </span>
-            <input type="email" id="loginEmail" placeholder="Email Address" 
+            <input type="email" id="loginEmail" placeholder="Email Address" onkeydown="if(event.key === 'Enter') window.auth.login()"
               class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#804ee6]/20 focus:border-[#804ee6] transition duration-200">
           </div>
 
@@ -91,13 +91,13 @@
             <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-gray-400">
               <span class="material-icons-outlined text-lg">lock</span>
             </span>
-            <input type="password" id="loginPassword" placeholder="Password" 
+            <input type="password" id="loginPassword" placeholder="Password" onkeydown="if(event.key === 'Enter') window.auth.login()"
               class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#804ee6]/20 focus:border-[#804ee6] transition duration-200">
           </div>
 
           <!-- Login Button -->
-          <button onclick="window.auth.login()" 
-            class="w-full py-3 bg-[#ff8a3d] hover:bg-[#e0752d] text-white rounded-lg text-sm font-bold tracking-wider shadow-md hover:shadow-lg transition duration-200 uppercase active:scale-[0.98] mt-2">
+          <button type="button" id="loginSubmitBtn" onclick="window.auth.login()" 
+            class="w-full py-3 bg-[#ff8a3d] hover:bg-[#e0752d] text-white rounded-lg text-sm font-bold tracking-wider shadow-md hover:shadow-lg transition duration-200 uppercase active:scale-[0.98] mt-2 cursor-pointer">
             Login
           </button>
 
