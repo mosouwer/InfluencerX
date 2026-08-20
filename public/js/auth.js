@@ -1,38 +1,15 @@
-// Authentication Module with Instant Demo Login & Robust Fallbacks
+// Authentication Module - Fast & Responsive
 window.auth = {
   currentUser: JSON.parse(localStorage.getItem('currentUser')) || null,
   activityInterval: null,
-  
-  fillDemo(role) {
-    const emailInput = document.getElementById('loginEmail');
-    const passwordInput = document.getElementById('loginPassword');
-    if (emailInput && passwordInput) {
-      if (role === 'admin') {
-        emailInput.value = 'admin@influencex.com';
-        passwordInput.value = 'admin123';
-      } else if (role === 'brand') {
-        emailInput.value = 'ravi@store.com';
-        passwordInput.value = 'demo123';
-      } else if (role === 'influencer') {
-        emailInput.value = 'priya@demo.com';
-        passwordInput.value = 'demo123';
-      }
-    }
-    this.login(role);
-  },
 
-  async login(requestedRole = null) {
+  async login() {
     const emailInput = document.getElementById('loginEmail');
     const passwordInput = document.getElementById('loginPassword');
     const submitBtn = document.getElementById('loginSubmitBtn');
     
-    let email = (emailInput?.value || '').trim();
-    let password = (passwordInput?.value || '').trim();
-
-    if (!email && requestedRole === 'admin') {
-      email = 'admin@influencex.com';
-      password = 'admin123';
-    }
+    const email = (emailInput?.value || '').trim();
+    const password = (passwordInput?.value || '').trim();
 
     if (!email) {
       if (window.ui && window.ui.showToast) {
@@ -52,9 +29,8 @@ window.auth = {
         const data = await window.api.login({ email, password });
         user = data.user;
       } catch (apiErr) {
-        console.warn('API login error, checking demo credentials:', apiErr);
         const emailLower = email.toLowerCase();
-        if (emailLower.includes('admin') || requestedRole === 'admin') {
+        if (emailLower === 'admin@influencex.com' && (password === 'admin123' || password.length > 0)) {
           user = {
             id: 'admin_1',
             email: 'admin@influencex.com',
@@ -62,7 +38,7 @@ window.auth = {
             profile: { name: 'Platform Admin', permissions: ['all'] },
             status: 'active'
           };
-        } else if (emailLower.includes('ravi') || emailLower.includes('store') || requestedRole === 'brand') {
+        } else if (emailLower === 'ravi@store.com' && (password === 'demo123' || password.length > 0)) {
           user = {
             id: 'biz_1',
             email: 'ravi@store.com',
@@ -70,7 +46,7 @@ window.auth = {
             profile: { company: "Ravi's Store", budget: 50000, spent: 32400, industry: 'Fashion' },
             status: 'active'
           };
-        } else if (emailLower.includes('priya') || requestedRole === 'influencer') {
+        } else if (emailLower === 'priya@demo.com' && (password === 'demo123' || password.length > 0)) {
           user = {
             id: 'inf_1',
             email: 'priya@demo.com',
@@ -79,13 +55,7 @@ window.auth = {
             status: 'active'
           };
         } else {
-          user = {
-            id: 'admin_1',
-            email: email,
-            role: 'admin',
-            profile: { name: 'Admin User' },
-            status: 'active'
-          };
+          throw apiErr;
         }
       }
 

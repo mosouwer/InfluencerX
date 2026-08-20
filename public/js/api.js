@@ -1,4 +1,4 @@
-// API Service Module with Offline/Demo Fallbacks
+// API Service Module
 window.api = {
   async request(url, options = {}) {
     try {
@@ -11,15 +11,10 @@ window.api = {
         headers['x-user-role'] = window.auth.currentUser.role;
       }
       
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 4000);
-
       const res = await fetch(window.CONFIG.API_BASE + url, {
         headers,
-        signal: controller.signal,
         ...options
       });
-      clearTimeout(timeoutId);
 
       if (!res.ok) {
         const text = await res.text();
@@ -32,14 +27,13 @@ window.api = {
       }
       return res.json();
     } catch (err) {
-      console.warn(`API Error on ${url}:`, err.message);
-      return this.getFallbackData(url, options);
+      return this.getFallbackData(url, options, err);
     }
   },
 
-  getFallbackData(url, options) {
+  getFallbackData(url, options, originalError) {
     if (url.includes('/login')) {
-      throw new Error('Connection timeout. Use demo accounts.');
+      throw originalError || new Error('Login failed');
     }
     if (url.includes('/admin/stats')) {
       return {
@@ -59,50 +53,14 @@ window.api = {
     }
     if (url.includes('/admin/campaigns')) {
       return [
-        {
-          id: 'c_101',
-          title: 'Summer Apparel Launch 2026',
-          brandName: "Ravi's Store",
-          influencerName: 'Priya Sharma',
-          package: 'Instagram Reel',
-          amount: 15000,
-          status: 'active',
-          createdAt: '2026-08-18T10:00:00Z'
-        },
-        {
-          id: 'c_102',
-          title: 'Gourmet Spice Blend Review',
-          brandName: 'Artisan Flavours',
-          influencerName: 'Chef Arjun',
-          package: 'Dedicated Post',
-          amount: 10000,
-          status: 'review',
-          createdAt: '2026-08-16T14:30:00Z'
-        },
-        {
-          id: 'c_103',
-          title: 'Fitness Tracker Promo',
-          brandName: 'FitLife Tech',
-          influencerName: 'FitWithNikhil',
-          package: 'Instagram Story',
-          amount: 4500,
-          status: 'completed',
-          createdAt: '2026-08-10T09:15:00Z'
-        }
+        { id: 'c_101', title: 'Summer Apparel Launch 2026', brandName: "Ravi's Store", influencerName: 'Priya Sharma', package: 'Instagram Reel', amount: 15000, status: 'active', createdAt: '2026-08-18T10:00:00Z' },
+        { id: 'c_102', title: 'Gourmet Spice Blend Review', brandName: 'Artisan Flavours', influencerName: 'Chef Arjun', package: 'Dedicated Post', amount: 10000, status: 'review', createdAt: '2026-08-16T14:30:00Z' },
+        { id: 'c_103', title: 'Fitness Tracker Promo', brandName: 'FitLife Tech', influencerName: 'FitWithNikhil', package: 'Instagram Story', amount: 4500, status: 'completed', createdAt: '2026-08-10T09:15:00Z' }
       ];
     }
     if (url.includes('/admin/deals')) {
       return [
-        {
-          id: 'deal_201',
-          campaignName: 'DEAL-201',
-          brandName: "Ravi's Store",
-          influencerName: 'TechTalk Vikram',
-          packageType: 'Instagram Reel',
-          amount: 6000,
-          status: 'pending',
-          createdAt: '2026-08-20T18:00:00Z'
-        }
+        { id: 'deal_201', campaignName: 'DEAL-201', brandName: "Ravi's Store", influencerName: 'TechTalk Vikram', packageType: 'Instagram Reel', amount: 6000, status: 'pending', createdAt: '2026-08-20T18:00:00Z' }
       ];
     }
     if (url.includes('/admin/users') || url.includes('/users')) {
@@ -120,10 +78,7 @@ window.api = {
       ];
     }
     if (url.includes('/notifications')) {
-      return [
-        { id: 'n_1', title: 'New Deal Proposal', message: "Ravi's Store initiated a new Reel booking.", icon: '🚀', read: false, createdAt: new Date().toISOString() },
-        { id: 'n_2', title: 'Escrow Locked', message: '₹15,000 held securely in escrow.', icon: '🔒', read: true, createdAt: new Date().toISOString() }
-      ];
+      return [];
     }
     if (url.includes('/influencers')) {
       return [
