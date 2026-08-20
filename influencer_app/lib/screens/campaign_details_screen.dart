@@ -58,7 +58,6 @@ class CampaignDetailsScreen extends StatelessWidget {
     final campaignName = campaign['campaignName'] ?? campaign['packageType'] ?? 'Campaign Collaboration';
     final campaignType = (campaign['type'] ?? campaign['packageType'] ?? 'Custom Package').toString().toUpperCase();
     final amount = campaign['amount'] ?? 0;
-    final progress = (campaign['progress'] as num?)?.toInt() ?? (status == 'completed' ? 100 : status == 'active' ? 50 : 10);
     final deadline = _formatDate(campaign['deadline']?.toString());
     final createdAt = _formatDate(campaign['createdAt']?.toString());
     final campaignId = campaign['id'] ?? 'N/A';
@@ -317,30 +316,102 @@ class CampaignDetailsScreen extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       const Text(
-                        'Campaign Progress',
+                        'Campaign Milestones',
                         style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
                       ),
-                      Text(
-                        '$progress%',
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w900,
-                          color: Color(0xFF804EE6),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF804EE6).withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(
+                          'Step $currentStep of 4',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w800,
+                            color: Color(0xFF804EE6),
+                          ),
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 12),
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(10),
-                    child: LinearProgressIndicator(
-                      value: progress / 100.0,
-                      minHeight: 10,
-                      backgroundColor: const Color(0xFFEDEDED),
-                      valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF804EE6)),
+                  const SizedBox(height: 16),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF9FAFB),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: const Color(0xFFF3F4F6)),
+                    ),
+                    child: Row(
+                      children: [
+                        for (int i = 0; i < 4; i++) ...[
+                          Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Container(
+                                width: 26,
+                                height: 26,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: currentStep >= i + 1
+                                      ? (currentStep == i + 1 ? statusColor : const Color(0xFF804EE6))
+                                      : const Color(0xFFE5E7EB),
+                                  boxShadow: currentStep == i + 1
+                                      ? [
+                                          BoxShadow(
+                                            color: statusColor.withOpacity(0.4),
+                                            blurRadius: 8,
+                                            offset: const Offset(0, 2),
+                                          ),
+                                        ]
+                                      : null,
+                                ),
+                                child: Center(
+                                  child: currentStep > i + 1
+                                      ? const Icon(Icons.check, size: 14, color: Colors.white)
+                                      : Text(
+                                          '${i + 1}',
+                                          style: TextStyle(
+                                            fontSize: 11,
+                                            fontWeight: FontWeight.w900,
+                                            color: currentStep == i + 1 ? Colors.white : Colors.grey.shade600,
+                                          ),
+                                        ),
+                                ),
+                              ),
+                              const SizedBox(height: 6),
+                              Text(
+                                ['Offer', 'Active', 'Review', 'Done'][i],
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: currentStep == i + 1 ? FontWeight.w800 : FontWeight.w600,
+                                  color: currentStep >= i + 1
+                                      ? (currentStep == i + 1 ? statusColor : const Color(0xFF1F2937))
+                                      : Colors.grey.shade400,
+                                ),
+                              ),
+                            ],
+                          ),
+                          if (i < 3)
+                            Expanded(
+                              child: Container(
+                                height: 3,
+                                margin: const EdgeInsets.only(bottom: 18, left: 4, right: 4),
+                                decoration: BoxDecoration(
+                                  color: currentStep > i + 1
+                                      ? const Color(0xFF804EE6)
+                                      : const Color(0xFFE5E7EB),
+                                  borderRadius: BorderRadius.circular(2),
+                                ),
+                              ),
+                            ),
+                        ],
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 24),
 
                   // Workflow Steps
                   _buildTimelineTile(1, 'Deal Initiated', 'Campaign proposal created', currentStep >= 1),

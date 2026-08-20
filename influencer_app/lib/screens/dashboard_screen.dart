@@ -61,6 +61,21 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
   }
 
+  int _getStatusStep(String? status) {
+    switch (status?.toLowerCase()) {
+      case 'pending':
+        return 1;
+      case 'active':
+        return 2;
+      case 'review':
+        return 3;
+      case 'completed':
+        return 4;
+      default:
+        return 1;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -564,7 +579,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             shrinkWrap: true,
                             physics: const NeverScrollableScrollPhysics(),
                             itemCount: filteredCampaigns.length,
-                            separatorBuilder: (_, __) => const SizedBox(height: 12),
+                            separatorBuilder: (_, __) => const SizedBox(height: 14),
                             itemBuilder: (context, index) {
                               final camp = filteredCampaigns[index];
                               return _buildModernCampaignCard(camp);
@@ -665,6 +680,85 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
+  Widget _buildMilestonePoints(int currentStep, Color statusColor) {
+    final steps = ['Offer', 'Active', 'Review', 'Done'];
+
+    return Row(
+      children: [
+        for (int i = 0; i < steps.length; i++) ...[
+          // Milestone Point Node
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 22,
+                height: 22,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: currentStep >= i + 1
+                      ? (currentStep == i + 1 ? statusColor : const Color(0xFF804EE6))
+                      : const Color(0xFFF3F4F6),
+                  border: Border.all(
+                    color: currentStep >= i + 1
+                        ? (currentStep == i + 1 ? statusColor : const Color(0xFF804EE6))
+                        : const Color(0xFFE5E7EB),
+                    width: 1.5,
+                  ),
+                  boxShadow: currentStep == i + 1
+                      ? [
+                          BoxShadow(
+                            color: statusColor.withOpacity(0.35),
+                            blurRadius: 6,
+                            offset: const Offset(0, 2),
+                          ),
+                        ]
+                      : null,
+                ),
+                child: Center(
+                  child: currentStep > i + 1
+                      ? const Icon(Icons.check, size: 12, color: Colors.white)
+                      : Container(
+                          width: 6,
+                          height: 6,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: currentStep >= i + 1 ? Colors.white : Colors.grey.shade400,
+                          ),
+                        ),
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                steps[i],
+                style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: currentStep == i + 1 ? FontWeight.w800 : FontWeight.w600,
+                  color: currentStep >= i + 1
+                      ? (currentStep == i + 1 ? statusColor : const Color(0xFF1F2937))
+                      : Colors.grey.shade400,
+                ),
+              ),
+            ],
+          ),
+          // Connecting Line between Milestone Nodes
+          if (i < steps.length - 1)
+            Expanded(
+              child: Container(
+                height: 2.5,
+                margin: const EdgeInsets.only(bottom: 16, left: 4, right: 4),
+                decoration: BoxDecoration(
+                  color: currentStep > i + 1
+                      ? const Color(0xFF804EE6)
+                      : const Color(0xFFE5E7EB),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+        ],
+      ],
+    );
+  }
+
   Widget _buildModernCampaignCard(dynamic campaign) {
     final influencerId = campaign['influencerId'] ?? '';
     final influencerName = campaign['influencerName'] ?? 'Creator';
@@ -674,7 +768,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final status = (campaign['status'] ?? 'pending').toString().toLowerCase();
     final statusColor = _getStatusColor(status);
     final amount = campaign['amount'] ?? 0;
-    final progress = (campaign['progress'] as num?)?.toInt() ?? (status == 'completed' ? 100 : status == 'active' ? 50 : 10);
+    final currentStep = _getStatusStep(status);
 
     return Container(
       decoration: BoxDecoration(
@@ -786,36 +880,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ),
                 ),
 
-                const SizedBox(height: 12),
+                const SizedBox(height: 14),
 
-                // Progress Bar
-                Row(
-                  children: [
-                    Expanded(
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(6),
-                        child: LinearProgressIndicator(
-                          value: progress / 100.0,
-                          minHeight: 6,
-                          backgroundColor: const Color(0xFFF3F4F6),
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                            status == 'completed'
-                                ? const Color(0xFF059669)
-                                : const Color(0xFF804EE6),
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      '$progress%',
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.grey.shade600,
-                      ),
-                    ),
-                  ],
+                // Milestone Progress Points (Offer -> Active -> Review -> Done)
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF9FAFB),
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: const Color(0xFFF3F4F6)),
+                  ),
+                  child: _buildMilestonePoints(currentStep, statusColor),
                 ),
 
                 const Divider(height: 24, thickness: 1, color: Color(0xFFF9FAFB)),
