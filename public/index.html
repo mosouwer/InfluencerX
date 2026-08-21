@@ -209,71 +209,81 @@
   <!-- Mobile Overlay -->
   <div id="mobileOverlay" class="fixed inset-0 bg-black/50 z-40 hidden lg:hidden" onclick="closeMobileSidebar()"></div>
 
-  <nav class="bg-gray-50/80 backdrop-blur-md fixed w-full z-30 top-0">
-    <div class="px-6 py-3.5 flex justify-between items-center">
-      <!-- Left side: Mobile Menu -->
-      <div class="flex items-center gap-4 flex-1">
+  <nav class="bg-white/80 backdrop-blur-md border-b border-slate-200/80 fixed w-full z-30 top-0 shadow-2xs">
+    <div class="px-4 sm:px-6 py-3 flex justify-between items-center">
+      <!-- Left side: Mobile Menu & Breadcrumb -->
+      <div class="flex items-center gap-3 sm:gap-4 flex-1">
         <!-- Mobile Logo and Menu toggle button -->
         <div class="flex items-center gap-2 lg:hidden">
-          <span class="material-icons-outlined text-[#804ee6] text-3xl font-extrabold">change_history</span>
-          <h1 class="text-xl font-black text-gray-900 tracking-tighter uppercase">IX</h1>
+          <button onclick="toggleMobileSidebar()" class="p-2 text-slate-600 hover:text-slate-900 rounded-xl hover:bg-slate-100">
+            <span class="material-icons-outlined text-2xl">menu</span>
+          </button>
+          <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#804ee6] to-purple-500 text-white flex items-center justify-center font-black text-xs shadow-xs">IX</div>
+        </div>
+
+        <div class="hidden lg:flex items-center gap-2">
+          <span class="text-xs font-extrabold uppercase tracking-wider text-slate-400">Workspace</span>
+          <span class="text-slate-300">/</span>
+          <span class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-[#804ee6]"></span> InfluenceX Platform
+          </span>
         </div>
       </div>
 
-      <!-- Right side: Notifications & Profile -->
-      <div class="flex items-center gap-4 sm:gap-6">
-        <div id="modeSwitcher" class="hidden sm:flex gap-1 bg-gray-50 rounded-lg p-1 border border-gray-200">
-          <button onclick="window.app.switchMode('brand')" id="brandModeBtn" class="px-4 py-1.5 rounded-sm text-xs font-bold text-gray-500 hover:text-gray-900 uppercase tracking-wider flex items-center gap-1.5">
-            <span class="material-icons-outlined text-[16px]">business_center</span> Business
+      <!-- Right side: Notifications, Mode Switcher & Profile -->
+      <div class="flex items-center gap-2 sm:gap-4">
+        <div id="modeSwitcher" class="hidden sm:flex gap-1 bg-slate-100/80 rounded-xl p-1 border border-slate-200">
+          <button onclick="window.app.switchMode('brand')" id="brandModeBtn" class="px-3.5 py-1.5 rounded-lg text-xs font-bold text-slate-600 hover:text-slate-900 uppercase tracking-wider flex items-center gap-1.5 transition">
+            <span class="material-icons-outlined text-[16px]">business_center</span> Brand
           </button>
-          <button onclick="window.app.switchMode('influencer')" id="infModeBtn" class="px-4 py-1.5 rounded-sm text-xs font-bold text-gray-500 hover:text-gray-900 uppercase tracking-wider flex items-center gap-1.5">
-            <span class="material-icons-outlined text-[16px]">star_outline</span> Creator
+          <button onclick="window.app.switchMode('influencer')" id="infModeBtn" class="px-3.5 py-1.5 rounded-lg text-xs font-bold text-slate-600 hover:text-slate-900 uppercase tracking-wider flex items-center gap-1.5 transition">
+            <span class="material-icons-outlined text-[16px]">star</span> Creator
           </button>
         </div>
 
-        <button onclick="window.app.refreshCurrentView()" class="p-1.5 text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors" title="Refresh Latest Data">
+        <button onclick="window.app.refreshCurrentView()" class="p-2 text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition duration-150 active:scale-95" title="Refresh Latest Data">
           <span class="material-icons-outlined text-[20px]">refresh</span>
         </button>
         
         <!-- Notifications with Dropdown -->
         <div class="relative" id="notificationContainer">
-          <button onclick="window.app.toggleNotifications(event)" id="notificationBtn" class="relative p-2 text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-xl transition duration-150 flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-[#804ee6]/20" title="Notifications" aria-label="Notifications">
+          <button onclick="window.app.toggleNotifications(event)" id="notificationBtn" class="relative p-2 text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition duration-150 flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-[#804ee6]/20" title="Notifications" aria-label="Notifications">
             <span class="material-icons-outlined text-[22px]">notifications</span>
-            <span id="notifBadge" class="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 bg-red-500 text-white text-[10px] font-extrabold border-2 border-white rounded-full flex items-center justify-center hidden shadow-sm">0</span>
+            <span id="notifBadge" class="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 bg-rose-500 text-white text-[10px] font-extrabold border-2 border-white rounded-full flex items-center justify-center hidden shadow-xs">0</span>
           </button>
 
           <!-- Notification Dropdown Menu -->
-          <div id="notificationDropdown" class="hidden absolute right-0 mt-3 w-80 sm:w-96 max-w-[calc(100vw-24px)] bg-white rounded-2xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.2)] border border-gray-200 z-50 overflow-hidden transform opacity-0 scale-95 transition-all duration-200 origin-top-right">
+          <div id="notificationDropdown" class="hidden absolute right-0 mt-3 w-80 sm:w-96 max-w-[calc(100vw-24px)] bg-white rounded-2xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.2)] border border-slate-200 z-50 overflow-hidden transform opacity-0 scale-95 transition-all duration-200 origin-top-right">
             <!-- Rendered dynamically by window.app.renderNotificationDropdown() -->
           </div>
         </div>
         
-        <div class="h-6 w-px bg-gray-200 hidden sm:block"></div>
+        <div class="h-6 w-px bg-slate-200 hidden sm:block"></div>
         
-        <!-- User Profile (Donezo style) -->
-        <div class="flex items-center gap-3">
-          <div id="userAvatar" class="w-9 h-9 rounded-full bg-[#804ee6]/10 text-[#804ee6] border border-[#804ee6]/20 flex items-center justify-center text-xs font-black uppercase shadow-sm"></div>
+        <!-- User Profile -->
+        <div class="flex items-center gap-2.5">
+          <div id="userAvatar" class="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#804ee6] to-purple-600 text-white flex items-center justify-center text-xs font-black uppercase shadow-xs"></div>
           <div class="hidden md:flex flex-col text-left">
-            <span id="userName" class="text-xs sm:text-sm font-bold text-gray-900 leading-tight">User</span>
-            <span id="userEmail" class="text-[10px] text-gray-400 font-medium">user@influencex.com</span>
+            <span id="userName" class="text-xs font-extrabold text-slate-900 leading-tight">Admin</span>
+            <span id="userEmail" class="text-[10px] text-slate-400 font-medium">admin@influencex.com</span>
           </div>
         </div>
         
-        <button onclick="window.auth.logout()" class="text-gray-400 hover:text-red-600 p-1.5 rounded-lg hover:bg-red-55 transition duration-200 ml-2" title="Logout">
+        <button onclick="window.auth.logout()" class="text-slate-400 hover:text-rose-600 p-2 rounded-xl hover:bg-rose-50 transition duration-200" title="Logout">
           <span class="material-icons-outlined text-[20px]">logout</span>
         </button>
       </div>
     </div>
   </nav>
   
-  <div id="adminModeIndicator" class="fixed top-14 right-4 z-40 hidden"><div class="bg-red-500 text-white px-2 py-0.5 sm:px-3 sm:py-1 rounded-full text-[10px] sm:text-xs font-bold shadow-lg">👑 Admin Mode</div></div>
+  <div id="adminModeIndicator" class="fixed top-16 right-6 z-40 hidden"><div class="bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-3 py-1 rounded-full text-xs font-black shadow-lg flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Super Admin</div></div>
   
-  <div class="flex pt-12">
+  <div class="flex pt-14">
     <!-- Sidebar - Mobile responsive -->
-    <aside id="sidebar" class="fixed left-0 top-0 bottom-0 w-64 bg-white border-r border-gray-100 transform -translate-x-full transition-transform duration-300 ease-in-out z-40 overflow-y-auto lg:translate-x-0 lg:w-64">
+    <aside id="sidebar" class="fixed left-0 top-0 bottom-0 w-64 bg-white border-r border-slate-200/80 transform -translate-x-full transition-transform duration-300 ease-in-out z-40 overflow-y-auto lg:translate-x-0 lg:w-64 shadow-xs">
       <!-- Sidebar content loaded dynamically -->
     </aside>
-    <main id="mainContent" class="flex-1 p-3 sm:p-4 md:p-6 w-full lg:ml-64 min-h-screen">
+    <main id="mainContent" class="flex-1 p-4 sm:p-6 md:p-8 w-full lg:ml-64 min-h-screen">
       <!-- Main content loaded dynamically -->
     </main>
   </div>
@@ -282,16 +292,16 @@
 <!-- Socket.io for Real-Time Updates (async - optional) -->
 <script async src="/socket.io/socket.io.js"></script>
 
-<!-- Script Modules (v=20260820_3) -->
-<script src="/js/config.js?v=20260820_3"></script>
-<script src="/js/utils.js?v=20260820_3"></script>
-<script src="/js/api.js?v=20260820_3"></script>
-<script src="/js/auth.js?v=20260820_3"></script>
-<script src="/js/ui.js?v=20260820_3"></script>
-<script src="/js/admin.js?v=20260820_3"></script>
-<script src="/js/brand.js?v=20260820_3"></script>
-<script src="/js/influencer.js?v=20260820_3"></script>
-<script src="/js/app.js?v=20260820_3"></script>
+<!-- Script Modules (v=20260821_1) -->
+<script src="/js/config.js?v=20260821_1"></script>
+<script src="/js/utils.js?v=20260821_1"></script>
+<script src="/js/api.js?v=20260821_1"></script>
+<script src="/js/auth.js?v=20260821_1"></script>
+<script src="/js/ui.js?v=20260821_1"></script>
+<script src="/js/admin.js?v=20260821_1"></script>
+<script src="/js/brand.js?v=20260821_1"></script>
+<script src="/js/influencer.js?v=20260821_1"></script>
+<script src="/js/app.js?v=20260821_1"></script>
 
 <script>
 // Mobile sidebar toggle

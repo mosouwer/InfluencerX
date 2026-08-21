@@ -591,37 +591,70 @@ window.app = {
 
     if (window.auth.isAdmin()) {
       sidebar.innerHTML = getCommonLayout(`
-        <div class="mb-6 p-3 bg-purple-50 border border-purple-100 rounded-lg flex items-center gap-2">
-          <span class="material-icons-outlined text-[#804ee6] text-[18px]">admin_panel_settings</span>
-          <div class="text-xs text-[#804ee6] uppercase tracking-wider font-extrabold">Admin Dashboard</div>
-        </div>
-        <div class="space-y-1">
-          <div class="sidebar-item px-4 py-3 rounded-lg cursor-pointer text-gray-600 hover:text-[#804ee6] hover:bg-purple-50/50 font-bold flex items-center gap-3 transition-all duration-200" onclick="window.app.currentViewFn = () => window.admin.renderDashboard(); window.admin.renderDashboard()">
-            <span class="material-icons-outlined text-[20px]">dashboard</span>
-            Dashboard
-          </div>
-          <div class="sidebar-item px-4 py-3 rounded-lg cursor-pointer text-gray-600 hover:text-[#804ee6] hover:bg-purple-50/50 font-bold flex items-center gap-3 transition-all duration-200" onclick="window.app.currentViewFn = () => window.admin.renderUsers(); window.admin.renderUsers()">
-            <span class="material-icons-outlined text-[20px]">people</span>
-            User Management
-          </div>
-          <div class="sidebar-item px-4 py-3 rounded-lg cursor-pointer text-gray-600 hover:text-[#804ee6] hover:bg-purple-50/50 font-bold flex items-center gap-3 transition-all duration-200" onclick="window.app.currentViewFn = () => window.admin.renderCampaigns(); window.admin.renderCampaigns()">
-            <span class="material-icons-outlined text-[20px]">campaign</span>
-            All Campaigns
-          </div>
-          <div class="sidebar-item px-4 py-3 rounded-lg cursor-pointer text-gray-600 hover:text-[#804ee6] hover:bg-purple-50/50 font-bold flex items-center gap-3 transition-all duration-200" onclick="window.app.currentViewFn = () => window.admin.renderDeals(); window.admin.renderDeals()">
-            <span class="material-icons-outlined text-[20px]">work</span>
-            All Deals
-          </div>
-          <div class="sidebar-item px-4 py-3 rounded-lg cursor-pointer text-gray-600 hover:text-[#804ee6] hover:bg-purple-50/50 font-bold flex items-center gap-3 transition-all duration-200" onclick="window.app.currentViewFn = () => window.admin.renderWithdrawals(); window.admin.renderWithdrawals()">
-            <span class="material-icons-outlined text-[20px]">account_balance_wallet</span>
-            Withdrawals
-          </div>
-          <div class="sidebar-item px-4 py-3 rounded-lg cursor-pointer text-gray-600 hover:text-[#804ee6] hover:bg-purple-50/50 font-bold flex items-center justify-between transition-all duration-200" onclick="window.app.currentViewFn = () => window.admin.renderNotifications(); window.admin.renderNotifications()">
-            <div class="flex items-center gap-3">
-              <span class="material-icons-outlined text-[20px]">notifications_active</span>
-              Notifications
+        <div class="mb-5 p-3 bg-gradient-to-r from-purple-500/10 via-indigo-500/10 to-transparent border border-purple-200/50 rounded-xl flex items-center justify-between">
+          <div class="flex items-center gap-2.5">
+            <div class="w-8 h-8 rounded-lg bg-[#804ee6] text-white flex items-center justify-center shadow-sm">
+              <span class="material-icons-outlined text-[18px]">security</span>
             </div>
-            <span id="sidebarNotifBadge" class="bg-red-500 text-white text-[10px] font-extrabold px-1.5 py-0.5 rounded-full ${unreadCount === 0 ? 'hidden' : ''}">${unreadCount}</span>
+            <div>
+              <div class="text-xs font-black text-gray-900 tracking-tight">Admin Console</div>
+              <div class="text-[10px] text-emerald-600 font-bold flex items-center gap-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Live System
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="space-y-4 text-xs font-bold text-gray-400">
+          <div>
+            <div class="px-3 pb-1.5 text-[10px] font-extrabold uppercase tracking-wider text-gray-400">Overview</div>
+            <div class="space-y-1 text-sm font-semibold">
+              <div class="sidebar-item px-3.5 py-2.5 rounded-xl cursor-pointer text-gray-600 hover:text-[#804ee6] hover:bg-purple-50/80 font-bold flex items-center gap-3 transition-all duration-200 active" onclick="window.app.currentViewFn = () => window.admin.renderDashboard(); window.admin.renderDashboard()">
+                <span class="material-icons-outlined text-[20px] text-gray-400 group-hover:text-[#804ee6]">space_dashboard</span>
+                Dashboard
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div class="px-3 pb-1.5 text-[10px] font-extrabold uppercase tracking-wider text-gray-400">Users & Community</div>
+            <div class="space-y-1 text-sm font-semibold">
+              <div class="sidebar-item px-3.5 py-2.5 rounded-xl cursor-pointer text-gray-600 hover:text-[#804ee6] hover:bg-purple-50/80 font-bold flex items-center gap-3 transition-all duration-200" onclick="window.app.currentViewFn = () => window.admin.renderUsers(); window.admin.renderUsers()">
+                <span class="material-icons-outlined text-[20px] text-gray-400">group</span>
+                User Management
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div class="px-3 pb-1.5 text-[10px] font-extrabold uppercase tracking-wider text-gray-400">Operations</div>
+            <div class="space-y-1 text-sm font-semibold">
+              <div class="sidebar-item px-3.5 py-2.5 rounded-xl cursor-pointer text-gray-600 hover:text-[#804ee6] hover:bg-purple-50/80 font-bold flex items-center gap-3 transition-all duration-200" onclick="window.app.currentViewFn = () => window.admin.renderCampaigns(); window.admin.renderCampaigns()">
+                <span class="material-icons-outlined text-[20px] text-gray-400">campaign</span>
+                All Campaigns
+              </div>
+              <div class="sidebar-item px-3.5 py-2.5 rounded-xl cursor-pointer text-gray-600 hover:text-[#804ee6] hover:bg-purple-50/80 font-bold flex items-center gap-3 transition-all duration-200" onclick="window.app.currentViewFn = () => window.admin.renderDeals(); window.admin.renderDeals()">
+                <span class="material-icons-outlined text-[20px] text-gray-400">handshake</span>
+                Deals & Commission
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div class="px-3 pb-1.5 text-[10px] font-extrabold uppercase tracking-wider text-gray-400">Finance & Escrow</div>
+            <div class="space-y-1 text-sm font-semibold">
+              <div class="sidebar-item px-3.5 py-2.5 rounded-xl cursor-pointer text-gray-600 hover:text-[#804ee6] hover:bg-purple-50/80 font-bold flex items-center gap-3 transition-all duration-200" onclick="window.app.currentViewFn = () => window.admin.renderWithdrawals(); window.admin.renderWithdrawals()">
+                <span class="material-icons-outlined text-[20px] text-gray-400">payments</span>
+                Payouts & Escrow
+              </div>
+              <div class="sidebar-item px-3.5 py-2.5 rounded-xl cursor-pointer text-gray-600 hover:text-[#804ee6] hover:bg-purple-50/80 font-bold flex items-center justify-between transition-all duration-200" onclick="window.app.currentViewFn = () => window.admin.renderNotifications(); window.admin.renderNotifications()">
+                <div class="flex items-center gap-3">
+                  <span class="material-icons-outlined text-[20px] text-gray-400">notifications</span>
+                  Notifications
+                </div>
+                <span id="sidebarNotifBadge" class="bg-rose-500 text-white text-[10px] font-black px-1.5 py-0.5 rounded-full ${unreadCount === 0 ? 'hidden' : ''}">${unreadCount}</span>
+              </div>
+            </div>
           </div>
         </div>
       `);

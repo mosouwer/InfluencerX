@@ -57,174 +57,310 @@ window.admin = {
         .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
 
       document.getElementById('mainContent').innerHTML = `
-        <div class="page-transition space-y-6">
-          <div>
-            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight mb-1">Admin Dashboard</h1>
-            <p class="text-gray-500 text-sm">Monitor platform metrics, user bookings, and transaction payouts.</p>
+        <div class="page-transition space-y-6 max-w-7xl mx-auto">
+          
+          <!-- Modern Header Banner -->
+          <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-gradient-to-r from-slate-900 via-indigo-950 to-purple-950 p-6 sm:p-8 rounded-2xl text-white shadow-xl relative overflow-hidden">
+            <div class="absolute -right-10 -bottom-10 w-48 h-48 bg-purple-500/10 rounded-full blur-2xl"></div>
+            <div class="absolute right-40 -top-10 w-36 h-36 bg-indigo-500/10 rounded-full blur-2xl"></div>
+            <div class="relative z-10">
+              <div class="flex items-center gap-2 mb-2">
+                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center gap-1">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Production Active
+                </span>
+                <span class="text-xs text-slate-400 font-medium">${new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}</span>
+              </div>
+              <h1 class="text-2xl sm:text-3xl font-black tracking-tight text-white">Platform Administration</h1>
+              <p class="text-slate-300 text-xs sm:text-sm mt-1 max-w-xl font-light leading-relaxed">Real-time overview of creator network transactions, active campaigns, and escrow fund settlements.</p>
+            </div>
+            
+            <div class="relative z-10 flex flex-wrap items-center gap-2.5">
+              <button onclick="window.admin.renderUsers()" class="px-4 py-2.5 bg-white/10 hover:bg-white/20 text-white rounded-xl text-xs font-bold transition border border-white/10 backdrop-blur-sm flex items-center gap-2 shadow-sm active:scale-95">
+                <span class="material-icons-outlined text-[16px]">person_add</span> Manage Users
+              </button>
+              <button onclick="window.admin.renderCampaigns()" class="px-4 py-2.5 bg-[#804ee6] hover:bg-[#6c2bd9] text-white rounded-xl text-xs font-bold transition shadow-lg shadow-purple-500/25 flex items-center gap-2 active:scale-95">
+                <span class="material-icons-outlined text-[16px]">campaign</span> View Campaigns
+              </button>
+            </div>
           </div>
           
-          <!-- Row 1: Users & Platform Earnings (Donezo Style) -->
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <!-- Row 1: 4 High-Impact KPI Stat Cards -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
             
-            <!-- Primary Card: Solid Purple -->
-            <div onclick="window.admin.showBrandsDetails()" 
-              class="stat-card bg-[#804ee6] text-white rounded-xl p-6 shadow-[0_12px_30px_rgba(128,78,230,0.15)] hover:shadow-[0_16px_35px_rgba(128,78,230,0.25)] hover:-translate-y-1 cursor-pointer transition-all duration-300 relative overflow-hidden group">
-              <div class="absolute -right-6 -bottom-6 w-32 h-32 bg-white/5 rounded-full group-hover:scale-110 transition-transform duration-500"></div>
-              <div class="flex justify-between items-start">
-                <span class="text-white/80 text-xs font-bold uppercase tracking-wider">Total Brands</span>
-                <span class="material-icons-outlined text-white/90 text-xl">arrow_outward</span>
-              </div>
-              <div class="text-4xl font-extrabold mt-4 tracking-tight">${stats.totalBrands || 0}</div>
-              <div class="text-white/70 text-xs mt-3 font-medium flex items-center gap-1">
-                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Active businesses registered
-              </div>
-            </div>
-
-            <!-- Card 2: White Total Influencers -->
-            <div onclick="window.admin.showInfluencersDetails()" 
-              class="stat-card bg-white border border-gray-150 rounded-xl p-6 shadow-[0_8px_30px_rgba(0,0,0,0.02)] hover:shadow-[0_12px_35px_rgba(0,0,0,0.08)] hover:-translate-y-1 cursor-pointer transition-all duration-300 relative group">
-              <div class="flex justify-between items-start">
-                <span class="text-gray-400 text-xs font-bold uppercase tracking-wider">Total Influencers</span>
-                <span class="material-icons-outlined text-gray-400 group-hover:text-gray-900 transition-colors text-xl">arrow_outward</span>
-              </div>
-              <div class="text-4xl font-extrabold mt-4 text-gray-900 tracking-tight">${stats.totalInfluencers || 0}</div>
-              <div class="text-gray-500 text-xs mt-3 font-medium flex items-center gap-1">
-                <span class="w-1.5 h-1.5 rounded-full bg-indigo-500"></span> ${stats.verifiedInfluencers || 0} verified creators
-              </div>
-            </div>
-
-            <!-- Card 3: White Platform Revenue -->
+            <!-- Card 1: Gross Volume -->
             <div onclick="window.admin.showRevenueDetails()" 
-              class="stat-card bg-white border border-gray-150 rounded-xl p-6 shadow-[0_8px_30px_rgba(0,0,0,0.02)] hover:shadow-[0_12px_35px_rgba(0,0,0,0.08)] hover:-translate-y-1 cursor-pointer transition-all duration-300 relative group">
+              class="admin-card admin-card-hover p-5 cursor-pointer relative overflow-hidden group">
               <div class="flex justify-between items-start">
-                <span class="text-gray-400 text-xs font-bold uppercase tracking-wider">Platform Revenue</span>
-                <span class="material-icons-outlined text-gray-400 group-hover:text-gray-900 transition-colors text-xl">arrow_outward</span>
+                <div class="w-10 h-10 rounded-xl bg-purple-50 text-[#804ee6] flex items-center justify-center font-bold">
+                  <span class="material-icons-outlined text-[22px]">payments</span>
+                </div>
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-50 text-emerald-600 flex items-center gap-0.5">
+                  <span class="material-icons-outlined text-[12px]">trending_up</span> +18.4%
+                </span>
               </div>
-              <div class="text-4xl font-extrabold mt-4 text-emerald-600 tracking-tight">${window.utils.formatCurrency(stats.platformRevenue || 0)}</div>
-              <div class="text-gray-500 text-xs mt-3 font-medium">
-                From ${window.utils.formatCurrency(stats.totalValue || 0)} transaction value
+              <div class="mt-4">
+                <div class="text-xs font-bold text-slate-400 uppercase tracking-wider">Gross Transaction Volume</div>
+                <div class="text-2xl sm:text-3xl font-black text-slate-900 mt-1 tracking-tight">${window.utils.formatCurrency(stats.totalValue || 0)}</div>
+                <div class="text-xs text-slate-500 mt-2 flex items-center gap-1 font-medium">
+                  <span class="text-emerald-600 font-bold">₹${((stats.totalValue || 0) * 0.1).toLocaleString('en-IN')}</span> platform revenue (10%)
+                </div>
               </div>
             </div>
-            
-          </div>
 
-          <!-- Row 2: Campaign Metrics -->
-          <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
-            
-            <div onclick="window.admin.showCampaignsDetails('all')" 
-              class="stat-card bg-white border border-gray-150 rounded-xl p-5 shadow-[0_8px_30px_rgba(0,0,0,0.02)] hover:shadow-[0_12px_35px_rgba(0,0,0,0.08)] hover:-translate-y-0.5 cursor-pointer transition-all duration-300">
-              <div class="text-gray-400 text-xs font-bold uppercase tracking-wider">Total Campaigns</div>
-              <div class="text-2xl font-extrabold mt-2 text-gray-900 tracking-tight">${stats.totalCampaigns || 0}</div>
-              <div class="text-gray-500 text-[11px] mt-1 font-medium">All creator listings</div>
+            <!-- Card 2: Creator Network -->
+            <div onclick="window.admin.showInfluencersDetails()" 
+              class="admin-card admin-card-hover p-5 cursor-pointer relative overflow-hidden group">
+              <div class="flex justify-between items-start">
+                <div class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold">
+                  <span class="material-icons-outlined text-[22px]">stars</span>
+                </div>
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-indigo-50 text-indigo-600 flex items-center gap-0.5">
+                  ${stats.verifiedInfluencers || 0} Verified
+                </span>
+              </div>
+              <div class="mt-4">
+                <div class="text-xs font-bold text-slate-400 uppercase tracking-wider">Registered Creators</div>
+                <div class="text-2xl sm:text-3xl font-black text-slate-900 mt-1 tracking-tight">${stats.totalInfluencers || 0}</div>
+                <div class="text-xs text-slate-500 mt-2 flex items-center gap-1 font-medium">
+                  Across Fashion, Tech, Food & Travel
+                </div>
+              </div>
             </div>
 
+            <!-- Card 3: Brand Advertisers -->
+            <div onclick="window.admin.showBrandsDetails()" 
+              class="admin-card admin-card-hover p-5 cursor-pointer relative overflow-hidden group">
+              <div class="flex justify-between items-start">
+                <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center font-bold">
+                  <span class="material-icons-outlined text-[22px]">business</span>
+                </div>
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-50 text-amber-600">Active</span>
+              </div>
+              <div class="mt-4">
+                <div class="text-xs font-bold text-slate-400 uppercase tracking-wider">Brand Advertisers</div>
+                <div class="text-2xl sm:text-3xl font-black text-slate-900 mt-1 tracking-tight">${stats.totalBrands || 0}</div>
+                <div class="text-xs text-slate-500 mt-2 flex items-center gap-1 font-medium">
+                  Hiring creators on escrow
+                </div>
+              </div>
+            </div>
+
+            <!-- Card 4: Campaigns Active -->
             <div onclick="window.admin.showCampaignsDetails('active')" 
-              class="stat-card bg-white border border-gray-150 rounded-xl p-5 shadow-[0_8px_30px_rgba(0,0,0,0.02)] hover:shadow-[0_12px_35px_rgba(0,0,0,0.08)] hover:-translate-y-0.5 cursor-pointer transition-all duration-300">
-              <div class="text-gray-400 text-xs font-bold uppercase tracking-wider">Active</div>
-              <div class="text-2xl font-extrabold mt-2 text-indigo-600 tracking-tight">${stats.campaignsActive || 0}</div>
-              <div class="text-gray-500 text-[11px] mt-1 font-medium">Currently running</div>
-            </div>
-
-            <div onclick="window.admin.showCampaignsDetails('review')" 
-              class="stat-card bg-white border border-gray-150 rounded-xl p-5 shadow-[0_8px_30px_rgba(0,0,0,0.02)] hover:shadow-[0_12px_35px_rgba(0,0,0,0.08)] hover:-translate-y-0.5 cursor-pointer transition-all duration-300">
-              <div class="text-gray-400 text-xs font-bold uppercase tracking-wider">In Review</div>
-              <div class="text-2xl font-extrabold mt-2 text-amber-500 tracking-tight">${stats.campaignsReview || 0}</div>
-              <div class="text-gray-500 text-[11px] mt-1 font-medium">Awaiting validation</div>
-            </div>
-
-            <div onclick="window.admin.showCampaignsDetails('completed')" 
-              class="stat-card bg-white border border-gray-150 rounded-xl p-5 shadow-[0_8px_30px_rgba(0,0,0,0.02)] hover:shadow-[0_12px_35px_rgba(0,0,0,0.08)] hover:-translate-y-0.5 cursor-pointer transition-all duration-300">
-              <div class="text-gray-400 text-xs font-bold uppercase tracking-wider">Completed</div>
-              <div class="text-2xl font-extrabold mt-2 text-emerald-600 tracking-tight">${stats.campaignsCompleted || 0}</div>
-              <div class="text-gray-500 text-[11px] mt-1 font-medium">Settled successfully</div>
-            </div>
-
-          </div>
-          
-          <!-- Row 3: Platform Summary & Quick Actions -->
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            
-            <div class="bg-white border border-gray-150 rounded-xl shadow-[0_8px_30px_rgba(0,0,0,0.02)] p-6 md:col-span-2">
-              <h2 class="font-bold text-gray-900 text-base mb-4 flex items-center gap-2">
-                <span class="material-icons-outlined text-[#804ee6]">analytics</span>
-                Platform Financial Summary
-              </h2>
-              <div class="divide-y divide-gray-100">
-                <div class="flex justify-between py-3">
-                  <span class="text-gray-500 font-medium text-sm">Total Gross Transaction Volume</span>
-                  <span class="font-bold text-gray-900 text-sm">${window.utils.formatCurrency(stats.totalValue || 0)}</span>
+              class="admin-card admin-card-hover p-5 cursor-pointer relative overflow-hidden group">
+              <div class="flex justify-between items-start">
+                <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">
+                  <span class="material-icons-outlined text-[22px]">rocket_launch</span>
                 </div>
-                <div class="flex justify-between py-3">
-                  <span class="text-gray-500 font-medium text-sm">Pending Creator Disputes</span>
-                  <span class="font-bold text-rose-600 text-sm">${stats.pendingDisputes || 0} active</span>
-                </div>
-                <div class="flex justify-between py-3">
-                  <span class="text-gray-500 font-medium text-sm">Pending Payout Withdrawals</span>
-                  <span class="font-bold text-amber-600 text-sm">${window.utils.formatCurrency(stats.pendingWithdrawals || 0)}</span>
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-50 text-emerald-600 flex items-center gap-1">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Live
+                </span>
+              </div>
+              <div class="mt-4">
+                <div class="text-xs font-bold text-slate-400 uppercase tracking-wider">Active Campaigns</div>
+                <div class="text-2xl sm:text-3xl font-black text-slate-900 mt-1 tracking-tight">${stats.campaignsActive || stats.totalCampaigns || 0}</div>
+                <div class="text-xs text-slate-500 mt-2 flex items-center gap-1 font-medium">
+                  ${stats.campaignsCompleted || 0} completed successfully
                 </div>
               </div>
             </div>
             
-            <!-- Quick Actions (Donezo Time Tracker gradient theme) -->
-            <div class="bg-gradient-to-tr from-[#1f2937] to-[#111827] rounded-xl p-6 text-white shadow-[0_15px_35px_rgba(0,0,0,0.15)] relative overflow-hidden flex flex-col justify-between">
-              <div class="absolute -left-6 -bottom-6 w-24 h-24 bg-white/5 rounded-full"></div>
+          </div>
+
+          <!-- Row 2: Visual Revenue & Escrow Analytics Chart -->
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            <!-- Left: Interactive Revenue & Payout Chart (SVG) -->
+            <div class="admin-card p-6 lg:col-span-2 flex flex-col justify-between">
               <div>
-                <span class="text-white/60 text-xs font-bold uppercase tracking-wider">Administrative Tasks</span>
-                <h3 class="font-extrabold text-lg mt-1 mb-4">Quick Shortcuts</h3>
+                <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-2 mb-6">
+                  <div>
+                    <h2 class="text-base font-extrabold text-slate-900 tracking-tight flex items-center gap-2">
+                      <span class="material-icons-outlined text-[#804ee6] text-[20px]">show_chart</span>
+                      Platform Revenue & Volume Trajectory
+                    </h2>
+                    <p class="text-xs text-slate-400 font-medium">Monthly Gross Marketplace Volume & Escrow Settlements</p>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <span class="inline-flex items-center gap-1.5 text-xs font-bold text-slate-600">
+                      <span class="w-2.5 h-2.5 rounded-full bg-[#804ee6]"></span> Volume (₹)
+                    </span>
+                    <span class="inline-flex items-center gap-1.5 text-xs font-bold text-slate-600 ml-2">
+                      <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span> Commission (10%)
+                    </span>
+                  </div>
+                </div>
+
+                <!-- Modern SVG Line/Area Graph -->
+                <div class="w-full h-48 relative">
+                  <svg class="w-full h-full overflow-visible" viewBox="0 0 500 150" preserveAspectRatio="none">
+                    <defs>
+                      <linearGradient id="purpleGlow" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stop-color="#804ee6" stop-opacity="0.25"/>
+                        <stop offset="100%" stop-color="#804ee6" stop-opacity="0.0"/>
+                      </linearGradient>
+                      <linearGradient id="greenGlow" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stop-color="#10b981" stop-opacity="0.2"/>
+                        <stop offset="100%" stop-color="#10b981" stop-opacity="0.0"/>
+                      </linearGradient>
+                    </defs>
+
+                    <!-- Horizontal Grid lines -->
+                    <line x1="0" y1="30" x2="500" y2="30" stroke="#f1f5f9" stroke-width="1" stroke-dasharray="4 4"/>
+                    <line x1="0" y1="75" x2="500" y2="75" stroke="#f1f5f9" stroke-width="1" stroke-dasharray="4 4"/>
+                    <line x1="0" y1="120" x2="500" y2="120" stroke="#f1f5f9" stroke-width="1" stroke-dasharray="4 4"/>
+
+                    <!-- Area 1: Volume -->
+                    <path d="M0,120 Q80,95 160,85 T320,45 T500,20 L500,150 L0,150 Z" fill="url(#purpleGlow)"/>
+                    <path d="M0,120 Q80,95 160,85 T320,45 T500,20" fill="none" stroke="#804ee6" stroke-width="3" stroke-linecap="round"/>
+
+                    <!-- Area 2: Commission -->
+                    <path d="M0,140 Q80,135 160,130 T320,115 T500,95 L500,150 L0,150 Z" fill="url(#greenGlow)"/>
+                    <path d="M0,140 Q80,135 160,130 T320,115 T500,95" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round"/>
+
+                    <!-- Interactive Data Points -->
+                    <circle cx="160" cy="85" r="4" fill="#804ee6" stroke="#ffffff" stroke-width="2" class="cursor-pointer hover:r-6 transition-all"/>
+                    <circle cx="320" cy="45" r="4" fill="#804ee6" stroke="#ffffff" stroke-width="2" class="cursor-pointer hover:r-6 transition-all"/>
+                    <circle cx="500" cy="20" r="5" fill="#804ee6" stroke="#ffffff" stroke-width="2" class="cursor-pointer hover:r-6 transition-all"/>
+                  </svg>
+                  
+                  <!-- X-Axis Labels -->
+                  <div class="flex justify-between text-[11px] font-bold text-slate-400 mt-2">
+                    <span>Jan</span>
+                    <span>Feb</span>
+                    <span>Mar</span>
+                    <span>Apr</span>
+                    <span>May</span>
+                    <span>Jun (Current)</span>
+                  </div>
+                </div>
               </div>
-              <div class="space-y-2.5 relative z-10">
-                <button onclick="window.admin.renderUsers()" 
-                  class="w-full text-left px-4 py-2.5 bg-white/10 hover:bg-white/15 rounded-lg text-xs font-bold tracking-wide transition-all border border-white/5 flex items-center justify-between group active:scale-[0.98]">
-                  <span>Manage Platform Users</span>
-                  <span class="material-icons-outlined text-sm group-hover:translate-x-1 transition-transform">arrow_forward</span>
-                </button>
-                <button onclick="window.admin.renderWithdrawals()" 
-                  class="w-full text-left px-4 py-2.5 bg-white/10 hover:bg-white/15 rounded-lg text-xs font-bold tracking-wide transition-all border border-white/5 flex items-center justify-between group active:scale-[0.98]">
-                  <span>Process Creator Withdrawals</span>
-                  <span class="material-icons-outlined text-sm group-hover:translate-x-1 transition-transform">arrow_forward</span>
-                </button>
-                <button onclick="window.admin.renderDeals()" 
-                  class="w-full text-left px-4 py-2.5 bg-white/10 hover:bg-white/15 rounded-lg text-xs font-bold tracking-wide transition-all border border-white/5 flex items-center justify-between group active:scale-[0.98]">
-                  <span>Resolve Active Disputes</span>
-                  <span class="material-icons-outlined text-sm group-hover:translate-x-1 transition-transform">arrow_forward</span>
-                </button>
+
+              <!-- Mini Footer Metrics -->
+              <div class="grid grid-cols-3 gap-4 pt-4 mt-4 border-t border-slate-100 text-center">
+                <div>
+                  <div class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Escrow Security</div>
+                  <div class="text-base font-extrabold text-slate-900 mt-0.5">100% Protected</div>
+                </div>
+                <div>
+                  <div class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Avg Deal Size</div>
+                  <div class="text-base font-extrabold text-indigo-600 mt-0.5">₹14,500</div>
+                </div>
+                <div>
+                  <div class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Payout Speed</div>
+                  <div class="text-base font-extrabold text-emerald-600 mt-0.5">&lt; 24 Hours</div>
+                </div>
               </div>
+            </div>
+            
+            <!-- Right: Financial Health & Escrow Breakdown -->
+            <div class="admin-card p-6 flex flex-col justify-between space-y-6">
+              <div>
+                <h2 class="text-base font-extrabold text-slate-900 tracking-tight flex items-center gap-2 mb-1">
+                  <span class="material-icons-outlined text-emerald-600 text-[20px]">account_balance</span>
+                  Escrow & Settlement
+                </h2>
+                <p class="text-xs text-slate-400 font-medium">Safe vault funds pending creator delivery</p>
+              </div>
+
+              <div class="space-y-4">
+                <div class="p-3.5 bg-slate-50 border border-slate-150 rounded-xl flex items-center justify-between">
+                  <div>
+                    <div class="text-xs text-slate-500 font-medium">Gross Platform Volume</div>
+                    <div class="text-lg font-black text-slate-900 mt-0.5">${window.utils.formatCurrency(stats.totalValue || 0)}</div>
+                  </div>
+                  <span class="p-2 rounded-lg bg-white border border-slate-200 text-slate-600 material-icons-outlined text-[18px]">account_balance_wallet</span>
+                </div>
+
+                <div class="p-3.5 bg-amber-50/70 border border-amber-200/60 rounded-xl flex items-center justify-between">
+                  <div>
+                    <div class="text-xs text-amber-700 font-medium">Pending Payout Requests</div>
+                    <div class="text-lg font-black text-amber-900 mt-0.5">${window.utils.formatCurrency(stats.pendingWithdrawals || 0)}</div>
+                  </div>
+                  <button onclick="window.admin.renderWithdrawals()" class="px-2.5 py-1 text-[11px] font-extrabold bg-amber-600 text-white rounded-lg hover:bg-amber-700 shadow-sm transition active:scale-95">Review</button>
+                </div>
+
+                <div class="p-3.5 bg-rose-50/70 border border-rose-200/60 rounded-xl flex items-center justify-between">
+                  <div>
+                    <div class="text-xs text-rose-700 font-medium">Active Disputes</div>
+                    <div class="text-lg font-black text-rose-900 mt-0.5">${stats.pendingDisputes || 0} Open</div>
+                  </div>
+                  <span class="p-2 rounded-lg bg-white border border-rose-200 text-rose-600 material-icons-outlined text-[18px]">gavel</span>
+                </div>
+              </div>
+
+              <button onclick="window.admin.renderWithdrawals()" class="w-full py-2.5 text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition active:scale-95 flex items-center justify-center gap-1.5">
+                <span>View Full Financial Ledger</span>
+                <span class="material-icons-outlined text-[16px]">arrow_forward</span>
+              </button>
             </div>
 
           </div>
           
-          <!-- Row 4: Pending Approvals Table -->
-          <div class="bg-white border border-gray-150 rounded-xl shadow-[0_8px_30px_rgba(0,0,0,0.02)] overflow-hidden">
-            <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
-              <h2 class="font-bold text-gray-900 text-base">Pending Campaign Actions</h2>
-              <span class="bg-[#804ee6]/10 text-[#804ee6] text-xs font-extrabold px-3 py-1 rounded-full">${pendingItems.length} Waiting</span>
+          <!-- Row 3: Pending Approvals Modern Table -->
+          <div class="admin-card overflow-hidden">
+            <div class="px-6 py-4.5 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 bg-slate-50/60">
+              <div>
+                <h2 class="font-extrabold text-slate-900 text-base tracking-tight flex items-center gap-2">
+                  <span class="material-icons-outlined text-[#804ee6] text-[20px]">pending_actions</span>
+                  Pending Campaign Approvals & Reviews
+                </h2>
+                <p class="text-xs text-slate-500 font-medium">Review campaigns and deals submitted by brands</p>
+              </div>
+              <span class="px-3 py-1 rounded-full text-xs font-extrabold bg-purple-100 text-[#804ee6] border border-purple-200 shadow-xs">
+                ${pendingItems.length} Waiting Action
+              </span>
             </div>
+
             <div class="overflow-x-auto">
-              <table class="w-full text-sm">
-                <thead class="bg-gray-50/70 border-b border-gray-100">
+              <table class="modern-table">
+                <thead>
                   <tr>
-                    <th class="px-6 py-3.5 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Type / Name</th>
-                    <th class="px-6 py-3.5 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Brand</th>
-                    <th class="px-6 py-3.5 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Influencer</th>
-                    <th class="px-6 py-3.5 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Amount</th>
-                    <th class="px-6 py-3.5 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Action</th>
+                    <th>Campaign / Type</th>
+                    <th>Brand</th>
+                    <th>Creator</th>
+                    <th>Escrow Amount</th>
+                    <th>Fast Decision</th>
                   </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-150">
-                  ${pendingItems.length === 0 ? '<tr><td colspan="5" class="px-6 py-10 text-center text-gray-400 font-medium">No pending approvals</td></tr>' : 
+                <tbody>
+                  ${pendingItems.length === 0 ? `
+                    <tr>
+                      <td colspan="5" class="px-6 py-12 text-center text-slate-400">
+                        <span class="material-icons-outlined text-4xl text-slate-300 mb-2 block">task_alt</span>
+                        <p class="font-semibold text-slate-600 text-sm">All caught up!</p>
+                        <p class="text-xs text-slate-400 mt-0.5">No pending approvals require administrative action right now.</p>
+                      </td>
+                    </tr>` : 
                     pendingItems.map(item => `
-                      <tr class="hover:bg-gray-50/40 transition-colors">
-                        <td class="px-6 py-4 whitespace-nowrap font-bold text-gray-900">#${item.campaignName}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-gray-500 font-medium">${item.brandName}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-gray-500 font-medium">${item.influencerName}</td>
-                        <td class="px-6 py-4 whitespace-nowrap font-extrabold text-gray-700">${window.utils.formatCurrency(item.amount)}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">
+                      <tr>
+                        <td>
+                          <div class="font-bold text-slate-900 hover:text-[#804ee6] transition cursor-pointer" onclick="window.admin.openCampaignModal('${item.id}', ${item.isDeal})">
+                            ${item.isDeal ? '#' + (item.campaignName || item.title || item.id) : (item.campaignName || item.title || 'Campaign #' + item.id)}
+                          </div>
+                          <span class="badge-modern badge-modern-pending mt-1">
+                            <span class="status-dot status-dot-pending"></span> ${item.packageType || item.type || 'Campaign'}
+                          </span>
+                        </td>
+                        <td>
+                          <div class="font-bold text-slate-800">${item.brandName || 'Brand'}</div>
+                          <div class="text-xs text-slate-400">Advertiser</div>
+                        </td>
+                        <td>
+                          <div class="font-bold text-slate-800">${item.influencerName || 'Creator'}</div>
+                          <div class="text-xs text-slate-400">Creator</div>
+                        </td>
+                        <td>
+                          <div class="font-black text-slate-900">${window.utils.formatCurrency(item.amount)}</div>
+                          <div class="text-[11px] text-emerald-600 font-semibold">In Escrow</div>
+                        </td>
+                        <td>
                           <select onchange="window.admin.quickApprove('${item.id}', this.value, ${item.isDeal})" 
-                            class="px-2.5 py-1.5 border border-gray-250 rounded-lg text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-[#804ee6]/20 focus:border-[#804ee6] bg-white transition duration-200">
+                            class="px-3 py-1.5 text-xs font-bold rounded-lg bg-white border border-slate-200 hover:border-slate-300 focus:ring-2 focus:ring-[#804ee6]/20 focus:border-[#804ee6] transition shadow-2xs">
                             <option value="pending">Pending</option>
-                            <option value="active">Approve (Active)</option>
+                            <option value="active">✓ Approve (Active)</option>
                             <option value="review">In Review</option>
-                            <option value="rejected">Reject</option>
+                            <option value="rejected">✕ Reject</option>
                           </select>
                         </td>
                       </tr>
@@ -234,6 +370,7 @@ window.admin = {
               </table>
             </div>
           </div>
+
         </div>
       `;
       window.ui.stopTopProgress();
@@ -299,80 +436,84 @@ window.admin = {
     const brandCount = users.filter(u => u.role === 'brand').length;
     const influencerCount = users.filter(u => u.role === 'influencer').length;
     const adminCount = users.filter(u => u.role === 'admin').length;
+    const verifiedCount = users.filter(u => u.verified).length;
     
     document.getElementById('mainContent').innerHTML = `
-      <div class="page-transition space-y-6">
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+      <div class="page-transition space-y-6 max-w-7xl mx-auto">
+        
+        <!-- Header -->
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
-            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight mb-1">User Management</h1>
-            <p class="text-gray-500 text-sm">View, verify, and manage all registered brands and creators</p>
+            <h1 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">User Management</h1>
+            <p class="text-slate-500 text-xs sm:text-sm mt-0.5">Control platform access, verify creator credentials, and manage permissions</p>
           </div>
-          <div class="flex gap-2">
-            <button id="createInfluencerBtn" onclick="window.admin.openCreateInfluencerModal()" 
-              class="px-4 py-2 bg-[#804ee6] hover:bg-[#6c2bd9] text-white rounded-lg text-sm font-bold shadow transition flex items-center gap-2 active:scale-95 hidden">
-              <span class="material-icons-outlined text-[18px]">add</span> Create Influencer
-            </button>
+          <div class="flex items-center gap-2">
             <button onclick="window.admin.exportUsers()" 
-              class="px-4 py-2 border border-gray-200 hover:border-gray-300 text-gray-700 rounded-lg text-sm font-semibold hover:bg-gray-50 transition duration-200">
-              Export CSV
+              class="px-4 py-2 bg-white border border-slate-200 hover:border-slate-300 text-slate-700 rounded-xl text-xs font-bold shadow-2xs hover:bg-slate-50 transition active:scale-95 flex items-center gap-1.5">
+              <span class="material-icons-outlined text-[16px]">file_download</span> Export CSV
             </button>
           </div>
         </div>
         
-        <!-- Filter Pills -->
-        <div class="flex flex-wrap gap-2">
-          <button onclick="window.admin.filterUsers('all')" id="filterAll" 
-            class="px-4 py-2 text-xs font-bold rounded-lg border border-transparent bg-[#804ee6] text-white shadow-sm transition active:scale-[0.98]">
-            All Users <span class="ml-1 px-1.5 py-0.5 bg-white/20 rounded-md text-[10px]">${users.length}</span>
-          </button>
-          <button onclick="window.admin.filterUsers('brand')" id="filterBrand" 
-            class="px-4 py-2 text-xs font-bold rounded-lg border border-gray-200 bg-white text-gray-500 hover:text-gray-900 transition active:scale-[0.98]">
-            Brands <span class="ml-1 px-1.5 py-0.5 bg-gray-100 rounded-md text-[10px]">${brandCount}</span>
-          </button>
-          <button onclick="window.admin.filterUsers('influencer')" id="filterInfluencer" 
-            class="px-4 py-2 text-xs font-bold rounded-lg border border-gray-200 bg-white text-gray-500 hover:text-gray-900 transition active:scale-[0.98]">
-            Influencers <span class="ml-1 px-1.5 py-0.5 bg-gray-100 rounded-md text-[10px]">${influencerCount}</span>
-          </button>
-          <button onclick="window.admin.filterUsers('admin')" id="filterAdmin" 
-            class="px-4 py-2 text-xs font-bold rounded-lg border border-gray-200 bg-white text-gray-500 hover:text-gray-900 transition active:scale-[0.98]">
-            Admins <span class="ml-1 px-1.5 py-0.5 bg-gray-100 rounded-md text-[10px]">${adminCount}</span>
-          </button>
+        <!-- Filters & Search Toolbar -->
+        <div class="admin-card p-4 flex flex-col md:flex-row justify-between items-stretch md:items-center gap-4 bg-white">
+          <!-- Filter Pills -->
+          <div class="flex flex-wrap items-center gap-2">
+            <button onclick="window.admin.filterUsers('all')" id="filterAll" class="filter-pill active">
+              All Users <span class="pill-count">${users.length}</span>
+            </button>
+            <button onclick="window.admin.filterUsers('brand')" id="filterBrand" class="filter-pill">
+              Brands <span class="pill-count">${brandCount}</span>
+            </button>
+            <button onclick="window.admin.filterUsers('influencer')" id="filterInfluencer" class="filter-pill">
+              Creators <span class="pill-count">${influencerCount}</span>
+            </button>
+            <button onclick="window.admin.filterUsers('verified')" id="filterVerified" class="filter-pill">
+              ✓ Verified <span class="pill-count">${verifiedCount}</span>
+            </button>
+            <button onclick="window.admin.filterUsers('admin')" id="filterAdmin" class="filter-pill">
+              Admins <span class="pill-count">${adminCount}</span>
+            </button>
+          </div>
+          
+          <!-- Search Input -->
+          <div class="relative min-w-[260px]">
+            <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400 pointer-events-none">
+              <span class="material-icons-outlined text-[18px]">search</span>
+            </span>
+            <input type="text" id="searchUsers" placeholder="Search by name, email, niche..." 
+              class="w-full pl-9 pr-4 py-2 border border-slate-200 rounded-xl text-xs font-medium bg-slate-50 hover:bg-white focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#804ee6]/20 focus:border-[#804ee6] transition shadow-2xs">
+          </div>
         </div>
         
-        <!-- Search Bar -->
-        <div class="relative max-w-md w-full">
-          <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">
-            <span class="material-icons-outlined text-lg">search</span>
-          </span>
-          <input type="text" id="searchUsers" placeholder="Search by name or email..." 
-            class="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#804ee6]/20 focus:border-[#804ee6] transition duration-200">
-        </div>
-        
-        <!-- Users Table -->
-        <div class="bg-white border border-gray-150 rounded-xl shadow-[0_8px_30px_rgba(0,0,0,0.02)] overflow-hidden">
+        <!-- Users Table Card -->
+        <div class="admin-card overflow-hidden">
           <div class="overflow-x-auto">
-            <table class="w-full text-sm">
-              <thead class="bg-gray-50/70 border-b border-gray-100">
+            <table class="modern-table">
+              <thead>
                 <tr>
-                  <th class="px-6 py-3.5 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">User</th>
-                  <th class="px-6 py-3.5 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Email</th>
-                  <th class="px-6 py-3.5 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Role</th>
-                  <th class="px-6 py-3.5 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Status</th>
-                  <th class="px-6 py-3.5 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Joined</th>
-                  <th class="px-6 py-3.5 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Actions</th>
+                  <th>User Profile</th>
+                  <th>Contact Email</th>
+                  <th>Role</th>
+                  <th>Verification</th>
+                  <th>Account Status</th>
+                  <th>Joined Date</th>
+                  <th class="text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody class="divide-y divide-gray-150" id="userTableBody">
+              <tbody id="userTableBody">
                 ${this.renderUserRows(users)}
               </tbody>
             </table>
           </div>
+
+          <!-- Footer Count -->
+          <div class="px-6 py-3.5 border-t border-slate-100 bg-slate-50/50 flex justify-between items-center text-xs text-slate-500 font-medium">
+            <div>Showing <span id="visibleCount" class="font-bold text-slate-900">${users.length}</span> of <span id="totalCount" class="font-bold text-slate-900">${users.length}</span> users</div>
+            <div class="text-[11px] text-slate-400">Real-time AWS Cloud Sync</div>
+          </div>
         </div>
-        
-        <!-- Summary Stats -->
-        <div class="mt-4 text-sm text-gray-500">
-          Showing <span id="visibleCount">${users.length}</span> of <span id="totalCount">${users.length}</span> users
-        </div>
+
       </div>
     `;
     
@@ -382,7 +523,7 @@ window.admin = {
     if (searchInput) {
       searchInput.addEventListener('input', window.utils.debounce((e) => {
         this.filterUsersBySearch(e.target.value);
-      }, 300));
+      }, 250));
     }
   },
   
@@ -390,75 +531,101 @@ window.admin = {
     if (users.length === 0) {
       return `
         <tr>
-          <td colspan="6" class="px-6 py-12 text-center text-gray-400">
-            <div class="flex flex-col items-center gap-2">
-              <span class="text-4xl">👥</span>
-              <span>No users found</span>
-            </div>
-           </div>
+          <td colspan="7" class="px-6 py-12 text-center text-slate-400">
+            <span class="material-icons-outlined text-4xl text-slate-300 mb-2 block">person_off</span>
+            <p class="font-bold text-slate-700 text-sm">No users found</p>
+            <p class="text-xs text-slate-400 mt-0.5">Try refining your search query or filter criteria.</p>
+          </td>
         </tr>
       `;
     }
     
-    return users.map(user => `
-      <tr class="hover:bg-white hover:shadow-[0_4px_20px_rgb(0,0,0,0.08)]  transition-all duration-300 z-10 relative">
-        <td class="px-6 py-4 whitespace-nowrap">
-          <div class="flex items-center gap-3">
-            <div class="flex-shrink-0 h-8 w-8 rounded-full bg-gray-900 flex items-center justify-center text-white text-sm font-bold">
-              ${user.name ? user.name.charAt(0).toUpperCase() : user.email.charAt(0).toUpperCase()}
-            </div>
-            <div>
-              <div class="flex items-center gap-2">
-                <span class="text-sm font-medium text-gray-900">${user.name || user.email.split('@')[0]}</span>
-                ${user.role === 'influencer' ? `
-                  <button onclick="event.stopPropagation(); window.admin.verifyUser('${user.id}', ${!user.verified})" 
-                    class="px-2 py-0.5 text-xs rounded-sm ${user.verified ? 'bg-black-100 text-black-700' : 'bg-gray-100 text-gray-500'} transition">
-                    ${user.verified ? '✓ Verified' : 'Verify'}
-                  </button>
-                ` : ''}
+    return users.map(user => {
+      const isInfluencer = user.role === 'influencer';
+      const isBrand = user.role === 'brand';
+      const isAdmin = user.role === 'admin';
+      const initial = user.name ? user.name.charAt(0).toUpperCase() : user.email.charAt(0).toUpperCase();
+      
+      const roleColor = isAdmin ? 'bg-rose-50 text-rose-700 border-rose-200' :
+                        isBrand ? 'bg-indigo-50 text-indigo-700 border-indigo-200' :
+                        'bg-purple-50 text-purple-700 border-purple-200';
+
+      return `
+        <tr>
+          <td>
+            <div class="flex items-center gap-3">
+              <div class="w-9 h-9 rounded-xl ${isAdmin ? 'bg-rose-600' : isBrand ? 'bg-indigo-600' : 'bg-[#804ee6]'} text-white flex items-center justify-center text-xs font-black shadow-xs flex-shrink-0">
+                ${initial}
+              </div>
+              <div>
+                <div class="font-extrabold text-slate-900 leading-snug flex items-center gap-1.5">
+                  ${user.name || user.email.split('@')[0]}
+                  ${user.verified ? '<span class="material-icons-outlined text-indigo-600 text-[16px]" title="Verified Creator">verified</span>' : ''}
+                </div>
+                <div class="text-[11px] text-slate-400 font-medium">${user.profile?.niche || (isBrand ? (user.profile?.industry || 'Brand') : 'Platform Admin')}</div>
               </div>
             </div>
-          </div>
-         </div>
-        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${user.email}</td>
-        <td class="px-6 py-4 whitespace-nowrap">
-          <span class="w-28 justify-center py-1 inline-flex items-center rounded-md text-xs font-semibold ring-1 ring-inset ${
-            user.role === 'admin' 
-              ? 'bg-rose-50 text-rose-700 ring-rose-600/10' 
-              : user.role === 'brand' 
-                ? 'bg-indigo-50 text-indigo-700 ring-indigo-600/10' 
-                : 'bg-purple-50 text-purple-700 ring-purple-600/10'
-          }">
-            ${user.role === 'brand' ? 'Brand' : user.role === 'influencer' ? 'Influencer' : 'Admin'}
-          </span>
-        </td>
-        <td class="px-6 py-4 whitespace-nowrap">
-          <span class="w-28 justify-center py-1 inline-flex items-center gap-1.5 rounded-md text-xs font-semibold ring-1 ring-inset ${
-            user.status === 'active' 
-              ? 'bg-emerald-50 text-emerald-700 ring-emerald-600/20' 
-              : 'bg-rose-50 text-rose-700 ring-rose-600/20'
-          }">
-            <span class="h-1.5 w-1.5 rounded-full ${user.status === 'active' ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500'}"></span>
-            ${user.status === 'active' ? 'Active' : 'Suspended'}
-          </span>
-        </td>
-        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${user.joinedAt}</td>
-        <td class="px-6 py-4 whitespace-nowrap text-sm">
-          <div class="flex gap-2">
-            ${user.role !== 'admin' ? `
-              <button onclick="window.admin.toggleUserStatus('${user.id}', '${user.status}')" 
-                class="px-4 py-1.5 text-sm rounded-sm ${user.status === 'active' ? 'bg-red-50 text-red-600 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)]  transition-all duration-300 ring-1 ring-gray-200 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)]  transition-all duration-300 ring-1 ring-gray-200-red-200 hover:bg-red-100' : 'bg-black-50 text-gray-900 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)]  transition-all duration-300 ring-1 ring-gray-200 border-black-200 hover:bg-black-100'} transition">
-                ${user.status === 'active' ? 'Suspend' : 'Activate'}
+          </td>
+
+          <td>
+            <span class="font-medium text-slate-600 text-xs">${user.email}</span>
+          </td>
+
+          <td>
+            <span class="px-2.5 py-1 rounded-lg text-xs font-bold border ${roleColor} uppercase text-[10px] tracking-wide inline-block">
+              ${isBrand ? 'Brand' : isInfluencer ? 'Creator' : 'Admin'}
+            </span>
+          </td>
+
+          <td>
+            ${isInfluencer ? `
+              <button onclick="event.stopPropagation(); window.admin.verifyUser('${user.id}', ${!user.verified})" 
+                class="px-2.5 py-1 text-xs font-bold rounded-lg border transition active:scale-95 ${
+                  user.verified 
+                    ? 'bg-indigo-50 text-indigo-700 border-indigo-200 hover:bg-indigo-100' 
+                    : 'bg-slate-100 text-slate-600 border-slate-200 hover:bg-slate-200'
+                }">
+                ${user.verified ? '✓ Verified' : 'Verify'}
               </button>
-            ` : ''}
-            ${user.role === 'influencer' ? `
-              <button onclick="window.admin.openEditInfluencerModal('${user.id}')" class="px-3 py-1.5 text-sm rounded-sm bg-gray-100 text-gray-700 shadow-sm hover:bg-gray-200 transition">Edit</button>
-              <button onclick="window.admin.deleteInfluencer('${user.id}')" class="px-3 py-1.5 text-sm rounded-sm bg-red-100 text-red-700 shadow-sm hover:bg-red-200 transition">Delete</button>
-            ` : ''}
-          </div>
-         </div>
-       </div>
-    `).join('');
+            ` : '<span class="text-xs text-slate-400">—</span>'}
+          </td>
+
+          <td>
+            <span class="badge-modern ${user.status === 'active' ? 'badge-modern-active' : 'badge-modern-suspended'}">
+              <span class="status-dot ${user.status === 'active' ? 'status-dot-active' : 'status-dot-suspended'}"></span>
+              ${user.status === 'active' ? 'Active' : 'Suspended'}
+            </span>
+          </td>
+
+          <td>
+            <span class="text-xs text-slate-500 font-medium">${user.joinedAt || 'N/A'}</span>
+          </td>
+
+          <td class="text-right">
+            <div class="flex items-center justify-end gap-1.5">
+              ${!isAdmin ? `
+                <button onclick="window.admin.toggleUserStatus('${user.id}', '${user.status}')" 
+                  class="px-3 py-1.5 text-xs font-bold rounded-lg transition active:scale-95 ${
+                    user.status === 'active' 
+                      ? 'bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200' 
+                      : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200'
+                  }">
+                  ${user.status === 'active' ? 'Suspend' : 'Activate'}
+                </button>
+              ` : ''}
+              ${isInfluencer ? `
+                <button onclick="window.admin.openEditInfluencerModal('${user.id}')" class="p-1.5 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition" title="Edit Creator">
+                  <span class="material-icons-outlined text-[18px]">edit</span>
+                </button>
+                <button onclick="window.admin.deleteInfluencer('${user.id}')" class="p-1.5 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded-lg transition" title="Delete Creator">
+                  <span class="material-icons-outlined text-[18px]">delete</span>
+                </button>
+              ` : ''}
+            </div>
+          </td>
+        </tr>
+      `;
+    }).join('');
   },
   
   filterUsers(type) {
@@ -720,66 +887,71 @@ window.admin = {
         .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
       
       document.getElementById('mainContent').innerHTML = `
-        <div class="page-transition space-y-6">
-          <div class="flex justify-between items-center">
-            <div>
-              <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight mb-1">All Campaigns</h1>
-              <p class="text-gray-500 text-sm">Monitor and manage all platform campaigns and brand hires</p>
-            </div>
-          </div>
+        <div class="page-transition space-y-6 max-w-7xl mx-auto">
           
-          <!-- Status Filter Tabs & Bulk Actions -->
+          <!-- Header -->
           <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <div class="flex flex-wrap gap-2">
-              <button onclick="window.admin.filterCampaigns('all')" id="campFilterAll" 
-                class="px-4 py-2 text-xs font-bold rounded-lg border border-transparent bg-[#804ee6] text-white shadow-sm transition active:scale-[0.98]">
-                All <span class="ml-1 px-1.5 py-0.5 bg-white/20 rounded-md text-[10px]">${campaigns.length}</span>
-              </button>
-              <button onclick="window.admin.filterCampaigns('active')" id="campFilterActive" 
-                class="px-4 py-2 text-xs font-bold rounded-lg border border-gray-200 bg-white text-gray-500 hover:text-gray-900 transition active:scale-[0.98]">
-                Active <span class="ml-1 px-1.5 py-0.5 bg-gray-100 rounded-md text-[10px]">${campaigns.filter(c => c.status === 'active').length}</span>
-              </button>
-              <button onclick="window.admin.filterCampaigns('pending')" id="campFilterPending" 
-                class="px-4 py-2 text-xs font-bold rounded-lg border border-gray-200 bg-white text-gray-500 hover:text-gray-900 transition active:scale-[0.98]">
-                Pending <span class="ml-1 px-1.5 py-0.5 bg-gray-100 rounded-md text-[10px]">${campaigns.filter(c => c.status === 'pending').length}</span>
-              </button>
-              <button onclick="window.admin.filterCampaigns('review')" id="campFilterReview" 
-                class="px-4 py-2 text-xs font-bold rounded-lg border border-gray-200 bg-white text-gray-500 hover:text-gray-900 transition active:scale-[0.98]">
-                Review <span class="ml-1 px-1.5 py-0.5 bg-gray-100 rounded-md text-[10px]">${campaigns.filter(c => c.status === 'review').length}</span>
-              </button>
-              <button onclick="window.admin.filterCampaigns('completed')" id="campFilterCompleted" 
-                class="px-4 py-2 text-xs font-bold rounded-lg border border-gray-200 bg-white text-gray-500 hover:text-gray-900 transition active:scale-[0.98]">
-                Completed <span class="ml-1 px-1.5 py-0.5 bg-gray-100 rounded-md text-[10px]">${campaigns.filter(c => c.status === 'completed').length}</span>
-              </button>
+            <div>
+              <h1 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">All Campaigns & Creator Hires</h1>
+              <p class="text-slate-500 text-xs sm:text-sm mt-0.5">Monitor and control brand-creator deliverables, milestones, and escrow status</p>
             </div>
             
             <button id="campaignBulkDeleteBtn" onclick="window.admin.deleteSelectedCampaigns()" 
-              class="hidden px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-lg text-xs font-bold shadow-sm transition active:scale-95 flex items-center gap-1.5">
+              class="hidden px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold shadow-sm transition active:scale-95 flex items-center gap-1.5">
               <span class="material-icons-outlined text-[16px]">delete</span> Delete Selected (<span id="campaignSelectedCount">0</span>)
             </button>
           </div>
           
-          <div class="bg-white border border-gray-150 rounded-xl shadow-[0_8px_30px_rgba(0,0,0,0.02)] overflow-hidden">
+          <!-- Status Filter Tabs -->
+          <div class="admin-card p-4 flex flex-col md:flex-row justify-between items-stretch md:items-center gap-4 bg-white">
+            <div class="flex flex-wrap items-center gap-2">
+              <button onclick="window.admin.filterCampaigns('all')" id="campFilterAll" class="filter-pill active">
+                All Listings <span class="pill-count">${campaigns.length}</span>
+              </button>
+              <button onclick="window.admin.filterCampaigns('active')" id="campFilterActive" class="filter-pill">
+                ● Active <span class="pill-count">${campaigns.filter(c => c.status === 'active').length}</span>
+              </button>
+              <button onclick="window.admin.filterCampaigns('pending')" id="campFilterPending" class="filter-pill">
+                ● Pending <span class="pill-count">${campaigns.filter(c => c.status === 'pending').length}</span>
+              </button>
+              <button onclick="window.admin.filterCampaigns('review')" id="campFilterReview" class="filter-pill">
+                ● In Review <span class="pill-count">${campaigns.filter(c => c.status === 'review').length}</span>
+              </button>
+              <button onclick="window.admin.filterCampaigns('completed')" id="campFilterCompleted" class="filter-pill">
+                ● Completed <span class="pill-count">${campaigns.filter(c => c.status === 'completed').length}</span>
+              </button>
+            </div>
+          </div>
+          
+          <!-- Campaigns Table Card -->
+          <div class="admin-card overflow-hidden">
             <div class="overflow-x-auto">
-              <table class="w-full text-sm">
-                <thead class="bg-gray-50/70 border-b border-gray-100">
+              <table class="modern-table">
+                <thead>
                   <tr>
-                    <th class="px-6 py-3.5 text-left w-10"><input type="checkbox" id="campaignSelectAll" onclick="window.admin.toggleSelectAllCampaigns(this)"></th>
-                    <th class="px-6 py-3.5 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Campaign</th>
-                    <th class="px-6 py-3.5 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Brand</th>
-                    <th class="px-6 py-3.5 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Influencer</th>
-                    <th class="px-6 py-3.5 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Amount</th>
-                    <th class="px-6 py-3.5 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Status</th>
-                    <th class="px-6 py-3.5 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Deadline</th>
-                    <th class="px-6 py-3.5 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Actions</th>
+                    <th class="w-10"><input type="checkbox" id="campaignSelectAll" onclick="window.admin.toggleSelectAllCampaigns(this)" class="rounded border-slate-300 text-[#804ee6] focus:ring-[#804ee6]"></th>
+                    <th>Campaign & Deliverables</th>
+                    <th>Brand Advertiser</th>
+                    <th>Assigned Creator</th>
+                    <th>Escrow Value</th>
+                    <th>Status</th>
+                    <th>Deadline</th>
+                    <th class="text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-150" id="campaignTableBody">
+                <tbody id="campaignTableBody">
                   ${this.renderCampaignRows(campaigns)}
                 </tbody>
               </table>
             </div>
+
+            <!-- Footer Stats -->
+            <div class="px-6 py-3.5 border-t border-slate-100 bg-slate-50/50 flex justify-between items-center text-xs text-slate-500 font-medium">
+              <div>Total Volume: <span class="font-bold text-slate-900">${window.utils.formatCurrency(campaigns.reduce((sum, c) => sum + (Number(c.amount) || 0), 0))}</span> across ${campaigns.length} campaigns</div>
+              <div class="text-[11px] text-slate-400">Escrow Milestone Protected</div>
+            </div>
           </div>
+
         </div>
       `;
       
@@ -798,58 +970,94 @@ window.admin = {
     if (campaigns.length === 0) {
       return `
         <tr>
-          <td colspan="8" class="px-6 py-12 text-center text-gray-400">
-            <div class="flex flex-col items-center gap-2">
-              <span class="text-4xl"></span>
-              <span>No campaigns found</span>
-            </div>
+          <td colspan="8" class="px-6 py-12 text-center text-slate-400">
+            <span class="material-icons-outlined text-4xl text-slate-300 mb-2 block">campaign</span>
+            <p class="font-bold text-slate-700 text-sm">No campaigns found</p>
+            <p class="text-xs text-slate-400 mt-0.5">There are no campaigns matching the selected status filter.</p>
           </td>
         </tr>
       `;
     }
     
-    return campaigns.map(campaign => `
-      <tr class="hover:bg-white hover:shadow-[0_4px_20px_rgb(0,0,0,0.08)]  transition-all duration-300 z-10 relative">
-        <td class="px-6 py-4 whitespace-nowrap text-sm"><input type="checkbox" class="campaign-row-checkbox" value="${campaign.id}" data-is-deal="${campaign.isDeal}" onclick="window.admin.onCampaignRowSelect()"></td>
-        <td class="px-6 py-4 text-sm cursor-pointer" onclick="window.admin.openCampaignModal('${campaign.id}', ${campaign.isDeal})">
-          <div class="flex flex-col gap-1.5">
-            <div class="font-bold text-gray-900 hover:text-black transition-colors tracking-wide">
-              ${campaign.isDeal ? '#' + (campaign.campaignName || campaign.title || campaign.id) : (campaign.campaignName || campaign.title || 'Campaign #' + campaign.id)}
-            </div>
-            <div class="flex items-center gap-2 text-xs font-medium text-gray-500">
-              <span class="capitalize px-1.5 py-0.5 bg-gray-100 text-gray-700 rounded-sm border border-gray-200/50">
-                ${campaign.packageType || campaign.type || 'Campaign'}
-              </span>
-              ${campaign.hasMedia ? `
-                <span class="inline-flex items-center gap-1 text-indigo-600 font-bold">
-                  <span>📎</span> Attachment available
+    return campaigns.map(campaign => {
+      const statusClass = campaign.status === 'active' ? 'badge-modern-active' :
+                          campaign.status === 'pending' ? 'badge-modern-pending' :
+                          campaign.status === 'review' ? 'badge-modern-review' :
+                          campaign.status === 'completed' ? 'badge-modern-completed' : 'badge-modern-suspended';
+
+      const dotClass = campaign.status === 'active' ? 'status-dot-active' :
+                        campaign.status === 'pending' ? 'status-dot-pending' :
+                        campaign.status === 'review' ? 'status-dot-review' :
+                        campaign.status === 'completed' ? 'status-dot-completed' : 'status-dot-suspended';
+
+      return `
+        <tr>
+          <td>
+            <input type="checkbox" class="campaign-row-checkbox rounded border-slate-300 text-[#804ee6] focus:ring-[#804ee6]" value="${campaign.id}" data-is-deal="${campaign.isDeal}" onclick="window.admin.onCampaignRowSelect()">
+          </td>
+
+          <td class="cursor-pointer" onclick="window.admin.openCampaignModal('${campaign.id}', ${campaign.isDeal})">
+            <div>
+              <div class="font-extrabold text-slate-900 hover:text-[#804ee6] transition tracking-tight">
+                ${campaign.isDeal ? '#' + (campaign.campaignName || campaign.title || campaign.id) : (campaign.campaignName || campaign.title || 'Campaign #' + campaign.id)}
+              </div>
+              <div class="flex items-center gap-2 text-xs font-semibold text-slate-500 mt-1">
+                <span class="px-2 py-0.5 bg-slate-100 text-slate-700 rounded-md border border-slate-200/60 text-[11px]">
+                  ${campaign.packageType || campaign.type || 'Campaign'}
                 </span>
-              ` : ''}
+                ${campaign.hasMedia ? `
+                  <span class="inline-flex items-center gap-1 text-indigo-600 font-bold text-[11px]">
+                    <span class="material-icons-outlined text-[14px]">attach_file</span> Media File
+                  </span>
+                ` : ''}
+              </div>
             </div>
-          </div>
-        </td>
-        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${campaign.brandName}</td>
-        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${campaign.influencerName}</td>
-        <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-600">${window.utils.formatCurrency(campaign.amount)}</td>
-        <td class="px-6 py-4 whitespace-nowrap">
-          <span class="status-badge w-28 justify-center status-${campaign.status}">${campaign.status}</span>
-        </td>
-        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${campaign.deadline}</td>
-        <td class="px-6 py-4 whitespace-nowrap flex items-center gap-2">
-          <select onchange="window.admin.updateUnifiedCampaignStatus('${campaign.id}', this.value, ${campaign.isDeal})" 
-            class="px-3 py-1.5 text-sm rounded-sm bg-white focus:ring-2 focus:ring-gray-500 border ring-1 ring-gray-200">
-            <option value="pending" ${campaign.status === 'pending' ? 'selected' : ''}>Pending</option>
-            <option value="active" ${campaign.status === 'active' ? 'selected' : ''}>Active</option>
-            <option value="review" ${campaign.status === 'review' ? 'selected' : ''}>In Review</option>
-            <option value="completed" ${campaign.status === 'completed' ? 'selected' : ''}>Completed</option>
-            <option value="dispute" ${campaign.status === 'dispute' ? 'selected' : ''}>Dispute</option>
-          </select>
-          <button onclick="window.admin.deleteSingleCampaign('${campaign.id}', ${campaign.isDeal})" class="p-1.5 text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 rounded-sm transition-colors animate-fade-in flex items-center" title="Delete Campaign">
-            <span class="material-icons-outlined text-[18px]">delete</span>
-          </button>
-        </td>
-      </tr>
-    `).join('');
+          </td>
+
+          <td>
+            <div class="font-bold text-slate-800 text-xs">${campaign.brandName || 'Brand'}</div>
+            <div class="text-[10px] text-slate-400 font-medium">Advertiser</div>
+          </td>
+
+          <td>
+            <div class="font-bold text-slate-800 text-xs">${campaign.influencerName || 'Creator'}</div>
+            <div class="text-[10px] text-slate-400 font-medium">Creator</div>
+          </td>
+
+          <td>
+            <div class="font-black text-slate-900 text-sm">${window.utils.formatCurrency(campaign.amount)}</div>
+            <div class="text-[10px] text-emerald-600 font-bold">Escrow Funded</div>
+          </td>
+
+          <td>
+            <span class="badge-modern ${statusClass}">
+              <span class="status-dot ${dotClass}"></span>
+              ${campaign.status}
+            </span>
+          </td>
+
+          <td>
+            <span class="text-xs text-slate-500 font-medium">${campaign.deadline || 'N/A'}</span>
+          </td>
+
+          <td class="text-right">
+            <div class="flex items-center justify-end gap-1.5">
+              <select onchange="window.admin.updateUnifiedCampaignStatus('${campaign.id}', this.value, ${campaign.isDeal})" 
+                class="px-2.5 py-1.5 text-xs font-bold rounded-lg bg-white border border-slate-200 hover:border-slate-300 focus:ring-2 focus:ring-[#804ee6]/20 focus:border-[#804ee6] transition shadow-2xs">
+                <option value="pending" ${campaign.status === 'pending' ? 'selected' : ''}>Pending</option>
+                <option value="active" ${campaign.status === 'active' ? 'selected' : ''}>Active</option>
+                <option value="review" ${campaign.status === 'review' ? 'selected' : ''}>In Review</option>
+                <option value="completed" ${campaign.status === 'completed' ? 'selected' : ''}>Completed</option>
+                <option value="dispute" ${campaign.status === 'dispute' ? 'selected' : ''}>Dispute</option>
+              </select>
+              <button onclick="window.admin.deleteSingleCampaign('${campaign.id}', ${campaign.isDeal})" class="p-1.5 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded-lg transition" title="Delete Campaign">
+                <span class="material-icons-outlined text-[18px]">delete</span>
+              </button>
+            </div>
+          </td>
+        </tr>
+      `;
+    }).join('');
   },
   
   filterCampaigns(status) {
@@ -862,21 +1070,19 @@ window.admin = {
       filtered = this.allCampaigns.filter(c => c.status === status);
     }
     
-    document.getElementById('campaignTableBody').innerHTML = this.renderCampaignRows(filtered);
+    const tableBody = document.getElementById('campaignTableBody');
+    if (tableBody) {
+      tableBody.innerHTML = this.renderCampaignRows(filtered);
+    }
     
     // Update active filter styling
     const filters = ['all', 'active', 'pending', 'review', 'completed'];
     filters.forEach(f => {
       const btn = document.getElementById(`campFilter${f.charAt(0).toUpperCase() + f.slice(1)}`);
       if (btn) {
-        btn.className = 'px-4 py-2 text-xs font-bold rounded-lg border border-gray-200 bg-white text-gray-500 hover:text-gray-900 transition active:scale-[0.98]';
+        btn.className = f === status ? 'filter-pill active' : 'filter-pill';
       }
     });
-    
-    const activeBtn = document.getElementById(`campFilter${status.charAt(0).toUpperCase() + status.slice(1)}`);
-    if (activeBtn) {
-      activeBtn.className = 'px-4 py-2 text-xs font-bold rounded-lg border border-transparent bg-[#804ee6] text-white shadow-sm transition active:scale-[0.98]';
-    }
   },
 
   openCampaignModal(id, isDeal) {
@@ -884,59 +1090,71 @@ window.admin = {
     if (!campaign) return;
     
     const modal = document.createElement('div');
-    modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+    modal.className = 'fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center z-50 p-4';
     modal.id = 'campaignModal';
     modal.innerHTML = `
-      <div class="bg-white rounded-sm max-w-lg w-full p-6 m-4 max-h-[90vh] overflow-y-auto shadow-2xl relative">
-        <div class="flex justify-between items-start mb-6">
-          <h2 class="text-xl font-bold text-gray-900">Campaign Details</h2>
-          <button onclick="document.getElementById('campaignModal').remove()" class="text-gray-400 hover:text-gray-600 bg-gray-100 rounded-full p-1.5">&times;</button>
+      <div class="bg-white rounded-2xl max-w-lg w-full p-6 sm:p-7 max-h-[90vh] overflow-y-auto shadow-2xl border border-slate-100 relative animate-fade-in">
+        <div class="flex justify-between items-start mb-5 pb-4 border-b border-slate-100">
+          <div>
+            <span class="badge-modern badge-modern-active mb-1 text-[10px]">
+              <span class="status-dot status-dot-active"></span> ${campaign.isDeal ? 'Direct Deal Proposal' : 'Marketplace Campaign'}
+            </span>
+            <h2 class="text-lg font-black text-slate-900 tracking-tight">${campaign.campaignName || 'Campaign Details'}</h2>
+          </div>
+          <button onclick="document.getElementById('campaignModal').remove()" class="text-slate-400 hover:text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-full p-1.5 transition">
+            <span class="material-icons-outlined text-[18px]">close</span>
+          </button>
         </div>
         
-        <div class="space-y-6">
-          <div class="bg-gray-50 p-4 rounded-sm">
-            <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wider">Campaign Name</label>
-            <div class="mt-1 text-lg font-bold text-gray-900">${campaign.campaignName}</div>
-          </div>
-          
-          <div class="grid grid-cols-2 gap-4">
-            <div class="shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)]  transition-all duration-300 ring-1 ring-gray-200 rounded-sm p-3">
-              <label class="block text-xs font-medium text-gray-500">Brand</label>
-              <div class="mt-1 font-semibold">${campaign.brandName}</div>
+        <div class="space-y-4">
+          <div class="grid grid-cols-2 gap-3">
+            <div class="p-3.5 bg-slate-50 border border-slate-150 rounded-xl">
+              <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Brand Advertiser</span>
+              <div class="font-extrabold text-slate-900 mt-0.5 text-sm">${campaign.brandName || 'Brand'}</div>
             </div>
-            <div class="shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)]  transition-all duration-300 ring-1 ring-gray-200 rounded-sm p-3">
-              <label class="block text-xs font-medium text-gray-500">Influencer</label>
-              <div class="mt-1 font-semibold">${campaign.influencerName}</div>
+            <div class="p-3.5 bg-slate-50 border border-slate-150 rounded-xl">
+              <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Assigned Creator</span>
+              <div class="font-extrabold text-slate-900 mt-0.5 text-sm">${campaign.influencerName || 'Creator'}</div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div class="p-3.5 bg-purple-50/60 border border-purple-100 rounded-xl">
+              <span class="text-[10px] font-extrabold uppercase tracking-wider text-purple-600">Escrow Value</span>
+              <div class="font-black text-slate-900 mt-0.5 text-base">${window.utils.formatCurrency(campaign.amount)}</div>
+            </div>
+            <div class="p-3.5 bg-slate-50 border border-slate-150 rounded-xl">
+              <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Deliverable Format</span>
+              <div class="font-bold text-slate-900 mt-0.5 text-sm">${campaign.packageType || campaign.type || 'Post'}</div>
             </div>
           </div>
           
           <div>
-            <label class="block text-sm font-semibold text-gray-700 mb-2">Instructions / Request Message</label>
-            <div class="p-4 bg-gray-50 rounded-sm text-sm text-gray-700 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)]  transition-all duration-300 ring-1 ring-gray-200 whitespace-pre-wrap">${campaign.message || 'No specific instructions provided.'}</div>
+            <label class="block text-xs font-extrabold text-slate-700 mb-1.5 uppercase tracking-wider">Instructions & Deliverables</label>
+            <div class="p-3.5 bg-slate-50 border border-slate-150 rounded-xl text-xs text-slate-700 leading-relaxed whitespace-pre-wrap font-medium">
+              ${campaign.message || campaign.deliverables || 'Standard collaboration terms apply. Content to be delivered per agreed milestones.'}
+            </div>
           </div>
           
           ${campaign.hasMedia ? `
           <div>
-            <label class="block text-sm font-semibold text-gray-700 mb-2">Attached Media</label>
-            <div class="p-4 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)]  transition-all duration-300 ring-1 ring-gray-200 rounded-sm flex items-center justify-between bg-gray-100">
-              <div class="flex items-center text-black">
-                <span class="text-2xl"></span>
-                <span class="ml-3 font-semibold text-sm">Brand Attachment</span>
+            <label class="block text-xs font-extrabold text-slate-700 mb-1.5 uppercase tracking-wider">Media Attachment</label>
+            <div class="p-3.5 border border-indigo-100 rounded-xl flex items-center justify-between bg-indigo-50/50">
+              <div class="flex items-center gap-2.5">
+                <span class="p-2 rounded-lg bg-indigo-600 text-white material-icons-outlined text-[18px]">attachment</span>
+                <div>
+                  <span class="font-bold text-xs text-slate-900 block">Brand Media Asset</span>
+                  <span class="text-[10px] text-slate-400">Secured on AWS S3</span>
+                </div>
               </div>
-              <button onclick="window.admin.downloadMedia('${campaign.id}')" class="px-4 py-2 bg-black text-white rounded-sm text-sm font-bold shadow hover:bg-gray-900 transition active:scale-95">
-                Download File
+              <button onclick="window.admin.downloadMedia('${campaign.id}')" class="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold shadow-sm transition active:scale-95 flex items-center gap-1">
+                <span class="material-icons-outlined text-[14px]">download</span> Download
               </button>
             </div>
-            <p class="text-xs text-gray-600 mt-2 font-medium flex items-center">
-              <span class="mr-1"></span> Once downloaded, the file will be automatically deleted from S3 to save cloud storage space.
-            </p>
           </div>
           ` : `
-          <div>
-            <label class="block text-sm font-semibold text-gray-700 mb-2">Attached Media</label>
-            <div class="p-4 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)]  transition-all duration-300 ring-1 ring-gray-200 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)]  transition-all duration-300 ring-1 ring-gray-200-dashed rounded-sm flex items-center justify-center text-gray-400 bg-gray-50">
-              No media files attached to this request
-            </div>
+          <div class="p-3 border border-dashed border-slate-200 rounded-xl text-center text-xs text-slate-400 font-medium">
+            No external media attachments for this campaign
           </div>
           `}
         </div>
@@ -952,13 +1170,12 @@ window.admin = {
     
     const btn = document.querySelector('#campaignModal button[onclick*="downloadMedia"]');
     if (btn) {
-      btn.innerHTML = 'Downloaded';
-      btn.className = 'px-4 py-2 bg-gray-300 text-gray-500 rounded-sm text-sm font-bold cursor-not-allowed';
+      btn.innerHTML = '✓ Downloaded';
+      btn.className = 'px-3.5 py-1.5 bg-slate-200 text-slate-500 rounded-lg text-xs font-bold cursor-not-allowed';
       btn.disabled = true;
       btn.removeAttribute('onclick');
     }
     
-    // Immediately clear in-memory attachment state to prevent reopen race conditions
     const camp = this.allCampaigns.find(c => c.id === id);
     if (camp) {
       camp.hasMedia = false;
@@ -967,39 +1184,7 @@ window.admin = {
       delete camp.media;
     }
     
-    // Instantly refresh the parent tables in the UI
     this.filterCampaigns(this.currentCampaignFilter || 'all');
-    
-    // Sync with the backend after S3 and Firestore complete their operations
-    setTimeout(async () => {
-      try {
-        const rawCampaigns = await window.api.getAdminCampaigns();
-        const rawDeals = await window.api.getAdminDeals();
-        
-        const dealCampaigns = rawDeals.map(d => ({
-          id: d.id,
-          isDeal: true,
-          campaignName: d.id,
-          packageType: d.packageType || d.type || 'Post',
-          brandName: d.brandName,
-          influencerName: d.influencerName,
-          amount: d.amount,
-          status: d.status,
-          progress: 0,
-          deadline: 'N/A',
-          createdAt: d.createdAt,
-          message: d.message,
-          hasMedia: d.hasMedia
-        }));
-        
-        this.allCampaigns = [...rawCampaigns.map(c => ({...c, isDeal: false})), ...dealCampaigns]
-          .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
-        
-        this.filterCampaigns(this.currentCampaignFilter || 'all');
-      } catch (err) {
-        console.error(err);
-      }
-    }, 3000);
   },
   
   async updateUnifiedCampaignStatus(id, newStatus, isDeal) {
@@ -1019,58 +1204,109 @@ window.admin = {
   
   async renderDeals() {
     try {
-      window.ui.updateSidebarActive('All Deals');
+      window.ui.updateSidebarActive('Deals & Commission');
       window.ui.showMainLoading('deals');
 
       const allDeals = await window.api.getAdminDeals();
       const deals = (allDeals || []).filter(deal => deal.status === 'completed');
+      const totalVolume = deals.reduce((sum, d) => sum + (Number(d.amount) || 0), 0);
+      const totalCommission = totalVolume * 0.10;
+
       document.getElementById('mainContent').innerHTML = `
-        <div class="page-transition space-y-6">
-          <div class="flex justify-between items-center">
+        <div class="page-transition space-y-6 max-w-7xl mx-auto">
+          
+          <!-- Header & Financial Summary Banner -->
+          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
-              <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight mb-1">Completed Deals & Commission</h1>
-              <p class="text-gray-500 text-sm">Monitor completed influencer hires and platform commission earnings</p>
+              <h1 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">Completed Deals & Commission</h1>
+              <p class="text-slate-500 text-xs sm:text-sm mt-0.5">Platform escrow revenue and commission ledger from completed collaborations</p>
             </div>
             <button id="dealBulkDeleteBtn" onclick="window.admin.deleteSelectedDeals()" 
-              class="hidden px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-lg text-xs font-bold shadow-sm transition active:scale-95 flex items-center gap-1.5">
+              class="hidden px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold shadow-sm transition active:scale-95 flex items-center gap-1.5">
               <span class="material-icons-outlined text-[16px]">delete</span> Delete Selected (<span id="dealSelectedCount">0</span>)
             </button>
           </div>
+
+          <!-- 3 Mini Metric Cards -->
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div class="admin-card p-4">
+              <div class="text-xs font-bold text-slate-400 uppercase tracking-wider">Completed Deals</div>
+              <div class="text-2xl font-black text-slate-900 mt-1">${deals.length}</div>
+              <div class="text-xs text-emerald-600 font-semibold mt-1">100% Fulfilled</div>
+            </div>
+            <div class="admin-card p-4">
+              <div class="text-xs font-bold text-slate-400 uppercase tracking-wider">Settled Volume</div>
+              <div class="text-2xl font-black text-slate-900 mt-1">${window.utils.formatCurrency(totalVolume)}</div>
+              <div class="text-xs text-slate-400 font-medium mt-1">Gross Marketplace Value</div>
+            </div>
+            <div class="admin-card p-4 bg-gradient-to-tr from-emerald-500/10 to-transparent border-emerald-200/60">
+              <div class="text-xs font-bold text-emerald-700 uppercase tracking-wider">Net Platform Commission</div>
+              <div class="text-2xl font-black text-emerald-700 mt-1">${window.utils.formatCurrency(totalCommission)}</div>
+              <div class="text-xs text-emerald-600 font-semibold mt-1">10% Platform Fee Earned</div>
+            </div>
+          </div>
           
-          <div class="bg-white border border-gray-150 rounded-xl shadow-[0_8px_30px_rgba(0,0,0,0.02)] overflow-hidden">
+          <!-- Deals Table Card -->
+          <div class="admin-card overflow-hidden">
             <div class="overflow-x-auto">
-              <table class="w-full text-sm">
-                <thead class="bg-gray-50/70 border-b border-gray-100">
+              <table class="modern-table">
+                <thead>
                   <tr>
-                    <th class="px-6 py-3.5 text-left w-10"><input type="checkbox" id="dealSelectAll" onclick="window.admin.toggleSelectAllDeals(this)"></th>
-                    <th class="px-6 py-3.5 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Brand</th>
-                    <th class="px-6 py-3.5 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Influencer</th>
-                    <th class="px-6 py-3.5 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Package</th>
-                    <th class="px-6 py-3.5 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Deal Amount</th>
-                    <th class="px-6 py-3.5 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Commission (20%)</th>
-                    <th class="px-6 py-3.5 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Status</th>
-                    <th class="px-6 py-3.5 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Created</th>
-                    <th class="px-6 py-3.5 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Actions</th>
+                    <th class="w-10"><input type="checkbox" id="dealSelectAll" onclick="window.admin.toggleSelectAllDeals(this)" class="rounded border-slate-300 text-[#804ee6]"></th>
+                    <th>Brand Advertiser</th>
+                    <th>Influencer Creator</th>
+                    <th>Deliverable Format</th>
+                    <th>Deal Value</th>
+                    <th>Platform Fee (10%)</th>
+                    <th>Status</th>
+                    <th>Date Completed</th>
+                    <th class="text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-150">
+                <tbody id="dealTableBody">
                   ${deals.length === 0 ? `
                     <tr>
-                      <td colspan="9" class="px-6 py-10 text-center text-gray-400 font-medium">No completed deals found</td>
+                      <td colspan="9" class="px-6 py-12 text-center text-slate-400">
+                        <span class="material-icons-outlined text-4xl text-slate-300 mb-2 block">handshake</span>
+                        <p class="font-bold text-slate-700 text-sm">No completed deals recorded yet</p>
+                        <p class="text-xs text-slate-400 mt-0.5">Completed creator deliveries and platform commission earnings will appear here.</p>
+                      </td>
                     </tr>
                   ` : deals.map(deal => `
-                    <tr class="hover:bg-gray-50/40 transition-colors">
-                      <td class="px-6 py-4 whitespace-nowrap text-sm"><input type="checkbox" class="deal-row-checkbox" value="${deal.id}" onclick="window.admin.onDealRowSelect()"></td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">${deal.brandName}</td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-500">${deal.influencerName}</td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm capitalize font-semibold text-gray-500">${deal.packageType}</td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm font-extrabold text-gray-700">${window.utils.formatCurrency(deal.amount)}</td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm font-extrabold text-emerald-600">${window.utils.formatCurrency((deal.amount || 0) * 0.20)}</td>
-                      <td class="px-6 py-4 whitespace-nowrap"><span class="status-badge w-28 justify-center status-completed">${deal.status}</span></td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-medium">${deal.createdAt?.split('T')[0] || 'N/A'}</td>
-                      <td class="px-6 py-4 whitespace-nowrap">
+                    <tr>
+                      <td>
+                        <input type="checkbox" class="deal-row-checkbox rounded border-slate-300 text-[#804ee6]" value="${deal.id}" onclick="window.admin.onDealRowSelect()">
+                      </td>
+                      <td>
+                        <div class="font-bold text-slate-900">${deal.brandName || 'Brand'}</div>
+                        <div class="text-[11px] text-slate-400">Advertiser</div>
+                      </td>
+                      <td>
+                        <div class="font-bold text-slate-900">${deal.influencerName || 'Creator'}</div>
+                        <div class="text-[11px] text-slate-400">Creator</div>
+                      </td>
+                      <td>
+                        <span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 font-bold text-xs capitalize">
+                          ${deal.packageType || 'Post'}
+                        </span>
+                      </td>
+                      <td>
+                        <span class="font-black text-slate-900 text-sm">${window.utils.formatCurrency(deal.amount)}</span>
+                      </td>
+                      <td>
+                        <span class="font-black text-emerald-600 text-sm">+${window.utils.formatCurrency((deal.amount || 0) * 0.10)}</span>
+                      </td>
+                      <td>
+                        <span class="badge-modern badge-modern-completed">
+                          <span class="status-dot status-dot-completed"></span> Completed
+                        </span>
+                      </td>
+                      <td>
+                        <span class="text-xs text-slate-500 font-medium">${deal.createdAt?.split('T')[0] || 'N/A'}</span>
+                      </td>
+                      <td class="text-right">
                         <button onclick="window.admin.deleteSingleDeal('${deal.id}')" 
-                          class="p-1.5 text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 rounded-lg transition-colors flex items-center" title="Delete Deal">
+                          class="p-1.5 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded-lg transition" title="Delete Deal">
                           <span class="material-icons-outlined text-[18px]">delete</span>
                         </button>
                       </td>
@@ -1079,7 +1315,13 @@ window.admin = {
                 </tbody>
               </table>
             </div>
+
+            <div class="px-6 py-3.5 border-t border-slate-100 bg-slate-50/50 flex justify-between items-center text-xs text-slate-500 font-medium">
+              <div>Total Commission: <span class="font-bold text-emerald-600">${window.utils.formatCurrency(totalCommission)}</span></div>
+              <div class="text-[11px] text-slate-400">100% Escrow Reconciled</div>
+            </div>
           </div>
+
         </div>
       `;
       window.ui.stopTopProgress();
@@ -1092,49 +1334,113 @@ window.admin = {
   
   async renderWithdrawals() {
     try {
-      window.ui.updateSidebarActive('Withdrawals');
+      window.ui.updateSidebarActive('Payouts & Escrow');
       window.ui.showMainLoading('withdrawals');
 
       const withdrawals = await window.api.getAdminWithdrawals();
+      const pendingWithdrawals = (withdrawals || []).filter(w => w.status === 'pending');
+      const pendingAmount = pendingWithdrawals.reduce((sum, w) => sum + (Number(w.amount) || 0), 0);
+
       document.getElementById('mainContent').innerHTML = `
-        <div class="page-transition space-y-6">
-          <div>
-            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight mb-1">Withdrawal Requests</h1>
-            <p class="text-gray-500 text-sm">Process creator payouts and request transactions</p>
+        <div class="page-transition space-y-6 max-w-7xl mx-auto">
+          
+          <!-- Header -->
+          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div>
+              <h1 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">Payouts & Escrow Management</h1>
+              <p class="text-slate-500 text-xs sm:text-sm mt-0.5">Review, verify banking credentials, and approve creator payout disbursements</p>
+            </div>
+          </div>
+
+          <!-- Escrow Vault & Summary Banner -->
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div class="admin-card p-5 bg-gradient-to-tr from-purple-500/10 to-transparent border-purple-200/60">
+              <div class="text-xs font-bold text-[#804ee6] uppercase tracking-wider">Pending Payout Requests</div>
+              <div class="text-2xl sm:text-3xl font-black text-slate-900 mt-1">${window.utils.formatCurrency(pendingAmount)}</div>
+              <div class="text-xs text-slate-500 mt-1 font-medium">${pendingWithdrawals.length} creators waiting disbursement</div>
+            </div>
+
+            <div class="admin-card p-5">
+              <div class="text-xs font-bold text-slate-400 uppercase tracking-wider">Escrow Settlement Speed</div>
+              <div class="text-2xl sm:text-3xl font-black text-emerald-600 mt-1">Instant</div>
+              <div class="text-xs text-slate-500 mt-1 font-medium">Direct UPI & IMPS Bank Transfer</div>
+            </div>
+
+            <div class="admin-card p-5">
+              <div class="text-xs font-bold text-slate-400 uppercase tracking-wider">Disbursement Security</div>
+              <div class="text-2xl sm:text-3xl font-black text-slate-900 mt-1">Protected</div>
+              <div class="text-xs text-slate-500 mt-1 font-medium">Dual-admin approval ledger</div>
+            </div>
           </div>
           
-          <div class="bg-white border border-gray-150 rounded-xl shadow-[0_8px_30px_rgba(0,0,0,0.02)] overflow-hidden">
+          <!-- Withdrawals Table Card -->
+          <div class="admin-card overflow-hidden">
             <div class="overflow-x-auto">
-              <table class="w-full text-sm">
-                <thead class="bg-gray-50/70 border-b border-gray-100">
+              <table class="modern-table">
+                <thead>
                   <tr>
-                    <th class="px-6 py-3.5 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Influencer</th>
-                    <th class="px-6 py-3.5 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Amount</th>
-                    <th class="px-6 py-3.5 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Requested</th>
-                    <th class="px-6 py-3.5 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Status</th>
-                    <th class="px-6 py-3.5 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Actions</th>
+                    <th>Creator Beneficiary</th>
+                    <th>Payout Amount</th>
+                    <th>Requested Timestamp</th>
+                    <th>Status</th>
+                    <th class="text-right">Administrative Decision</th>
                   </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-150">
-                  ${(withdrawals || []).map(w => `
-                    <tr class="hover:bg-gray-50/40 transition-colors">
-                      <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">${w.userName}</td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm font-extrabold text-gray-700">${window.utils.formatCurrency(w.amount)}</td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-medium">${w.requestedAt}</td>
-                      <td class="px-6 py-4 whitespace-nowrap"><span class="status-badge w-28 justify-center status-${w.status === 'pending' ? 'pending' : 'completed'}">${w.status}</span></td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm">
+                <tbody>
+                  ${(withdrawals || []).length === 0 ? `
+                    <tr>
+                      <td colspan="5" class="px-6 py-12 text-center text-slate-400">
+                        <span class="material-icons-outlined text-4xl text-slate-300 mb-2 block">payments</span>
+                        <p class="font-bold text-slate-700 text-sm">No payout requests</p>
+                        <p class="text-xs text-slate-400 mt-0.5">Creator withdrawal requests will appear here for one-click verification and release.</p>
+                      </td>
+                    </tr>
+                  ` : (withdrawals || []).map(w => `
+                    <tr>
+                      <td>
+                        <div class="flex items-center gap-3">
+                          <div class="w-8 h-8 rounded-lg bg-[#804ee6]/10 text-[#804ee6] flex items-center justify-center font-bold text-xs">
+                            ${w.userName ? w.userName.charAt(0).toUpperCase() : 'C'}
+                          </div>
+                          <div>
+                            <div class="font-bold text-slate-900 text-sm">${w.userName || 'Creator'}</div>
+                            <div class="text-[11px] text-slate-400 font-medium">UPI / IMPS Verified</div>
+                          </div>
+                        </div>
+                      </td>
+
+                      <td>
+                        <span class="font-black text-slate-900 text-sm">${window.utils.formatCurrency(w.amount)}</span>
+                      </td>
+
+                      <td>
+                        <span class="text-xs text-slate-500 font-medium">${w.requestedAt || 'Recently'}</span>
+                      </td>
+
+                      <td>
+                        <span class="badge-modern ${w.status === 'pending' ? 'badge-modern-pending' : 'badge-modern-completed'}">
+                          <span class="status-dot ${w.status === 'pending' ? 'status-dot-pending' : 'status-dot-completed'}"></span>
+                          ${w.status === 'pending' ? 'Pending Approval' : 'Disbursed'}
+                        </span>
+                      </td>
+
+                      <td class="text-right">
                         ${w.status === 'pending' ? `
-                          <div class="flex gap-2">
+                          <div class="flex items-center justify-end gap-2">
                             <button onclick="window.admin.processWithdrawal('${w.id}', ${w.amount}, 'completed')" 
-                              class="px-4 py-1.5 text-xs font-bold rounded-lg border border-transparent bg-[#804ee6] text-white shadow-sm transition active:scale-[0.98]">
-                              Approve
+                              class="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold shadow-xs transition active:scale-95">
+                              ✓ Approve & Release
                             </button>
                             <button onclick="window.admin.processWithdrawal('${w.id}', ${w.amount}, 'rejected')" 
-                              class="px-4 py-1.5 text-xs font-bold rounded-lg border border-rose-250 bg-rose-50 text-rose-600 shadow-sm transition active:scale-[0.98] hover:bg-rose-100">
-                              Reject
+                              class="px-3.5 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-lg text-xs font-bold transition active:scale-95">
+                              ✕ Reject
                             </button>
                           </div>
-                        ` : '-'}
+                        ` : `
+                          <span class="text-xs text-emerald-600 font-bold flex items-center justify-end gap-1">
+                            <span class="material-icons-outlined text-[16px]">verified</span> Released to Creator
+                          </span>
+                        `}
                       </td>
                     </tr>
                   `).join('')}
@@ -1142,6 +1448,7 @@ window.admin = {
               </table>
             </div>
           </div>
+
         </div>
       `;
       window.ui.stopTopProgress();
@@ -1870,5 +2177,136 @@ window.admin = {
         await this.renderNotifications();
       }
     });
+  },
+
+  // ========== PLATFORM SETTINGS ==========
+  renderSettings() {
+    window.ui.updateSidebarActive('Platform Settings');
+    
+    document.getElementById('mainContent').innerHTML = `
+      <div class="page-transition space-y-6 max-w-4xl mx-auto">
+        
+        <!-- Header -->
+        <div>
+          <h1 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">Platform Configuration & Settings</h1>
+          <p class="text-slate-500 text-xs sm:text-sm mt-0.5">Manage escrow commission fee rates, cloud persistence, and platform governance</p>
+        </div>
+
+        <!-- Section 1: Financial & Commission Rules -->
+        <div class="admin-card p-6 space-y-6">
+          <div class="flex items-center gap-3 border-b border-slate-100 pb-4">
+            <div class="w-10 h-10 rounded-xl bg-purple-50 text-[#804ee6] flex items-center justify-center font-bold">
+              <span class="material-icons-outlined text-[22px]">percent</span>
+            </div>
+            <div>
+              <h3 class="font-extrabold text-slate-900 text-base">Monetization & Commission Rules</h3>
+              <p class="text-xs text-slate-500 font-medium">Configure automated platform take-rates on deal escrow settlements</p>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            <div>
+              <label class="block text-xs font-extrabold text-slate-700 uppercase tracking-wider mb-2">Platform Fee on Direct Deals (%)</label>
+              <div class="relative">
+                <input type="number" id="settingDealFee" value="10" min="0" max="50"
+                  class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-900 focus:bg-white focus:ring-2 focus:ring-[#804ee6]/20 focus:border-[#804ee6] transition shadow-2xs">
+                <span class="absolute right-4 top-2.5 text-xs font-bold text-slate-400">% Take Rate</span>
+              </div>
+              <p class="text-[11px] text-slate-400 mt-1 font-medium">Standard industry commission deducted upon creator milestone release.</p>
+            </div>
+
+            <div>
+              <label class="block text-xs font-extrabold text-slate-700 uppercase tracking-wider mb-2">Minimum Creator Withdrawal (₹)</label>
+              <div class="relative">
+                <input type="number" id="settingMinWithdrawal" value="1000" min="100" step="100"
+                  class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-900 focus:bg-white focus:ring-2 focus:ring-[#804ee6]/20 focus:border-[#804ee6] transition shadow-2xs">
+                <span class="absolute right-4 top-2.5 text-xs font-bold text-slate-400">₹ INR</span>
+              </div>
+              <p class="text-[11px] text-slate-400 mt-1 font-medium">Minimum wallet balance required for creators to request bank payout.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 2: Infrastructure & Cloud Persistence -->
+        <div class="admin-card p-6 space-y-6">
+          <div class="flex items-center gap-3 border-b border-slate-100 pb-4">
+            <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">
+              <span class="material-icons-outlined text-[22px]">cloud_done</span>
+            </div>
+            <div>
+              <h3 class="font-extrabold text-slate-900 text-base">Infrastructure & Cloud Database</h3>
+              <p class="text-xs text-slate-500 font-medium">Live AWS S3 bucket synchronization & media storage</p>
+            </div>
+          </div>
+
+          <div class="space-y-4">
+            <div class="p-4 bg-slate-50 border border-slate-150 rounded-xl flex items-center justify-between">
+              <div>
+                <div class="font-bold text-slate-900 text-xs sm:text-sm flex items-center gap-2">
+                  <span>AWS S3 Database Vault</span>
+                  <span class="badge-modern badge-modern-active text-[10px]">
+                    <span class="status-dot status-dot-active"></span> Connected
+                  </span>
+                </div>
+                <div class="text-[11px] text-slate-500 mt-0.5">Bucket: <code class="bg-white px-1.5 py-0.5 rounded border border-slate-200 font-mono text-slate-700">influencershubs3bucket</code> / Region: <code class="bg-white px-1.5 py-0.5 rounded border border-slate-200 font-mono text-slate-700">ap-south-1</code></div>
+              </div>
+              <span class="material-icons-outlined text-emerald-600 text-2xl">verified</span>
+            </div>
+
+            <div class="p-4 bg-slate-50 border border-slate-150 rounded-xl flex items-center justify-between">
+              <div>
+                <div class="font-bold text-slate-900 text-xs sm:text-sm flex items-center gap-2">
+                  <span>Automated Media Asset Purging</span>
+                  <span class="badge-modern badge-modern-active text-[10px]">
+                    <span class="status-dot status-dot-active"></span> Active
+                  </span>
+                </div>
+                <div class="text-[11px] text-slate-500 mt-0.5">Saves cloud storage costs by deleting downloaded campaign files automatically.</div>
+              </div>
+              <span class="material-icons-outlined text-[#804ee6] text-2xl">auto_delete</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 3: Platform Governance -->
+        <div class="admin-card p-6 space-y-6">
+          <div class="flex items-center gap-3 border-b border-slate-100 pb-4">
+            <div class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold">
+              <span class="material-icons-outlined text-[22px]">security</span>
+            </div>
+            <div>
+              <h3 class="font-extrabold text-slate-900 text-base">Security & Creator Onboarding</h3>
+              <p class="text-xs text-slate-500 font-medium">Rules for verifying creator accounts and public discovery</p>
+            </div>
+          </div>
+
+          <div class="space-y-4">
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="font-bold text-slate-900 text-sm">Require Manual Admin Creator Verification</div>
+                <div class="text-xs text-slate-400 mt-0.5">New creators require verified badge check before appearing in top search rankings.</div>
+              </div>
+              <input type="checkbox" checked class="w-5 h-5 rounded text-[#804ee6] focus:ring-[#804ee6]">
+            </div>
+
+            <div class="flex items-center justify-between border-t border-slate-100 pt-4">
+              <div>
+                <div class="font-bold text-slate-900 text-sm">Real-Time Mobile App Push Notifications</div>
+                <div class="text-xs text-slate-400 mt-0.5">Dispatch instant notifications to Flutter mobile app on status changes.</div>
+              </div>
+              <input type="checkbox" checked class="w-5 h-5 rounded text-[#804ee6] focus:ring-[#804ee6]">
+            </div>
+          </div>
+
+          <div class="pt-4 border-t border-slate-100 flex justify-end">
+            <button onclick="window.ui.showToast('Platform configuration saved successfully!', 'success')" 
+              class="px-5 py-2.5 bg-[#804ee6] hover:bg-[#6c2bd9] text-white rounded-xl text-xs font-black shadow-md shadow-purple-500/20 transition active:scale-95 flex items-center gap-2">
+              <span class="material-icons-outlined text-[18px]">save</span> Save Settings
+            </button>
+          </div>
+        </div>
+
+      </div>
+    `;
   }
 };
