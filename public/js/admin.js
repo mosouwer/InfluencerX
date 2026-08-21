@@ -618,6 +618,8 @@ window.admin = {
       filteredUsers = filteredUsers.filter(u => u.role === 'brand');
     } else if (type === 'influencer') {
       filteredUsers = filteredUsers.filter(u => u.role === 'influencer');
+    } else if (type === 'verified') {
+      filteredUsers = filteredUsers.filter(u => u.verified);
     } else if (type === 'admin') {
       filteredUsers = filteredUsers.filter(u => u.role === 'admin');
     }
@@ -632,11 +634,6 @@ window.admin = {
     this.filteredUsers = filteredUsers;
     this.updateUserTableDisplay();
     this.setActiveFilter(type);
-    const createBtn = document.getElementById('createInfluencerBtn');
-    if (createBtn) {
-      if (type === 'influencer') createBtn.classList.remove('hidden');
-      else createBtn.classList.add('hidden');
-    }
   },
   
   filterUsersBySearch(searchTerm) {
@@ -648,6 +645,8 @@ window.admin = {
         filteredUsers = filteredUsers.filter(u => u.role === 'brand');
       } else if (this.currentFilter === 'influencer') {
         filteredUsers = filteredUsers.filter(u => u.role === 'influencer');
+      } else if (this.currentFilter === 'verified') {
+        filteredUsers = filteredUsers.filter(u => u.verified);
       } else if (this.currentFilter === 'admin') {
         filteredUsers = filteredUsers.filter(u => u.role === 'admin');
       }
@@ -670,10 +669,10 @@ window.admin = {
     const totalCount = document.getElementById('totalCount');
     
     if (tbody) {
-      tbody.innerHTML = this.renderUserRows(this.filteredUsers);
+      tbody.innerHTML = this.renderUserRows(this.filteredUsers || this.allUsers);
     }
     if (visibleCount) {
-      visibleCount.textContent = this.filteredUsers.length;
+      visibleCount.textContent = (this.filteredUsers || this.allUsers).length;
     }
     if (totalCount) {
       totalCount.textContent = this.allUsers.length;
@@ -681,18 +680,13 @@ window.admin = {
   },
   
   setActiveFilter(type) {
-    const filters = ['all', 'brand', 'influencer', 'admin'];
+    const filters = ['all', 'brand', 'influencer', 'verified', 'admin'];
     filters.forEach(f => {
       const btn = document.getElementById(`filter${f.charAt(0).toUpperCase() + f.slice(1)}`);
       if (btn) {
-        btn.className = 'px-4 py-2 text-xs font-bold rounded-lg border border-gray-200 bg-white text-gray-500 hover:text-gray-900 transition active:scale-[0.98]';
+        btn.className = f === type ? 'filter-pill active' : 'filter-pill';
       }
     });
-    
-    const activeBtn = document.getElementById(`filter${type.charAt(0).toUpperCase() + type.slice(1)}`);
-    if (activeBtn) {
-      activeBtn.className = 'px-4 py-2 text-xs font-bold rounded-lg border border-transparent bg-[#804ee6] text-white shadow-sm transition active:scale-[0.98]';
-    }
   },
   
   
