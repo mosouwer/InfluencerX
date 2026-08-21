@@ -13,130 +13,172 @@
 <body class="bg-gray-50">
 
 <!-- Login Modal -->
-<div id="loginModal" class="fixed inset-0 z-50 bg-[#f8f9fa] overflow-hidden" style="display:flex">
+<div id="loginModal" class="fixed inset-0 z-50 login-mesh-bg overflow-y-auto flex items-center justify-center p-4 sm:p-6 md:p-10" style="display:flex">
   
-  <!-- Left Side: Interactive Creator Orbital Panel -->
-  <div class="hidden lg:flex w-7/12 bg-[#804ee6] flex-col justify-between p-12 text-white relative overflow-hidden">
-    <!-- Starfield/Orbital concentric circular overlays -->
-    <div class="absolute inset-0 flex items-center justify-center pointer-events-none opacity-20">
-      <div class="w-[500px] h-[500px] border border-white rounded-full flex items-center justify-center relative">
-        <div class="w-[360px] h-[360px] border border-white rounded-full flex items-center justify-center relative">
-          <div class="w-[220px] h-[220px] border border-white rounded-full relative"></div>
-        </div>
-      </div>
-    </div>
+  <div class="w-full max-w-5xl bg-slate-900/80 backdrop-blur-2xl border border-slate-700/60 rounded-3xl shadow-[0_30px_90px_rgba(0,0,0,0.6)] overflow-hidden grid grid-cols-1 lg:grid-cols-12 min-h-[640px]">
+    
+    <!-- Left Hero Showcase Panel -->
+    <div class="lg:col-span-6 p-8 sm:p-12 flex flex-col justify-between relative overflow-hidden bg-gradient-to-br from-[#804ee6]/25 via-indigo-950/40 to-slate-950">
+      
+      <!-- Subtle Decorative Glows -->
+      <div class="absolute -left-20 -top-20 w-60 h-60 bg-purple-500/20 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="absolute right-0 bottom-0 w-72 h-72 bg-indigo-500/15 rounded-full blur-3xl pointer-events-none"></div>
 
-    <!-- Floating Creators (orbit positions) -->
-    <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=faces" alt="Creator" 
-      class="absolute left-[20%] top-[15%] w-14 h-14 rounded-full border-2 border-white/80 object-cover shadow-lg animate-bounce duration-1000">
-    <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop&crop=faces" alt="Creator" 
-      class="absolute right-[20%] top-[20%] w-12 h-12 rounded-full border-2 border-white/80 object-cover shadow-lg">
-    <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=faces" alt="Creator" 
-      class="absolute right-[33%] top-[42%] w-16 h-16 rounded-full border-2 border-white/80 object-cover shadow-lg">
-    <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=100&h=100&fit=crop&crop=faces" alt="Creator" 
-      class="absolute right-[22%] bottom-[20%] w-14 h-14 rounded-full border-2 border-white/80 object-cover shadow-lg">
-    <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=faces" alt="Creator" 
-      class="absolute left-[18%] bottom-[28%] w-16 h-16 rounded-full border-2 border-white/80 object-cover shadow-lg">
-
-    <!-- Central Logo -->
-    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center">
-      <div class="relative w-20 h-20 bg-white/10 backdrop-blur-md border border-white/20 rounded-full flex items-center justify-center shadow-2xl">
-        <span class="text-3xl font-extrabold text-white tracking-tighter">IX</span>
-        <span class="absolute top-[22px] left-[20px] w-2.5 h-2.5 bg-[#ff8a3d] rounded-full"></span>
-      </div>
-    </div>
-
-    <!-- Header Logo Text -->
-    <div class="flex items-center gap-2 z-10">
-      <span class="text-xl font-bold tracking-tight text-white">InfluenceX</span>
-    </div>
-
-    <!-- Bottom Promo Message -->
-    <div class="max-w-md z-10 mt-auto">
-      <h2 class="text-2xl font-bold text-white mb-3">Connect with Top Creators Worldwide</h2>
-      <p class="text-purple-100 text-sm leading-relaxed font-light">
-        Thanks to the rapid expansion of digital media, creator partnerships are crucial. We provide a premium, business-standard platform for brands and influencers to collaborate seamlessly.
-      </p>
-    </div>
-  </div>
-
-  <!-- Right Side: Classy Floating Login Card -->
-  <div class="w-full lg:w-5/12 flex items-center justify-center p-6 sm:p-12 relative">
-    <div class="relative w-full max-w-md">
-      <!-- Layered offset cards behind main card -->
-      <div class="absolute -right-3 top-6 bottom-6 w-3 bg-[#804ee6]/20 rounded-r-lg -z-10"></div>
-      <div class="absolute -right-6 top-12 bottom-12 w-3 bg-[#804ee6]/10 rounded-r-lg -z-20"></div>
-
-      <!-- Main Login Card -->
-      <div class="bg-white rounded-lg shadow-[0_20px_50px_rgba(0,0,0,0.05)] border border-gray-100 p-8 sm:p-10 w-full relative">
-        <div class="text-center mb-8">
-          <h1 class="text-3xl font-extrabold tracking-tight mb-2">
-            <span class="text-[#804ee6]">Influence</span><span class="text-[#ff8a3d]">X</span>
-          </h1>
-          <p class="text-gray-500 text-sm font-medium">Welcome Back !</p>
+      <!-- Top Branding -->
+      <div class="relative z-10">
+        <div class="flex items-center gap-3 mb-6">
+          <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-[#804ee6] to-[#ff8a3d] flex items-center justify-center shadow-lg shadow-purple-500/30">
+            <span class="text-xl font-black text-white tracking-tighter">IX</span>
+          </div>
+          <div>
+            <span class="text-xl font-black text-white tracking-tight">Influence<span class="text-[#ff8a3d]">X</span></span>
+            <span class="block text-[10px] font-extrabold uppercase tracking-widest text-purple-300/80">Enterprise Platform</span>
+          </div>
         </div>
 
-        <div class="space-y-4">
-          <!-- Email Input -->
-          <div class="relative">
-            <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-gray-400">
-              <span class="material-icons-outlined text-lg">mail</span>
-            </span>
-            <input type="email" id="loginEmail" placeholder="Email Address" onkeydown="if(event.key === 'Enter') window.auth.login()"
-              class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#804ee6]/20 focus:border-[#804ee6] transition duration-200">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/15 text-white text-xs font-semibold backdrop-blur-md mb-4 shadow-xs">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span>Next-Gen Creator Escrow</span>
+        </div>
+
+        <h1 class="text-2xl sm:text-3xl font-black text-white tracking-tight leading-tight">
+          Smarter Brand Deals.<br>Guaranteed Payouts.
+        </h1>
+        <p class="text-slate-300 text-xs sm:text-sm mt-2 leading-relaxed font-light">
+          Manage brand sponsorships, verify creator credentials, and automate escrow settlements with zero friction.
+        </p>
+      </div>
+
+      <!-- Floating Live Activity Widgets -->
+      <div class="relative z-10 my-8 space-y-3">
+        
+        <div class="floating-glass-card rounded-2xl p-3.5 flex items-center justify-between text-xs text-white">
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center justify-center font-bold">
+              <span class="material-icons-outlined text-lg">verified_user</span>
+            </div>
+            <div>
+              <div class="font-bold text-white">Zero-Dispute Escrow</div>
+              <div class="text-[11px] text-slate-300">100% Funds Secured in Vault</div>
+            </div>
+          </div>
+          <span class="text-[11px] font-extrabold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-md border border-emerald-500/20">Active</span>
+        </div>
+
+        <div class="floating-glass-card rounded-2xl p-3.5 flex items-center justify-between text-xs text-white">
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-xl bg-purple-500/20 text-purple-300 border border-purple-500/30 flex items-center justify-center font-bold">
+              <span class="material-icons-outlined text-lg">hub</span>
+            </div>
+            <div>
+              <div class="font-bold text-white">Unified Multi-Platform</div>
+              <div class="text-[11px] text-slate-300">Web Dashboard & Flutter Mobile</div>
+            </div>
+          </div>
+          <span class="text-[11px] font-extrabold text-purple-300 bg-purple-500/10 px-2 py-0.5 rounded-md border border-purple-500/20">Live Sync</span>
+        </div>
+
+      </div>
+
+      <!-- Left Bottom Highlights -->
+      <div class="relative z-10 pt-4 border-t border-white/10 flex justify-between items-center text-[11px] text-slate-400">
+        <span>Cloud Database: <b class="text-slate-200">AWS S3 Vault</b></span>
+        <span>Status: <b class="text-emerald-400">Operational</b></span>
+      </div>
+
+    </div>
+
+    <!-- Right Login Form Panel -->
+    <div class="lg:col-span-6 bg-white p-8 sm:p-12 flex flex-col justify-between">
+      
+      <div>
+        <div class="flex justify-between items-center mb-6">
+          <div>
+            <h2 class="text-2xl font-black text-slate-900 tracking-tight">Sign In</h2>
+            <p class="text-xs text-slate-500 mt-0.5">Enter your credentials to access your control center</p>
+          </div>
+          <span class="p-2.5 rounded-2xl bg-purple-50 text-[#804ee6] material-icons-outlined text-xl">lock_person</span>
+        </div>
+
+        <!-- 1-Click Demo Account Quick Chips -->
+        <div class="mb-5">
+          <div class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 mb-2">1-Click Quick Select (Demo Credentials)</div>
+          <div class="grid grid-cols-3 gap-2">
+            <button type="button" id="demoChip_admin" onclick="window.auth.selectDemoAccount('admin')" 
+              class="demo-role-chip active">
+              <span class="text-base">👑</span>
+              <span>Admin</span>
+            </button>
+            <button type="button" id="demoChip_brand" onclick="window.auth.selectDemoAccount('brand')" 
+              class="demo-role-chip">
+              <span class="text-base">💼</span>
+              <span>Brand</span>
+            </button>
+            <button type="button" id="demoChip_influencer" onclick="window.auth.selectDemoAccount('influencer')" 
+              class="demo-role-chip">
+              <span class="text-base">🌟</span>
+              <span>Creator</span>
+            </button>
+          </div>
+        </div>
+
+        <form onsubmit="event.preventDefault(); window.auth.login();" class="space-y-4">
+          
+          <!-- Email Field -->
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1.5">Email Address</label>
+            <div class="relative">
+              <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400 pointer-events-none">
+                <span class="material-icons-outlined text-[18px]">mail</span>
+              </span>
+              <input type="email" id="loginEmail" value="admin@influencex.com" placeholder="name@company.com" required
+                class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#804ee6]/20 focus:border-[#804ee6] transition">
+            </div>
           </div>
 
-          <!-- Password Input -->
-          <div class="relative">
-            <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-gray-400">
-              <span class="material-icons-outlined text-lg">lock</span>
-            </span>
-            <input type="password" id="loginPassword" placeholder="Password" onkeydown="if(event.key === 'Enter') window.auth.login()"
-              class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#804ee6]/20 focus:border-[#804ee6] transition duration-200">
+          <!-- Password Field -->
+          <div>
+            <div class="flex justify-between items-center mb-1.5">
+              <label class="block text-xs font-bold text-slate-700">Password</label>
+              <a href="#" onclick="window.ui.showToast('Demo mode: Please use standard demo credentials.', 'info')" 
+                class="text-[11px] font-bold text-[#804ee6] hover:underline">Forgot?</a>
+            </div>
+            <div class="relative">
+              <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400 pointer-events-none">
+                <span class="material-icons-outlined text-[18px]">lock</span>
+              </span>
+              <input type="password" id="loginPassword" value="admin123" placeholder="••••••••" required
+                class="w-full pl-10 pr-10 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#804ee6]/20 focus:border-[#804ee6] transition">
+              <button type="button" onclick="window.auth.togglePasswordVisibility()" 
+                class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600">
+                <span class="material-icons-outlined text-[18px]" id="passwordEyeIcon">visibility</span>
+              </button>
+            </div>
           </div>
 
-          <!-- Login Button -->
-          <button type="button" id="loginSubmitBtn" onclick="window.auth.login()" 
-            class="w-full py-3 bg-[#ff8a3d] hover:bg-[#e0752d] text-white rounded-lg text-sm font-bold tracking-wider shadow-md hover:shadow-lg transition duration-200 uppercase active:scale-[0.98] mt-2 cursor-pointer">
-            Login
+          <!-- Submit Button -->
+          <button type="submit" id="loginSubmitBtn" 
+            class="w-full py-3 bg-gradient-to-r from-[#804ee6] to-[#6c2bd9] hover:from-[#6c2bd9] hover:to-[#581c87] text-white rounded-xl text-xs font-extrabold tracking-wider uppercase shadow-lg shadow-purple-500/25 hover:shadow-xl hover:shadow-purple-500/30 transition-all duration-200 active:scale-[0.98] cursor-pointer flex items-center justify-center gap-2 mt-2">
+            <span>Sign In to Dashboard</span>
+            <span class="material-icons-outlined text-[16px]">arrow_forward</span>
           </button>
 
-          <!-- Divider -->
-          <div class="relative my-6 flex items-center justify-center">
-            <div class="border-t border-gray-200 w-full"></div>
-            <span class="absolute bg-white px-3 text-xs text-gray-400 font-semibold uppercase">Or</span>
-          </div>
+        </form>
+      </div>
 
-          <!-- Google Login -->
-          <button onclick="window.ui.showToast('Google login is a mock demonstration.', 'info')" 
-            class="w-full py-3 border border-gray-200 rounded-lg text-sm font-semibold text-gray-600 bg-white hover:bg-gray-50 flex items-center justify-center gap-2.5 transition duration-200">
-            <svg class="w-4 h-4" viewBox="0 0 24 24">
-              <path fill="#EA4335" d="M12 5.04c1.67 0 3.2.58 4.38 1.69l3.27-3.27C17.68 1.54 15.01 1 12 1 7.35 1 3.41 3.73 1.58 7.69l3.85 2.99C6.39 7.42 8.97 5.04 12 5.04z"/>
-              <path fill="#4285F4" d="M23.45 12.3c0-.82-.07-1.6-.22-2.3H12v4.4h6.41c-.28 1.48-1.12 2.74-2.38 3.58l3.71 2.88c2.17-2 3.71-4.94 3.71-8.56z"/>
-              <path fill="#FBBC05" d="M5.43 10.68c-.24-.72-.38-1.49-.38-2.28s.14-1.56.38-2.28L1.58 3.13C.58 5.12 0 7.37 0 9.4c0 2.03.58 4.28 1.58 6.27l3.85-2.99z"/>
-              <path fill="#34A853" d="M12 23c3.24 0 5.97-1.07 7.96-2.91l-3.71-2.88c-1.11.75-2.53 1.19-4.25 1.19-3.03 0-5.61-2.38-6.52-5.64L1.63 15.75C3.47 19.71 7.41 23 12 23z"/>
-            </svg>
-            Continue With Google
-          </button>
+      <!-- Bottom Security Tag -->
+      <div class="mt-6 pt-4 border-t border-slate-100 flex justify-between items-center text-[11px] text-slate-400 font-medium">
+        <div class="flex items-center gap-1">
+          <span class="material-icons-outlined text-[14px] text-emerald-600">lock</span>
+          <span>256-bit SSL Encrypted</span>
         </div>
-
-        <!-- Footer Links -->
-        <div class="flex justify-between items-center mt-6 text-xs font-semibold text-gray-500">
-          <a href="#" onclick="window.ui.showToast('Please contact admin@influencex.com to create an account.', 'info')" class="hover:text-[#804ee6] transition">Create Account</a>
-          <a href="#" onclick="window.ui.showToast('Reset password instructions have been disabled for demo accounts.', 'info')" class="hover:text-[#804ee6] transition">Forgot Password</a>
-        </div>
-
-        <!-- Demo Accounts Section -->
-        <div class="mt-8 pt-6 border-t border-gray-100 text-center text-xs text-gray-400 font-medium">
-          <p class="font-bold text-gray-500 mb-1 text-[11px] uppercase tracking-wider">Demo Accounts</p>
-          <div class="flex flex-col gap-0.5">
-            <div>👑 Admin: <span class="text-gray-600 font-semibold">admin@influencex.com</span> / <span class="text-gray-600 font-semibold">admin123</span></div>
-            <div>💼 Brand: <span class="text-gray-600 font-semibold">ravi@store.com</span> / <span class="text-gray-600 font-semibold">demo123</span></div>
-            <div>🌟 Creator: <span class="text-gray-600 font-semibold">priya@demo.com</span> / <span class="text-gray-600 font-semibold">demo123</span></div>
-          </div>
+        <div>
+          <span>Need help? <a href="#" onclick="window.ui.showToast('Please contact admin@influencex.com for support.', 'info')" class="text-slate-600 font-bold hover:text-[#804ee6]">Support</a></span>
         </div>
       </div>
+
     </div>
+
   </div>
 
 </div>

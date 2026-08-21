@@ -1111,9 +1111,51 @@ input:focus, select:focus {
   display: inline-block;
 }
 
-.status-dot-active { background: #10b981; box-shadow: 0 0 6px #10b981; }
-.status-dot-pending { background: #f59e0b; }
-.status-dot-review { background: #8b5cf6; }
-.status-dot-completed { background: #3b82f6; }
-.status-dot-suspended { background: #ef4444; }
+/* Modern Login Screen Styles */
+.login-mesh-bg {
+  background-color: #090d16;
+  background-image: 
+    radial-gradient(at 10% 20%, rgba(128, 78, 230, 0.25) 0px, transparent 50%),
+    radial-gradient(at 90% 10%, rgba(99, 102, 241, 0.2) 0px, transparent 50%),
+    radial-gradient(at 50% 90%, rgba(249, 115, 22, 0.15) 0px, transparent 50%),
+    radial-gradient(at 80% 80%, rgba(139, 92, 246, 0.2) 0px, transparent 50%);
+}
+
+.demo-role-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 700;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.demo-role-chip:hover {
+  background: #ffffff;
+  border-color: #cbd5e1;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+}
+
+.demo-role-chip.active {
+  background: #f5f3ff;
+  border-color: #804ee6;
+  color: #804ee6;
+  box-shadow: 0 0 0 2px rgba(128, 78, 230, 0.15);
+}
+
+.floating-glass-card {
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+}
+
 

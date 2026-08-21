@@ -270,6 +270,44 @@ window.auth = {
         self.logout();
       }
     }, 30000);
+  },
+
+  selectDemoAccount(role) {
+    const emailInput = document.getElementById('loginEmail');
+    const passwordInput = document.getElementById('loginPassword');
+    
+    const creds = {
+      admin: { email: 'admin@influencex.com', pass: 'admin123' },
+      brand: { email: 'ravi@store.com', pass: 'demo123' },
+      influencer: { email: 'priya@demo.com', pass: 'demo123' }
+    };
+    
+    const target = creds[role];
+    if (target) {
+      if (emailInput) emailInput.value = target.email;
+      if (passwordInput) passwordInput.value = target.pass;
+      
+      ['admin', 'brand', 'influencer'].forEach(r => {
+        const chip = document.getElementById(`demoChip_${r}`);
+        if (chip) {
+          chip.className = r === role ? 'demo-role-chip active' : 'demo-role-chip';
+        }
+      });
+    }
+  },
+
+  togglePasswordVisibility() {
+    const passInput = document.getElementById('loginPassword');
+    const eyeIcon = document.getElementById('passwordEyeIcon');
+    if (!passInput) return;
+    
+    if (passInput.type === 'password') {
+      passInput.type = 'text';
+      if (eyeIcon) eyeIcon.textContent = 'visibility_off';
+    } else {
+      passInput.type = 'password';
+      if (eyeIcon) eyeIcon.textContent = 'visibility';
+    }
   }
 };
 
