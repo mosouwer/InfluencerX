@@ -261,24 +261,621 @@ window.admin = {
   },
   
   async showBrandsDetails() {
-    await this.renderUsers();
-    this.filterUsers('brand');
+    await this.showBrandsModal();
   },
 
   async showInfluencersDetails() {
-    await this.renderUsers();
-    this.filterUsers('influencer');
+    await this.showInfluencersModal();
   },
 
   async showCampaignsDetails(status = 'all') {
-    await this.renderCampaigns();
-    if (status && status !== 'all') {
-      setTimeout(() => this.filterCampaigns(status), 50);
-    }
+    await this.showCampaignsModal(status);
   },
 
   async showRevenueDetails() {
-    await this.renderDeals();
+    await this.showRevenueModal();
+  },
+
+  closeDashboardModal() {
+    const modal = document.getElementById('dashboardDetailModal');
+    if (modal) {
+      modal.classList.add('opacity-0');
+      setTimeout(() => modal.remove(), 150);
+    }
+  },
+
+  async showBrandsModal() {
+    try {
+      window.ui.startTopProgress();
+      const users = await window.api.getAdminUsers();
+      window.ui.stopTopProgress();
+      const brands = (users || []).filter(u => u.role === 'brand');
+
+      this.closeDashboardModal();
+
+      const modal = document.createElement('div');
+      modal.id = 'dashboardDetailModal';
+      modal.className = 'modal-modern-backdrop';
+      modal.onclick = (e) => { if (e.target === modal) this.closeDashboardModal(); };
+
+      modal.innerHTML = `
+        <div class="modal-modern-card max-w-3xl">
+          
+          <!-- Modal Header -->
+          <div class="p-6 sm:p-7 border-b border-slate-100 flex justify-between items-start bg-slate-50/50">
+            <div class="flex items-center gap-3.5">
+              <div class="w-12 h-12 rounded-2xl bg-purple-100 text-[#804ee6] flex items-center justify-center font-extrabold shadow-xs">
+                <span class="material-icons-outlined text-2xl">business</span>
+              </div>
+              <div>
+                <div class="flex items-center gap-2">
+                  <h2 class="text-xl font-extrabold text-slate-900 tracking-tight">Brand Advertisers</h2>
+                  <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-purple-100 text-[#804ee6] border border-purple-200">
+                    ${brands.length} Registered
+                  </span>
+                </div>
+                <p class="text-xs text-slate-500 mt-0.5">Corporate brand partners running campaigns and hiring creators</p>
+              </div>
+            </div>
+            
+            <button onclick="window.admin.closeDashboardModal()" 
+              class="w-9 h-9 rounded-full bg-white border border-slate-200 text-slate-400 hover:text-slate-700 hover:bg-slate-100 flex items-center justify-center transition shadow-2xs">
+              <span class="material-icons-outlined text-lg">close</span>
+            </button>
+          </div>
+
+          <!-- Search & Filter Bar -->
+          <div class="px-6 py-3.5 bg-white border-b border-slate-100 flex items-center gap-3">
+            <div class="relative flex-1">
+              <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400 pointer-events-none">
+                <span class="material-icons-outlined text-base">search</span>
+              </span>
+              <input type="text" id="brandModalSearch" placeholder="Search by company name, industry, or email..." 
+                class="w-full pl-9 pr-4 py-2 text-xs font-medium border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#804ee6]/20 focus:border-[#804ee6] transition">
+            </div>
+            <span class="text-xs text-slate-400 font-medium">Showing <b id="brandModalVisibleCount" class="text-slate-700">${brands.length}</b> brands</span>
+          </div>
+
+          <!-- Brands List Container -->
+          <div class="p-6 overflow-y-auto space-y-3.5 max-h-[55vh]" id="brandModalList">
+            ${this.renderBrandModalCards(brands)}
+          </div>
+
+          <!-- Modal Footer -->
+          <div class="px-6 py-4 border-t border-slate-100 bg-slate-50/80 flex flex-col sm:flex-row justify-between items-center gap-3">
+            <div class="text-xs text-slate-500 font-medium">
+              Total Budget Managed: <span class="font-bold text-slate-900">${window.utils.formatCurrency(brands.reduce((sum, b) => sum + (b.profile?.budget || 50000), 0))}</span>
+            </div>
+            <button onclick="window.admin.closeDashboardModal(); window.admin.renderUsers(); window.admin.filterUsers('brand');" 
+              class="px-4 py-2 bg-[#804ee6] hover:bg-[#6c2bd9] text-white rounded-xl text-xs font-bold shadow-sm transition active:scale-95 flex items-center gap-1.5">
+              <span>Open in Full User Management</span>
+              <span class="material-icons-outlined text-sm">arrow_forward</span>
+            </button>
+          </div>
+
+        </div>
+      `;
+
+      document.body.appendChild(modal);
+
+      const searchInput = document.getElementById('brandModalSearch');
+      if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+          const query = e.target.value.toLowerCase().trim();
+          const filtered = brands.filter(b => 
+            (b.name || b.profile?.company || '').toLowerCase().includes(query) ||
+            (b.email || '').toLowerCase().includes(query) ||
+            (b.profile?.industry || '').toLowerCase().includes(query)
+          );
+          const container = document.getElementById('brandModalList');
+          const countEl = document.getElementById('brandModalVisibleCount');
+          if (container) container.innerHTML = this.renderBrandModalCards(filtered);
+          if (countEl) countEl.textContent = filtered.length;
+        });
+      }
+    } catch (e) {
+      window.ui.stopTopProgress();
+      console.error(e);
+      window.ui.showToast('Failed to load brands: ' + e.message, 'error');
+    }
+  },
+
+  renderBrandModalCards(brands) {
+    if (!brands || brands.length === 0) {
+      return `
+        <div class="text-center py-10 text-slate-400">
+          <span class="material-icons-outlined text-4xl text-slate-300 mb-2 block">business_center</span>
+          <p class="font-bold text-slate-700 text-sm">No Brands Found</p>
+          <p class="text-xs text-slate-400 mt-0.5">No registered brand accounts match your search.</p>
+        </div>
+      `;
+    }
+
+    return brands.map(b => {
+      const companyName = b.profile?.company || b.name || b.email.split('@')[0];
+      const industry = b.profile?.industry || 'Fashion & Retail';
+      const budget = b.profile?.budget || 50000;
+      const spent = b.profile?.spent || 32400;
+      const spentPct = Math.min(100, Math.round((spent / budget) * 100)) || 0;
+      const initial = companyName.charAt(0).toUpperCase();
+
+      return `
+        <div class="p-4 rounded-xl border border-slate-200/80 bg-white hover:border-[#804ee6]/40 hover:shadow-md transition duration-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div class="flex items-center gap-3.5">
+            <div class="w-11 h-11 rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-600 text-white flex items-center justify-center text-base font-black shadow-xs flex-shrink-0">
+              ${initial}
+            </div>
+            <div>
+              <div class="flex items-center gap-2">
+                <h3 class="font-extrabold text-slate-900 text-sm tracking-tight">${companyName}</h3>
+                <span class="px-2 py-0.5 bg-slate-100 text-slate-600 rounded-md text-[10px] font-bold border border-slate-200">
+                  ${industry}
+                </span>
+              </div>
+              <div class="text-xs text-slate-500 font-medium mt-0.5 flex items-center gap-1.5">
+                <span class="material-icons-outlined text-[13px] text-slate-400">mail</span> ${b.email}
+              </div>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-5 w-full sm:w-auto justify-between sm:justify-end">
+            <!-- Budget Metric -->
+            <div class="text-right">
+              <div class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Escrow Budget</div>
+              <div class="font-black text-slate-900 text-xs mt-0.5">${window.utils.formatCurrency(spent)} <span class="text-slate-400 font-normal">/ ${window.utils.formatCurrency(budget)}</span></div>
+              <div class="w-24 bg-slate-100 rounded-full h-1.5 mt-1 overflow-hidden">
+                <div class="bg-[#804ee6] h-1.5 rounded-full" style="width: ${spentPct}%"></div>
+              </div>
+            </div>
+
+            <!-- Status & Action -->
+            <div class="flex items-center gap-2">
+              <span class="badge-modern ${b.status === 'active' ? 'badge-modern-active' : 'badge-modern-suspended'}">
+                <span class="status-dot ${b.status === 'active' ? 'status-dot-active' : 'status-dot-suspended'}"></span>
+                ${b.status === 'active' ? 'Active' : 'Suspended'}
+              </span>
+
+              <button onclick="window.admin.toggleUserStatus('${b.id}', '${b.status}'); window.admin.closeDashboardModal();" 
+                class="px-2.5 py-1 text-xs font-bold rounded-lg transition active:scale-95 ${
+                  b.status === 'active' 
+                    ? 'bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200' 
+                    : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200'
+                }">
+                ${b.status === 'active' ? 'Suspend' : 'Activate'}
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+  },
+
+  async showInfluencersModal() {
+    try {
+      window.ui.startTopProgress();
+      const users = await window.api.getAdminUsers();
+      window.ui.stopTopProgress();
+      const influencers = (users || []).filter(u => u.role === 'influencer');
+
+      this.closeDashboardModal();
+
+      const modal = document.createElement('div');
+      modal.id = 'dashboardDetailModal';
+      modal.className = 'modal-modern-backdrop';
+      modal.onclick = (e) => { if (e.target === modal) this.closeDashboardModal(); };
+
+      modal.innerHTML = `
+        <div class="modal-modern-card max-w-4xl">
+          
+          <!-- Modal Header -->
+          <div class="p-6 sm:p-7 border-b border-slate-100 flex justify-between items-start bg-slate-50/50">
+            <div class="flex items-center gap-3.5">
+              <div class="w-12 h-12 rounded-2xl bg-indigo-100 text-indigo-600 flex items-center justify-center font-extrabold shadow-xs">
+                <span class="material-icons-outlined text-2xl">stars</span>
+              </div>
+              <div>
+                <div class="flex items-center gap-2">
+                  <h2 class="text-xl font-extrabold text-slate-900 tracking-tight">Creator Network</h2>
+                  <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-indigo-100 text-indigo-700 border border-indigo-200">
+                    ${influencers.length} Creators
+                  </span>
+                </div>
+                <p class="text-xs text-slate-500 mt-0.5">Verified Indian influencers across Fashion, Food, Tech, Fitness & Travel</p>
+              </div>
+            </div>
+            
+            <button onclick="window.admin.closeDashboardModal()" 
+              class="w-9 h-9 rounded-full bg-white border border-slate-200 text-slate-400 hover:text-slate-700 hover:bg-slate-100 flex items-center justify-center transition shadow-2xs">
+              <span class="material-icons-outlined text-lg">close</span>
+            </button>
+          </div>
+
+          <!-- Search & Filter Bar -->
+          <div class="px-6 py-3.5 bg-white border-b border-slate-100 flex items-center gap-3">
+            <div class="relative flex-1">
+              <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400 pointer-events-none">
+                <span class="material-icons-outlined text-base">search</span>
+              </span>
+              <input type="text" id="infModalSearch" placeholder="Search by name, niche, city, or email..." 
+                class="w-full pl-9 pr-4 py-2 text-xs font-medium border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#804ee6]/20 focus:border-[#804ee6] transition">
+            </div>
+            <span class="text-xs text-slate-400 font-medium">Showing <b id="infModalVisibleCount" class="text-slate-700">${influencers.length}</b> creators</span>
+          </div>
+
+          <!-- Creators Grid Container -->
+          <div class="p-6 overflow-y-auto grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[55vh]" id="infModalList">
+            ${this.renderInfluencerModalCards(influencers)}
+          </div>
+
+          <!-- Modal Footer -->
+          <div class="px-6 py-4 border-t border-slate-100 bg-slate-50/80 flex flex-col sm:flex-row justify-between items-center gap-3">
+            <div class="text-xs text-slate-500 font-medium">
+              Verified Creators: <span class="font-bold text-indigo-600">${influencers.filter(i => i.verified).length}</span> of ${influencers.length}
+            </div>
+            <button onclick="window.admin.closeDashboardModal(); window.admin.renderUsers(); window.admin.filterUsers('influencer');" 
+              class="px-4 py-2 bg-[#804ee6] hover:bg-[#6c2bd9] text-white rounded-xl text-xs font-bold shadow-sm transition active:scale-95 flex items-center gap-1.5">
+              <span>Open in Full User Management</span>
+              <span class="material-icons-outlined text-sm">arrow_forward</span>
+            </button>
+          </div>
+
+        </div>
+      `;
+
+      document.body.appendChild(modal);
+
+      const searchInput = document.getElementById('infModalSearch');
+      if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+          const query = e.target.value.toLowerCase().trim();
+          const filtered = influencers.filter(i => 
+            (i.name || '').toLowerCase().includes(query) ||
+            (i.email || '').toLowerCase().includes(query) ||
+            (i.profile?.niche || '').toLowerCase().includes(query)
+          );
+          const container = document.getElementById('infModalList');
+          const countEl = document.getElementById('infModalVisibleCount');
+          if (container) container.innerHTML = this.renderInfluencerModalCards(filtered);
+          if (countEl) countEl.textContent = filtered.length;
+        });
+      }
+    } catch (e) {
+      window.ui.stopTopProgress();
+      console.error(e);
+      window.ui.showToast('Failed to load creators: ' + e.message, 'error');
+    }
+  },
+
+  renderInfluencerModalCards(influencers) {
+    if (!influencers || influencers.length === 0) {
+      return `
+        <div class="col-span-2 text-center py-10 text-slate-400">
+          <span class="material-icons-outlined text-4xl text-slate-300 mb-2 block">person_search</span>
+          <p class="font-bold text-slate-700 text-sm">No Creators Found</p>
+          <p class="text-xs text-slate-400 mt-0.5">Try refining your search query.</p>
+        </div>
+      `;
+    }
+
+    return influencers.map(i => {
+      const name = i.name || i.profile?.name || i.email.split('@')[0];
+      const niche = i.profile?.niche || 'Lifestyle';
+      const followers = i.profile?.followers || 0;
+      const initial = name.charAt(0).toUpperCase();
+
+      return `
+        <div class="p-4 rounded-xl border border-slate-200/80 bg-white hover:border-indigo-400 hover:shadow-md transition duration-200 flex flex-col justify-between gap-3">
+          <div class="flex items-start justify-between gap-3">
+            <div class="flex items-center gap-3">
+              <div class="w-11 h-11 rounded-xl bg-gradient-to-tr from-[#804ee6] to-pink-500 text-white flex items-center justify-center text-base font-black shadow-xs flex-shrink-0">
+                ${initial}
+              </div>
+              <div>
+                <div class="flex items-center gap-1.5">
+                  <h3 class="font-extrabold text-slate-900 text-sm tracking-tight">${name}</h3>
+                  ${i.verified ? '<span class="material-icons-outlined text-indigo-600 text-[16px]" title="Verified Creator">verified</span>' : ''}
+                </div>
+                <div class="text-xs text-slate-500 font-medium mt-0.5 flex items-center gap-2">
+                  <span class="px-1.5 py-0.5 bg-slate-100 text-slate-700 rounded text-[10px] font-bold">${niche}</span>
+                  <span>•</span>
+                  <span>${window.utils.formatNumber(followers)} followers</span>
+                </div>
+              </div>
+            </div>
+
+            <span class="badge-modern ${i.status === 'active' ? 'badge-modern-active' : 'badge-modern-suspended'} text-[10px]">
+              ${i.status}
+            </span>
+          </div>
+
+          <div class="pt-3 border-t border-slate-100 flex items-center justify-between">
+            <span class="text-xs text-slate-500 font-medium">${i.email}</span>
+            <div class="flex items-center gap-2">
+              <button onclick="window.admin.verifyUser('${i.id}', ${!i.verified}); window.admin.closeDashboardModal();" 
+                class="px-2.5 py-1 text-xs font-bold rounded-lg border transition active:scale-95 ${
+                  i.verified ? 'bg-indigo-50 text-indigo-700 border-indigo-200' : 'bg-slate-100 text-slate-600 border-slate-200'
+                }">
+                ${i.verified ? '✓ Verified' : 'Verify'}
+              </button>
+              <button onclick="window.admin.toggleUserStatus('${i.id}', '${i.status}'); window.admin.closeDashboardModal();" 
+                class="px-2.5 py-1 text-xs font-bold rounded-lg transition active:scale-95 ${
+                  i.status === 'active' ? 'bg-rose-50 text-rose-700 border border-rose-200' : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                }">
+                ${i.status === 'active' ? 'Suspend' : 'Activate'}
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+  },
+
+  async showCampaignsModal(statusFilter = 'all') {
+    try {
+      window.ui.startTopProgress();
+      const [rawCampaigns, rawDeals] = await Promise.all([
+        window.api.getAdminCampaigns(),
+        window.api.getAdminDeals()
+      ]);
+      window.ui.stopTopProgress();
+
+      const dealCampaigns = (rawDeals || []).map(d => ({
+        id: d.id,
+        isDeal: true,
+        campaignName: d.id,
+        packageType: d.packageType || d.type || 'Post',
+        brandName: d.brandName,
+        influencerName: d.influencerName,
+        amount: d.amount,
+        status: d.status,
+        progress: 0,
+        deadline: 'N/A',
+        createdAt: d.createdAt
+      }));
+
+      const allItems = [...(rawCampaigns || []).map(c => ({ ...c, isDeal: false })), ...dealCampaigns]
+        .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+
+      this.closeDashboardModal();
+
+      const modal = document.createElement('div');
+      modal.id = 'dashboardDetailModal';
+      modal.className = 'modal-modern-backdrop';
+      modal.onclick = (e) => { if (e.target === modal) this.closeDashboardModal(); };
+
+      let currentModalFilter = statusFilter;
+
+      modal.innerHTML = `
+        <div class="modal-modern-card max-w-4xl">
+          
+          <!-- Modal Header -->
+          <div class="p-6 sm:p-7 border-b border-slate-100 flex justify-between items-start bg-slate-50/50">
+            <div class="flex items-center gap-3.5">
+              <div class="w-12 h-12 rounded-2xl bg-amber-100 text-amber-600 flex items-center justify-center font-extrabold shadow-xs">
+                <span class="material-icons-outlined text-2xl">campaign</span>
+              </div>
+              <div>
+                <div class="flex items-center gap-2">
+                  <h2 class="text-xl font-extrabold text-slate-900 tracking-tight">Active Campaigns & Deals</h2>
+                  <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-200" id="campModalCountPill">
+                    ${allItems.length} Total
+                  </span>
+                </div>
+                <p class="text-xs text-slate-500 mt-0.5">Real-time deliverables, escrow milestones, and status management</p>
+              </div>
+            </div>
+            
+            <button onclick="window.admin.closeDashboardModal()" 
+              class="w-9 h-9 rounded-full bg-white border border-slate-200 text-slate-400 hover:text-slate-700 hover:bg-slate-100 flex items-center justify-center transition shadow-2xs">
+              <span class="material-icons-outlined text-lg">close</span>
+            </button>
+          </div>
+
+          <!-- Filters & Search Toolbar -->
+          <div class="px-6 py-3.5 bg-white border-b border-slate-100 flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3">
+            <div class="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
+              <button onclick="window.admin.filterCampaignModal('all')" id="modalCampFilter_all" class="filter-pill ${currentModalFilter === 'all' ? 'active' : ''}">All (${allItems.length})</button>
+              <button onclick="window.admin.filterCampaignModal('active')" id="modalCampFilter_active" class="filter-pill ${currentModalFilter === 'active' ? 'active' : ''}">Active (${allItems.filter(c => c.status === 'active').length})</button>
+              <button onclick="window.admin.filterCampaignModal('pending')" id="modalCampFilter_pending" class="filter-pill ${currentModalFilter === 'pending' ? 'active' : ''}">Pending (${allItems.filter(c => c.status === 'pending').length})</button>
+              <button onclick="window.admin.filterCampaignModal('review')" id="modalCampFilter_review" class="filter-pill ${currentModalFilter === 'review' ? 'active' : ''}">In Review (${allItems.filter(c => c.status === 'review').length})</button>
+              <button onclick="window.admin.filterCampaignModal('completed')" id="modalCampFilter_completed" class="filter-pill ${currentModalFilter === 'completed' ? 'active' : ''}">Completed (${allItems.filter(c => c.status === 'completed').length})</button>
+            </div>
+          </div>
+
+          <!-- Campaigns Table/List Container -->
+          <div class="p-6 overflow-y-auto space-y-3 max-h-[55vh]" id="campaignModalList">
+            ${this.renderCampaignModalCards(currentModalFilter === 'all' ? allItems : allItems.filter(c => c.status === currentModalFilter))}
+          </div>
+
+          <!-- Modal Footer -->
+          <div class="px-6 py-4 border-t border-slate-100 bg-slate-50/80 flex flex-col sm:flex-row justify-between items-center gap-3">
+            <div class="text-xs text-slate-500 font-medium">
+              Gross Escrow Value: <span class="font-bold text-slate-900">${window.utils.formatCurrency(allItems.reduce((sum, c) => sum + (Number(c.amount) || 0), 0))}</span>
+            </div>
+            <button onclick="window.admin.closeDashboardModal(); window.admin.renderCampaigns();" 
+              class="px-4 py-2 bg-[#804ee6] hover:bg-[#6c2bd9] text-white rounded-xl text-xs font-bold shadow-sm transition active:scale-95 flex items-center gap-1.5">
+              <span>Open in Full Campaigns View</span>
+              <span class="material-icons-outlined text-sm">arrow_forward</span>
+            </button>
+          </div>
+
+        </div>
+      `;
+
+      this._modalAllCampaigns = allItems;
+      document.body.appendChild(modal);
+    } catch (e) {
+      window.ui.stopTopProgress();
+      console.error(e);
+      window.ui.showToast('Failed to load campaigns: ' + e.message, 'error');
+    }
+  },
+
+  filterCampaignModal(status) {
+    if (!this._modalAllCampaigns) return;
+    const filters = ['all', 'active', 'pending', 'review', 'completed'];
+    filters.forEach(f => {
+      const btn = document.getElementById(`modalCampFilter_${f}`);
+      if (btn) btn.className = f === status ? 'filter-pill active' : 'filter-pill';
+    });
+
+    const filtered = status === 'all' ? this._modalAllCampaigns : this._modalAllCampaigns.filter(c => c.status === status);
+    const container = document.getElementById('campaignModalList');
+    if (container) container.innerHTML = this.renderCampaignModalCards(filtered);
+  },
+
+  renderCampaignModalCards(items) {
+    if (!items || items.length === 0) {
+      return `
+        <div class="text-center py-10 text-slate-400">
+          <span class="material-icons-outlined text-4xl text-slate-300 mb-2 block">task_alt</span>
+          <p class="font-bold text-slate-700 text-sm">No Campaigns Found</p>
+          <p class="text-xs text-slate-400 mt-0.5">No campaigns matching the selected status filter.</p>
+        </div>
+      `;
+    }
+
+    return items.map(c => {
+      const title = c.isDeal ? '#' + (c.campaignName || c.title || c.id) : (c.campaignName || c.title || 'Campaign #' + c.id);
+      const pkg = c.packageType || c.type || 'Post';
+
+      return `
+        <div class="p-4 rounded-xl border border-slate-200/80 bg-white hover:border-[#804ee6]/40 hover:shadow-md transition duration-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div class="flex items-center gap-3.5">
+            <div class="w-10 h-10 rounded-xl bg-purple-50 text-[#804ee6] flex items-center justify-center font-black text-sm flex-shrink-0">
+              <span class="material-icons-outlined text-[20px]">campaign</span>
+            </div>
+            <div>
+              <div class="flex items-center gap-2">
+                <h3 class="font-extrabold text-slate-900 text-sm tracking-tight">${title}</h3>
+                <span class="px-2 py-0.5 bg-slate-100 text-slate-700 rounded text-[10px] font-bold border border-slate-200">${pkg}</span>
+              </div>
+              <div class="text-xs text-slate-500 font-medium mt-0.5 flex items-center gap-2">
+                <span class="text-slate-800 font-bold">${c.brandName || 'Brand'}</span>
+                <span>→</span>
+                <span class="text-indigo-600 font-bold">${c.influencerName || 'Creator'}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-4 w-full sm:w-auto justify-between sm:justify-end">
+            <div class="text-right">
+              <div class="text-xs font-black text-slate-900">${window.utils.formatCurrency(c.amount)}</div>
+              <div class="text-[10px] text-emerald-600 font-bold">Escrow Funded</div>
+            </div>
+
+            <!-- Status Selector -->
+            <select onchange="window.admin.updateUnifiedCampaignStatus('${c.id}', this.value, ${c.isDeal})" 
+              class="px-2.5 py-1.5 text-xs font-bold rounded-lg bg-white border border-slate-200 hover:border-slate-300 focus:ring-2 focus:ring-[#804ee6]/20 focus:border-[#804ee6] transition shadow-2xs">
+              <option value="pending" ${c.status === 'pending' ? 'selected' : ''}>Pending</option>
+              <option value="active" ${c.status === 'active' ? 'selected' : ''}>Active</option>
+              <option value="review" ${c.status === 'review' ? 'selected' : ''}>In Review</option>
+              <option value="completed" ${c.status === 'completed' ? 'selected' : ''}>Completed</option>
+              <option value="dispute" ${c.status === 'dispute' ? 'selected' : ''}>Dispute</option>
+            </select>
+          </div>
+        </div>
+      `;
+    }).join('');
+  },
+
+  async showRevenueModal() {
+    try {
+      window.ui.startTopProgress();
+      const [stats, deals] = await Promise.all([
+        window.api.getAdminStats(),
+        window.api.getAdminDeals()
+      ]);
+      window.ui.stopTopProgress();
+
+      const settledDeals = (deals || []).filter(d => d.status === 'completed');
+
+      this.closeDashboardModal();
+
+      const modal = document.createElement('div');
+      modal.id = 'dashboardDetailModal';
+      modal.className = 'modal-modern-backdrop';
+      modal.onclick = (e) => { if (e.target === modal) this.closeDashboardModal(); };
+
+      modal.innerHTML = `
+        <div class="modal-modern-card max-w-3xl">
+          
+          <!-- Modal Header -->
+          <div class="p-6 sm:p-7 border-b border-slate-100 flex justify-between items-start bg-slate-50/50">
+            <div class="flex items-center gap-3.5">
+              <div class="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-600 flex items-center justify-center font-extrabold shadow-xs">
+                <span class="material-icons-outlined text-2xl">account_balance_wallet</span>
+              </div>
+              <div>
+                <div class="flex items-center gap-2">
+                  <h2 class="text-xl font-extrabold text-slate-900 tracking-tight">Financial Overview</h2>
+                  <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                    10% Platform Fee
+                  </span>
+                </div>
+                <p class="text-xs text-slate-500 mt-0.5">Platform escrow revenue and commission ledger from fulfilled collaborations</p>
+              </div>
+            </div>
+            
+            <button onclick="window.admin.closeDashboardModal()" 
+              class="w-9 h-9 rounded-full bg-white border border-slate-200 text-slate-400 hover:text-slate-700 hover:bg-slate-100 flex items-center justify-center transition shadow-2xs">
+              <span class="material-icons-outlined text-lg">close</span>
+            </button>
+          </div>
+
+          <!-- Revenue Stats Grid -->
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 p-6 border-b border-slate-100 bg-slate-50/40">
+            <div class="p-4 bg-white rounded-xl border border-slate-200/80 shadow-2xs">
+              <div class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Gross Transaction Volume</div>
+              <div class="text-xl font-black text-slate-900 mt-1">${window.utils.formatCurrency(stats.totalValue || 0)}</div>
+            </div>
+            <div class="p-4 bg-white rounded-xl border border-emerald-200 bg-emerald-50/30 shadow-2xs">
+              <div class="text-[10px] text-emerald-700 font-bold uppercase tracking-wider">Net Platform Commission</div>
+              <div class="text-xl font-black text-emerald-700 mt-1">${window.utils.formatCurrency((stats.totalValue || 0) * 0.1)}</div>
+            </div>
+            <div class="p-4 bg-white rounded-xl border border-slate-200/80 shadow-2xs">
+              <div class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Pending Withdrawals</div>
+              <div class="text-xl font-black text-amber-600 mt-1">${window.utils.formatCurrency(stats.pendingWithdrawals || 0)}</div>
+            </div>
+          </div>
+
+          <!-- Settled Deals List -->
+          <div class="p-6 overflow-y-auto space-y-3 max-h-[45vh]">
+            <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Recent Settled Collaborations</h3>
+            ${settledDeals.length === 0 ? `
+              <div class="text-center py-8 text-slate-400 text-xs">No settled deals in ledger yet.</div>
+            ` : settledDeals.map(d => `
+              <div class="p-3.5 rounded-xl border border-slate-200/70 bg-white flex justify-between items-center">
+                <div>
+                  <div class="font-extrabold text-slate-900 text-xs">${d.campaignName || d.id}</div>
+                  <div class="text-[11px] text-slate-400 mt-0.5">${d.brandName || 'Brand'} → ${d.influencerName || 'Creator'}</div>
+                </div>
+                <div class="text-right">
+                  <div class="font-black text-slate-900 text-xs">${window.utils.formatCurrency(d.amount)}</div>
+                  <div class="text-[10px] text-emerald-600 font-bold">+${window.utils.formatCurrency((d.amount || 0) * 0.1)} fee</div>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+
+          <!-- Modal Footer -->
+          <div class="px-6 py-4 border-t border-slate-100 bg-slate-50/80 flex justify-end">
+            <button onclick="window.admin.closeDashboardModal(); window.admin.renderDeals();" 
+              class="px-4 py-2 bg-[#804ee6] hover:bg-[#6c2bd9] text-white rounded-xl text-xs font-bold shadow-sm transition active:scale-95 flex items-center gap-1.5">
+              <span>View Full Deals Ledger</span>
+              <span class="material-icons-outlined text-sm">arrow_forward</span>
+            </button>
+          </div>
+
+        </div>
+      `;
+
+      document.body.appendChild(modal);
+    } catch (e) {
+      window.ui.stopTopProgress();
+      console.error(e);
+      window.ui.showToast('Failed to load revenue overview: ' + e.message, 'error');
+    }
   },
 
   async renderUsers() {
