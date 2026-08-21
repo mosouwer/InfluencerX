@@ -26,7 +26,7 @@ class ApiService {
         Uri.parse('$baseUrl/login'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'email': email, 'password': password}),
-      ).timeout(const Duration(seconds: 6));
+      ).timeout(const Duration(seconds: 10));
       
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
@@ -40,7 +40,7 @@ class ApiService {
         throw Exception('Invalid email or password');
       }
     } catch (e) {
-      if (e.toString().contains('suspended') || e.toString().contains('Invalid')) {
+      if (e.toString().contains('suspended') || e.toString().contains('Invalid') || e.toString().contains('Contact support')) {
         rethrow;
       }
       // Graceful fallback only when network is down
@@ -220,16 +220,16 @@ class ApiService {
       final dealsResponse = await http.get(
         Uri.parse('$baseUrl/deals?_t=$timestamp'),
         headers: _headers,
-      ).timeout(const Duration(seconds: 5));
+      ).timeout(const Duration(seconds: 10));
       
       final campaignsResponse = await http.get(
         Uri.parse('$baseUrl/campaigns?_t=$timestamp'),
         headers: _headers,
-      ).timeout(const Duration(seconds: 5));
+      ).timeout(const Duration(seconds: 10));
       
-      if (dealsResponse.statusCode == 200 && campaignsResponse.statusCode == 200) {
-        List<dynamic> deals = json.decode(dealsResponse.body);
-        List<dynamic> campaigns = json.decode(campaignsResponse.body);
+      if (dealsResponse.statusCode == 200 || campaignsResponse.statusCode == 200) {
+        List<dynamic> deals = dealsResponse.statusCode == 200 ? json.decode(dealsResponse.body) : [];
+        List<dynamic> campaigns = campaignsResponse.statusCode == 200 ? json.decode(campaignsResponse.body) : [];
         
         for (var d in deals) { d['isDeal'] = true; }
         for (var c in campaigns) { c['isDeal'] = false; }

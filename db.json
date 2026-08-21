@@ -185,32 +185,6 @@
       },
       "status": "active",
       "joinedAt": "2026-01-26"
-    },
-    {
-      "id": "user_1779439322485",
-      "email": "randomdjango@gmail.com",
-      "password": "$2a$10$IIwPi5VuYXNxi2NF9GXrVe0jUiDA4uzT22p1KiBea9/tYZBAJK7N6",
-      "role": "influencer",
-      "profile": {
-        "name": "DjangoCICD",
-        "bio": "sample",
-        "niche": "Food",
-        "followers": 883944,
-        "engagement": 5,
-        "location": "Global",
-        "rates": {
-          "story": 1000,
-          "post": 1000,
-          "reel": 1000
-        },
-        "avatar": "https://influencershubs3bucket.s3.us-east-1.amazonaws.com/1779439322485-479678389-IMG20250905170955.jpg",
-        "rating": 5,
-        "campaigns": 0,
-        "verified": false,
-        "availability": true
-      },
-      "status": "active",
-      "joinedAt": "2026-05-22T08:42:06.332Z"
     }
   ],
   "deals": [
@@ -366,7 +340,7 @@
       "message": "Interested in collaborating on a post campaign.",
       "hasMedia": false,
       "mediaFile": null,
-      "status": "review",
+      "status": "completed",
       "createdAt": "2026-05-21T17:31:20.054Z"
     },
     {
@@ -380,7 +354,7 @@
       "message": "Interested in collaborating on a post campaign.",
       "hasMedia": false,
       "mediaFile": null,
-      "status": "active",
+      "status": "completed",
       "createdAt": "2026-05-21T17:31:26.919Z"
     },
     {
@@ -396,6 +370,40 @@
       "mediaFile": null,
       "status": "completed",
       "createdAt": "2026-05-22T04:09:50.163Z"
+    },
+    {
+      "id": "deal_1787250839233",
+      "campaignName": "DEAL-1787250839233",
+      "brandId": "biz_1",
+      "brandName": "Ravi's Store",
+      "influencerId": "user_1779439322485",
+      "influencerName": "DjangoCICD",
+      "packageType": "story",
+      "amount": 0,
+      "deliverables": "",
+      "deadline": "",
+      "terms": "",
+      "status": "completed",
+      "mediaAttached": "https://influencershubs3bucket.s3.us-east-1.amazonaws.com/1787250839076-594363528-64455.jpg",
+      "hasMedia": "true",
+      "createdAt": "2026-08-20T18:33:59.233Z"
+    },
+    {
+      "id": "deal_1787281348760",
+      "campaignName": "DEAL-1787281348760",
+      "brandId": "biz_1",
+      "brandName": "Ravi's Store",
+      "influencerId": "inf_2",
+      "influencerName": "Chef Arjun",
+      "packageType": "reel",
+      "amount": 0,
+      "deliverables": "",
+      "deadline": "",
+      "terms": "",
+      "status": "pending",
+      "mediaAttached": null,
+      "hasMedia": "false",
+      "createdAt": "2026-08-21T03:02:28.760Z"
     }
   ],
   "campaigns": [
@@ -485,6 +493,66 @@
     }
   ],
   "notifications": [
+    {
+      "id": "1787283456333_xmkx",
+      "createdAt": "2026-08-21T03:37:36.333Z",
+      "time": "Just now",
+      "read": false,
+      "userId": "inf_1",
+      "title": "Campaign Status: Completed",
+      "message": "Campaign \"Summer Reel Campaign\" is now completed",
+      "type": "campaign",
+      "campaignId": "camp_1",
+      "icon": "🎉"
+    },
+    {
+      "id": "1787283061642_5gny",
+      "createdAt": "2026-08-21T03:31:01.642Z",
+      "time": "Just now",
+      "read": false,
+      "userId": "inf_1",
+      "title": "Campaign Status: Completed",
+      "message": "Campaign \"Summer Reel Campaign\" is now completed",
+      "type": "campaign",
+      "campaignId": "camp_1",
+      "icon": "🎉"
+    },
+    {
+      "id": "1787281348762_514x",
+      "createdAt": "2026-08-21T03:02:28.762Z",
+      "time": "Just now",
+      "read": false,
+      "userId": "inf_2",
+      "title": "New Deal Proposal",
+      "message": "Ravi's Store sent a ₹undefined proposal for \"DEAL-1787281348760\"",
+      "type": "deal",
+      "dealId": "deal_1787281348760",
+      "icon": "💼"
+    },
+    {
+      "id": "1787250839234_1dp9",
+      "createdAt": "2026-08-20T18:33:59.234Z",
+      "time": "Just now",
+      "read": false,
+      "userId": "user_1779439322485",
+      "title": "New Deal Proposal",
+      "message": "Ravi's Store sent a ₹undefined proposal for \"DEAL-1787250839233\"",
+      "type": "deal",
+      "dealId": "deal_1787250839233",
+      "icon": "💼"
+    },
+    {
+      "id": "1787250518093_eiv6",
+      "createdAt": "2026-08-20T18:28:38.093Z",
+      "time": "Just now",
+      "read": false,
+      "userId": "inf_1",
+      "title": "Campaign Status: Review",
+      "message": "Campaign \"Summer Reel Campaign\" is now review",
+      "type": "campaign",
+      "campaignId": "camp_1",
+      "icon": "📊"
+    },
     {
       "id": "1787249512432_qn5m",
       "createdAt": "2026-08-20T18:11:52.432Z",
@@ -647,7 +715,7 @@
       "title": "New Hire Request (Admin Action Required)",
       "message": "Ravi's Store wants to hire Priya Sharma for a post (₹8000)",
       "time": "Just now",
-      "read": false,
+      "read": true,
       "icon": "💼"
     },
     {

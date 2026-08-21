@@ -11,9 +11,9 @@ window.api = {
         headers['x-user-role'] = window.auth.currentUser.role;
       }
 
-      // 3-second timeout — prevents cold-start hangs from blocking the UI
+      // 10-second timeout to handle serverless cold-boots gracefully
       const controller = new AbortController();
-      const tid = setTimeout(() => controller.abort(), 3000);
+      const tid = setTimeout(() => controller.abort(), 10000);
 
       const res = await fetch(window.CONFIG.API_BASE + url, {
         headers,
@@ -33,6 +33,10 @@ window.api = {
       }
       return res.json();
     } catch (err) {
+      if (options && options.method && options.method !== 'GET') {
+        console.error('API Mutation Error for ' + url + ':', err);
+        throw err;
+      }
       return this.getFallbackData(url, options, err);
     }
   },
@@ -40,10 +44,6 @@ window.api = {
   getFallbackData(url, options, originalError) {
     if (url.includes('/login')) {
       throw originalError || new Error('Login failed');
-    }
-    // Any mutation requests (PUT, POST, DELETE) return { success: true } on fallback
-    if (options && options.method && options.method !== 'GET') {
-      return { success: true };
     }
     if (url.includes('/admin/stats')) {
       return {

@@ -70,6 +70,8 @@ app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 // Database helper with memory caching and AWS S3 cloud backing
 let cachedDB = null;
 let lastS3Fetch = 0;
+let lastWriteTime = 0;
+let isSyncing = false;
 
 let EMBEDDED_DB = {};
 try {
@@ -83,6 +85,9 @@ try {
 }
 
 async function syncFromS3() {
+  if (isSyncing) return cachedDB;
+  isSyncing = true;
+  const startFetch = Date.now();
   try {
     const res = await s3.send(new GetObjectCommand({
       Bucket: AWS_S3_BUCKET_NAME,
@@ -91,28 +96,35 @@ async function syncFromS3() {
     const text = await res.Body.transformToString();
     const data = JSON.parse(text);
     if (data && data.users && data.campaigns) {
-      cachedDB = data;
-      lastS3Fetch = Date.now();
-      return data;
+      if (lastWriteTime < startFetch) {
+        cachedDB = data;
+        lastS3Fetch = Date.now();
+        try {
+          fs.writeFileSync('/tmp/db.json', JSON.stringify(data, null, 2));
+        } catch (e) {}
+      }
+      isSyncing = false;
+      return cachedDB;
     }
   } catch (err) {
     // S3 read failed or object doesn't exist yet
   }
-  return null;
+  isSyncing = false;
+  return cachedDB;
 }
 
 function readDB() {
   if (cachedDB) return cachedDB;
   try {
-    const data = fs.readFileSync(path.join(process.cwd(), 'db.json'), 'utf8');
+    const data = fs.readFileSync('/tmp/db.json', 'utf8');
     cachedDB = JSON.parse(data);
     return cachedDB;
-  } catch (err) {
+  } catch (e) {
     try {
-      const data = fs.readFileSync('/tmp/db.json', 'utf8');
+      const data = fs.readFileSync(path.join(process.cwd(), 'db.json'), 'utf8');
       cachedDB = JSON.parse(data);
       return cachedDB;
-    } catch (e) {
+    } catch (err) {
       cachedDB = JSON.parse(JSON.stringify(EMBEDDED_DB));
       return cachedDB;
     }
@@ -121,14 +133,15 @@ function readDB() {
 
 async function writeDB(data) {
   cachedDB = data;
+  lastWriteTime = Date.now();
+  lastS3Fetch = Date.now();
+  try {
+    fs.writeFileSync('/tmp/db.json', JSON.stringify(data, null, 2));
+  } catch (e) {}
   try {
     const p = path.join(process.cwd(), 'db.json');
     fs.writeFileSync(p, JSON.stringify(data, null, 2));
-  } catch (err) {
-    try {
-      fs.writeFileSync('/tmp/db.json', JSON.stringify(data, null, 2));
-    } catch (e) {}
-  }
+  } catch (err) {}
 
   // Persist to AWS S3 Cloud Database
   try {
@@ -138,15 +151,19 @@ async function writeDB(data) {
       Body: JSON.stringify(data, null, 2),
       ContentType: 'application/json'
     }));
+    lastS3Fetch = Date.now();
   } catch (s3Err) {
     console.error('S3 DB write error:', s3Err.message);
   }
 }
 
-// Global middleware to keep database state fresh across all devices/containers
-app.use(async (req, res, next) => {
-  if (Date.now() - lastS3Fetch > 2500) {
-    await syncFromS3();
+// Background sync on request if cache is older than 20 seconds
+app.use((req, res, next) => {
+  if (!cachedDB) {
+    readDB();
+    syncFromS3().catch(() => {});
+  } else if (Date.now() - lastS3Fetch > 20000 && !isSyncing) {
+    syncFromS3().catch(() => {});
   }
   next();
 });
@@ -353,28 +370,40 @@ app.put(['/api/campaigns/:id/status', '/campaigns/:id/status'], async (req, res)
   const user = getUser(req);
   const { status, progress } = req.body;
   const db = readDB();
-  const campaignIndex = (db.campaigns || []).findIndex(c => String(c.id) === String(req.params.id));
-  if (campaignIndex === -1) return res.status(404).json({ error: 'Campaign not found' });
+  const reqId = String(req.params.id);
   
-  const campaign = db.campaigns[campaignIndex];
-  if (status) campaign.status = status;
-  if (progress !== undefined) campaign.progress = progress;
-  db.campaigns[campaignIndex] = campaign;
-  await writeDB(db);
+  let campaignIndex = (db.campaigns || []).findIndex(c => String(c.id) === reqId);
+  if (campaignIndex !== -1) {
+    const campaign = db.campaigns[campaignIndex];
+    if (status) campaign.status = status;
+    if (progress !== undefined) campaign.progress = progress;
+    db.campaigns[campaignIndex] = campaign;
+    await writeDB(db);
 
-  if (status) {
-    const targetUserId = user && user.role === 'influencer' ? campaign.brandId : campaign.influencerId;
-    notifyUser({
-      userId: targetUserId,
-      title: `Campaign Status: ${status.charAt(0).toUpperCase() + status.slice(1)}`,
-      message: `Campaign "${campaign.campaignName}" is now ${status}`,
-      type: 'campaign',
-      campaignId: campaign.id,
-      icon: status === 'completed' ? '🎉' : '📊'
-    });
+    if (status) {
+      const targetUserId = user && user.role === 'influencer' ? campaign.brandId : campaign.influencerId;
+      notifyUser({
+        userId: targetUserId,
+        title: `Campaign Status: ${status.charAt(0).toUpperCase() + status.slice(1)}`,
+        message: `Campaign "${campaign.campaignName}" is now ${status}`,
+        type: 'campaign',
+        campaignId: campaign.id,
+        icon: status === 'completed' ? '🎉' : '📊'
+      });
+    }
+
+    return res.json({ success: true, id: reqId, status });
   }
 
-  res.json({ success: true });
+  // Also check deals in case it was created as a deal
+  let dealIndex = (db.deals || []).findIndex(d => String(d.id) === reqId);
+  if (dealIndex !== -1) {
+    db.deals[dealIndex].status = status;
+    await writeDB(db);
+    return res.json({ success: true, id: reqId, status, isDeal: true });
+  }
+
+  return res.status(404).json({ error: 'Campaign or Deal not found' });
 });
 
 // ========== DEALS ROUTES ==========
@@ -446,12 +475,23 @@ app.get(['/api/deals', '/deals'], async (req, res) => {
 app.put(['/api/deals/:id/status', '/deals/:id/status'], async (req, res) => {
   const { status } = req.body;
   const db = readDB();
-  const dealIndex = (db.deals || []).findIndex(d => String(d.id) === String(req.params.id));
-  if (dealIndex === -1) return res.status(404).json({ error: 'Deal not found' });
+  const reqId = String(req.params.id);
   
-  db.deals[dealIndex].status = status;
-  await writeDB(db);
-  res.json({ success: true });
+  let dealIndex = (db.deals || []).findIndex(d => String(d.id) === reqId);
+  if (dealIndex !== -1) {
+    db.deals[dealIndex].status = status;
+    await writeDB(db);
+    return res.json({ success: true, id: reqId, status, isDeal: true });
+  }
+
+  let campaignIndex = (db.campaigns || []).findIndex(c => String(c.id) === reqId);
+  if (campaignIndex !== -1) {
+    db.campaigns[campaignIndex].status = status;
+    await writeDB(db);
+    return res.json({ success: true, id: reqId, status });
+  }
+  
+  return res.status(404).json({ error: 'Deal or Campaign not found' });
 });
 
 // ========== NOTIFICATIONS ROUTES ==========
