@@ -38,56 +38,16 @@ class ApiService {
         throw Exception(data['error'] ?? 'Account suspended. Contact support.');
       } else if (response.statusCode == 401) {
         throw Exception('Invalid email or password');
+      } else {
+        final data = json.decode(response.body);
+        throw Exception(data['error'] ?? 'Login failed (${response.statusCode})');
       }
     } catch (e) {
       if (e.toString().contains('suspended') || e.toString().contains('Invalid') || e.toString().contains('Contact support')) {
         rethrow;
       }
-      // Graceful fallback only when network is down
+      throw Exception('Network error connecting to backend: ${e.toString()}');
     }
-
-    // Standard demo credentials verification
-    final emailLower = email.trim().toLowerCase();
-    final pw = password.trim();
-
-    if (emailLower == 'ravi@store.com' && (pw == 'demo123' || pw == 'password123' || pw.isNotEmpty)) {
-      final brandUser = {
-        'id': 'biz_1',
-        'email': 'ravi@store.com',
-        'role': 'brand',
-        'profile': {
-          'company': "Ravi's Store",
-          'budget': 50000,
-          'spent': 32400,
-          'industry': 'Fashion',
-        },
-      };
-      _userId = 'biz_1';
-      _userRole = 'brand';
-      return {'user': brandUser, 'token': 'mock-brand-token-biz_1'};
-    } else if (emailLower == 'admin@influencex.com' && (pw == 'admin123' || pw.isNotEmpty)) {
-      final adminUser = {
-        'id': 'admin_1',
-        'email': 'admin@influencex.com',
-        'role': 'admin',
-        'profile': {'name': 'Platform Admin'},
-      };
-      _userId = 'admin_1';
-      _userRole = 'admin';
-      return {'user': adminUser, 'token': 'mock-admin-token-admin_1'};
-    } else if (emailLower == 'priya@demo.com' && (pw == 'demo123' || pw.isNotEmpty)) {
-      final creatorUser = {
-        'id': 'inf_1',
-        'email': 'priya@demo.com',
-        'role': 'influencer',
-        'profile': {'name': 'Priya Sharma', 'niche': 'Fashion'},
-      };
-      _userId = 'inf_1';
-      _userRole = 'influencer';
-      return {'user': creatorUser, 'token': 'mock-creator-token-inf_1'};
-    }
-
-    throw Exception('Invalid email or password. Please use demo credentials: ravi@store.com / demo123');
   }
 
   static Future<List<dynamic>> getInfluencers() async {

@@ -24,55 +24,33 @@ window.auth = {
 
     var user = null;
 
-    // Step 1: Instant local check for known demo accounts (no network needed)
-    var emailLower = email.toLowerCase();
-    if (emailLower === 'admin@influencex.com') {
-      user = {
-        id: 'admin_1',
-        email: 'admin@influencex.com',
-        role: 'admin',
-        profile: { name: 'Platform Admin', permissions: ['all'] },
-        status: 'active'
-      };
-    } else if (emailLower === 'ravi@store.com') {
-      user = {
-        id: 'biz_1',
-        email: 'ravi@store.com',
-        role: 'brand',
-        profile: { company: "Ravi's Store", budget: 50000, spent: 32400, industry: 'Fashion' },
-        status: 'active'
-      };
-    } else if (emailLower === 'priya@demo.com') {
-      user = {
-        id: 'inf_1',
-        email: 'priya@demo.com',
-        role: 'influencer',
-        profile: { name: 'Priya Sharma', niche: 'Fashion', followers: 1200000 },
-        status: 'active'
-      };
-    }
-
-    // Step 2: If not a known demo account, try the backend API
-    if (!user) {
-      try {
-        var res = await fetch('/api/login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: email, password: password })
-        });
-        if (res.ok) {
-          var data = await res.json();
-          user = data.user;
-        } else {
-          var errData = await res.json().catch(function() { return {}; });
-          if (submitBtn) { submitBtn.textContent = 'Login'; submitBtn.disabled = false; }
-          alert(errData.error || 'Invalid credentials. Please try again.');
-          return;
-        }
-      } catch (netErr) {
+    // Step 1: Query the backend API first to check live status and credentials
+    try {
+      var apiBase = window.CONFIG?.API_BASE || '/api';
+      var res = await fetch(apiBase + '/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email, password: password })
+      });
+      if (res.ok) {
+        var data = await res.json();
+        user = data.user;
+      } else {
+        var errData = await res.json().catch(function() { return {}; });
         if (submitBtn) { submitBtn.textContent = 'Login'; submitBtn.disabled = false; }
-        alert('Network error. Please check your connection.');
+        alert(errData.error || 'Invalid credentials. Please try again.');
         return;
+      }
+    } catch (netErr) {
+      console.warn('Network login error, checking fallback demo:', netErr);
+      // Offline fallback only when backend is completely unreachable
+      var emailLower = email.toLowerCase();
+      if (emailLower === 'admin@influencex.com') {
+        user = { id: 'admin_1', email: 'admin@influencex.com', role: 'admin', profile: { name: 'Platform Admin', permissions: ['all'] }, status: 'active' };
+      } else if (emailLower === 'ravi@store.com') {
+        user = { id: 'biz_1', email: 'ravi@store.com', role: 'brand', profile: { company: "Ravi's Store", budget: 50000, spent: 32400, industry: 'Fashion' }, status: 'active' };
+      } else if (emailLower === 'priya@demo.com') {
+        user = { id: 'inf_1', email: 'priya@demo.com', role: 'influencer', profile: { name: 'Priya Sharma', niche: 'Fashion', followers: 1200000 }, status: 'active' };
       }
     }
 
