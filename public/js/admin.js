@@ -865,6 +865,8 @@ window.admin = {
       })), ...dealCampaigns]
         .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
       
+      this.allCampaigns = campaigns;
+      
       document.getElementById('mainContent').innerHTML = `
         <div class="page-transition space-y-6 max-w-7xl mx-auto">
           
@@ -1168,14 +1170,28 @@ window.admin = {
   
   async updateUnifiedCampaignStatus(id, newStatus, isDeal) {
     try {
+      window.ui.startTopProgress();
       if (isDeal) {
         await window.api.updateDealStatus(id, newStatus);
       } else {
         await window.api.updateCampaignStatus(id, newStatus);
       }
+      
+      if (this.allCampaigns) {
+        const item = this.allCampaigns.find(c => String(c.id) === String(id));
+        if (item) item.status = newStatus;
+      }
+      
       window.ui.showToast(`Campaign status updated to ${newStatus.toUpperCase()}!`, 'success');
-      await this.renderCampaigns();
+      window.ui.stopTopProgress();
+      
+      if (this.currentCampaignFilter && this.currentCampaignFilter !== 'all') {
+        this.filterCampaigns(this.currentCampaignFilter);
+      } else {
+        await this.renderCampaigns();
+      }
     } catch (err) {
+      window.ui.stopTopProgress();
       console.error('Backend status update failed:', err);
       window.ui.showToast('Failed to update status: ' + err.message, 'error');
     }

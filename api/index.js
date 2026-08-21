@@ -187,9 +187,9 @@ function isAdmin(req) {
   return user && user.role === 'admin';
 }
 
-function notifyUser(notif) {
+function notifyUser(notif, dbInstance) {
   try {
-    const db = readDB();
+    const db = dbInstance || readDB();
     db.notifications = db.notifications || [];
     const fullNotif = {
       id: notif.id || (Date.now().toString() + '_' + Math.random().toString(36).substring(2, 6)),
@@ -199,7 +199,9 @@ function notifyUser(notif) {
       ...notif
     };
     db.notifications.unshift(fullNotif);
-    writeDB(db);
+    if (!dbInstance) {
+      writeDB(db);
+    }
     return fullNotif;
   } catch (err) {
     console.error('Error creating notification:', err);
@@ -342,7 +344,6 @@ app.post(['/api/campaigns', '/campaigns'], async (req, res) => {
   };
   db.campaigns = db.campaigns || [];
   db.campaigns.push(campaign);
-  writeDB(db);
   
   notifyUser({
     userId: influencerId,
@@ -351,7 +352,7 @@ app.post(['/api/campaigns', '/campaigns'], async (req, res) => {
     type: 'campaign',
     campaignId: campaign.id,
     icon: '🎯'
-  });
+  }, db);
 
   notifyUser({
     userId: 'admin_1',
@@ -361,8 +362,9 @@ app.post(['/api/campaigns', '/campaigns'], async (req, res) => {
     type: 'campaign',
     campaignId: campaign.id,
     icon: '🚀'
-  });
+  }, db);
   
+  await writeDB(db);
   res.json({ success: true, campaign });
 });
 
@@ -378,7 +380,6 @@ app.put(['/api/campaigns/:id/status', '/campaigns/:id/status'], async (req, res)
     if (status) campaign.status = status;
     if (progress !== undefined) campaign.progress = progress;
     db.campaigns[campaignIndex] = campaign;
-    await writeDB(db);
 
     if (status) {
       const targetUserId = user && user.role === 'influencer' ? campaign.brandId : campaign.influencerId;
@@ -389,9 +390,10 @@ app.put(['/api/campaigns/:id/status', '/campaigns/:id/status'], async (req, res)
         type: 'campaign',
         campaignId: campaign.id,
         icon: status === 'completed' ? '🎉' : '📊'
-      });
+      }, db);
     }
 
+    await writeDB(db);
     return res.json({ success: true, id: reqId, status });
   }
 
