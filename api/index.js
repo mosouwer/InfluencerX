@@ -807,6 +807,184 @@ app.delete(['/api/users/influencer/:id', '/users/influencer/:id'], async (req, r
   res.json({ success: true });
 });
 
+// ========== BRAND ONBOARDING & MANAGEMENT ROUTES ==========
+app.post(['/api/users/brand', '/users/brand', '/api/admin/users/brand', '/api/signup/brand', '/api/register/brand'], upload.single('logo'), async (req, res) => {
+  try {
+    const db = readDB();
+    const { 
+      company, 
+      brandName,
+      email, 
+      password, 
+      contactPerson, 
+      name, 
+      industry, 
+      category, 
+      budget, 
+      phone, 
+      location, 
+      website, 
+      instagram, 
+      about,
+      description 
+    } = req.body;
+
+    const brandCompanyName = (company || brandName || name || '').trim();
+    const brandEmail = (email || '').trim().toLowerCase();
+
+    if (!brandCompanyName) {
+      return res.status(400).json({ error: 'Brand or company name is required' });
+    }
+    if (!brandEmail) {
+      return res.status(400).json({ error: 'Valid business email is required' });
+    }
+
+    if (!db.users) db.users = [];
+    const existing = db.users.find(u => u.email && u.email.toLowerCase() === brandEmail);
+    if (existing) {
+      return res.status(400).json({ error: 'An account with this email address already exists' });
+    }
+
+    const hashedPassword = await bcrypt.hash(password || 'demo123', 10);
+    let logoUrl = null;
+    if (req.file) {
+      try {
+        logoUrl = await uploadToS3(req.file.buffer, req.file.originalname);
+      } catch (uploadErr) {
+        console.warn('S3 upload error for brand logo:', uploadErr);
+      }
+    }
+
+    const newBrand = {
+      id: 'brand_' + Date.now(),
+      email: brandEmail,
+      name: brandCompanyName,
+      password: hashedPassword,
+      role: 'brand',
+      verified: true,
+      status: 'active',
+      profile: {
+        company: brandCompanyName,
+        name: contactPerson || name || brandCompanyName,
+        contactPerson: contactPerson || name || '',
+        industry: industry || category || 'General',
+        budget: parseFloat(budget) || 50000,
+        spent: 0,
+        phone: phone || '',
+        location: location || 'India',
+        website: website || '',
+        instagram: instagram || '',
+        about: about || description || '',
+        logo: logoUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(brandCompanyName)}&background=804ee6&color=fff`
+      },
+      joinedAt: new Date().toISOString()
+    };
+
+    db.users.unshift(newBrand);
+    writeDB(db);
+
+    const userCopy = { ...newBrand };
+    delete userCopy.password;
+    res.json({ success: true, user: userCopy, token: 'token_' + newBrand.id });
+  } catch (err) {
+    console.error('Error creating brand:', err);
+    res.status(500).json({ error: err.message || 'Failed to onboard brand' });
+  }
+});
+
+app.put(['/api/users/brand/:id', '/users/brand/:id', '/api/admin/users/brand/:id'], upload.single('logo'), async (req, res) => {
+  try {
+    const db = readDB();
+    const userIndex = (db.users || []).findIndex(u => u.id === req.params.id && u.role === 'brand');
+    if (userIndex === -1) return res.status(404).json({ error: 'Brand not found' });
+    
+    const { 
+      company, 
+      email, 
+      contactPerson, 
+      name, 
+      industry, 
+      budget, 
+      phone, 
+      location, 
+      website, 
+      instagram, 
+      about,
+      password 
+    } = req.body;
+
+    const user = db.users[userIndex];
+    if (company) {
+      user.name = company;
+      if (!user.profile) user.profile = {};
+      user.profile.company = company;
+    }
+    if (email) user.email = email.trim().toLowerCase();
+    if (contactPerson || name) {
+      if (!user.profile) user.profile = {};
+      user.profile.contactPerson = contactPerson || name;
+    }
+    if (industry) {
+      if (!user.profile) user.profile = {};
+      user.profile.industry = industry;
+    }
+    if (budget !== undefined) {
+      if (!user.profile) user.profile = {};
+      user.profile.budget = parseFloat(budget) || user.profile.budget;
+    }
+    if (phone !== undefined) {
+      if (!user.profile) user.profile = {};
+      user.profile.phone = phone;
+    }
+    if (location !== undefined) {
+      if (!user.profile) user.profile = {};
+      user.profile.location = location;
+    }
+    if (website !== undefined) {
+      if (!user.profile) user.profile = {};
+      user.profile.website = website;
+    }
+    if (instagram !== undefined) {
+      if (!user.profile) user.profile = {};
+      user.profile.instagram = instagram;
+    }
+    if (about !== undefined) {
+      if (!user.profile) user.profile = {};
+      user.profile.about = about;
+    }
+
+    if (password && password.trim().length >= 6) {
+      user.password = await bcrypt.hash(password.trim(), 10);
+    }
+
+    if (req.file) {
+      try {
+        if (!user.profile) user.profile = {};
+        user.profile.logo = await uploadToS3(req.file.buffer, req.file.originalname);
+      } catch (uploadErr) {
+        console.warn('S3 upload error for brand logo update:', uploadErr);
+      }
+    }
+
+    db.users[userIndex] = user;
+    writeDB(db);
+    res.json({ success: true, user });
+  } catch (err) {
+    console.error('Error updating brand:', err);
+    res.status(500).json({ error: err.message || 'Failed to update brand' });
+  }
+});
+
+app.delete(['/api/users/brand/:id', '/users/brand/:id', '/api/admin/users/brand/:id'], async (req, res) => {
+  const db = readDB();
+  const userIndex = (db.users || []).findIndex(u => u.id === req.params.id && u.role === 'brand');
+  if (userIndex === -1) return res.status(404).json({ error: 'Brand not found' });
+  
+  db.users.splice(userIndex, 1);
+  writeDB(db);
+  res.json({ success: true });
+});
+
 app.get(['/api/deals/download/:id', '/deals/download/:id'], async (req, res) => {
   try {
     const dbData = readDB();

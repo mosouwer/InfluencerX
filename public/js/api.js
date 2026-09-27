@@ -141,6 +141,17 @@ window.api = {
   deleteInfluencer(id) {
     return this.request(`/users/influencer/${id}`, { method: 'DELETE' });
   },
+
+  // Brands
+  createBrand(formData) {
+    return this.request('/users/brand', { method: 'POST', body: formData });
+  },
+  updateBrand(id, formData) {
+    return this.request(`/users/brand/${id}`, { method: 'PUT', body: formData });
+  },
+  deleteBrand(id) {
+    return this.request(`/users/brand/${id}`, { method: 'DELETE' });
+  },
   
   // Campaigns
   getCampaigns() {

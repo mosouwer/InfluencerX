@@ -57,8 +57,11 @@ window.admin = {
             </div>
             
             <div class="relative z-10 flex flex-wrap items-center gap-2.5">
+              <button onclick="window.admin.openCreateBrandModal()" class="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition shadow-md flex items-center gap-2 active:scale-95">
+                <span class="material-icons-outlined text-[16px]">add_business</span> + Add Brand
+              </button>
               <button onclick="window.admin.renderUsers()" class="px-4 py-2.5 bg-white/10 hover:bg-white/20 text-white rounded-xl text-xs font-bold transition border border-white/10 backdrop-blur-sm flex items-center gap-2 shadow-sm active:scale-95">
-                <span class="material-icons-outlined text-[16px]">person_add</span> Manage Users
+                <span class="material-icons-outlined text-[16px]">people</span> Manage Users
               </button>
               <button onclick="window.admin.renderCampaigns()" class="px-4 py-2.5 bg-[#804ee6] hover:bg-[#6c2bd9] text-white rounded-xl text-xs font-bold transition shadow-lg shadow-purple-500/25 flex items-center gap-2 active:scale-95">
                 <span class="material-icons-outlined text-[16px]">campaign</span> View Campaigns
@@ -429,7 +432,15 @@ window.admin = {
             <h1 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">User Management</h1>
             <p class="text-slate-500 text-xs sm:text-sm mt-0.5">Control platform access, verify creator credentials, and manage permissions</p>
           </div>
-          <div class="flex items-center gap-2">
+          <div class="flex flex-wrap items-center gap-2">
+            <button id="createBrandBtn" onclick="window.admin.openCreateBrandModal()" 
+              class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-xs hover:shadow transition flex items-center gap-1.5 active:scale-95">
+              <span class="material-icons-outlined text-[16px]">add_business</span> + Add New Brand
+            </button>
+            <button id="createInfluencerBtn" onclick="window.admin.openCreateInfluencerModal()" 
+              class="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold shadow-xs transition flex items-center gap-1.5 active:scale-95">
+              <span class="material-icons-outlined text-[16px]">person_add</span> Create Influencer
+            </button>
             <button onclick="window.admin.exportUsers()" 
               class="px-4 py-2 bg-white border border-slate-200 hover:border-slate-300 text-slate-700 rounded-xl text-xs font-bold shadow-2xs hover:bg-slate-50 transition active:scale-95 flex items-center gap-1.5">
               <span class="material-icons-outlined text-[16px]">file_download</span> Export CSV
@@ -595,6 +606,14 @@ window.admin = {
                   ${user.status === 'active' ? 'Suspend' : 'Activate'}
                 </button>
               ` : ''}
+              ${isBrand ? `
+                <button onclick="window.admin.openEditBrandModal('${user.id}')" class="p-1.5 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition" title="Edit Brand">
+                  <span class="material-icons-outlined text-[18px]">edit</span>
+                </button>
+                <button onclick="window.admin.deleteBrand('${user.id}')" class="p-1.5 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded-lg transition" title="Delete Brand">
+                  <span class="material-icons-outlined text-[18px]">delete</span>
+                </button>
+              ` : ''}
               ${isInfluencer ? `
                 <button onclick="window.admin.openEditInfluencerModal('${user.id}')" class="p-1.5 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition" title="Edit Creator">
                   <span class="material-icons-outlined text-[18px]">edit</span>
@@ -634,6 +653,17 @@ window.admin = {
     this.filteredUsers = filteredUsers;
     this.updateUserTableDisplay();
     this.setActiveFilter(type);
+    
+    const brandBtn = document.getElementById('createBrandBtn');
+    const infBtn = document.getElementById('createInfluencerBtn');
+    if (brandBtn) {
+      if (type === 'influencer' || type === 'admin' || type === 'verified') brandBtn.classList.add('hidden');
+      else brandBtn.classList.remove('hidden');
+    }
+    if (infBtn) {
+      if (type === 'brand' || type === 'admin') infBtn.classList.add('hidden');
+      else infBtn.classList.remove('hidden');
+    }
   },
   
   filterUsersBySearch(searchTerm) {
@@ -690,6 +720,517 @@ window.admin = {
   },
   
   
+  // ========== BRAND ONBOARDING & MANAGEMENT ==========
+  generateBrandPassword() {
+    const chars = 'abcdefghijkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789!@#$%&*';
+    let pass = '';
+    for (let i = 0; i < 10; i++) {
+      pass += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    const input = document.getElementById('brandPasswordInput');
+    if (input) {
+      input.value = pass;
+      input.type = 'text';
+      const icon = document.getElementById('brandPasswordToggleIcon');
+      if (icon) icon.textContent = 'visibility_off';
+    }
+  },
+
+  toggleBrandPasswordVisibility() {
+    const input = document.getElementById('brandPasswordInput');
+    const icon = document.getElementById('brandPasswordToggleIcon');
+    if (input && icon) {
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.textContent = 'visibility_off';
+      } else {
+        input.type = 'password';
+        icon.textContent = 'visibility';
+      }
+    }
+  },
+
+  previewBrandLogo(event) {
+    const file = event.target.files && event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const preview = document.getElementById('brandLogoPreview');
+      const img = document.getElementById('brandLogoImg');
+      const name = document.getElementById('brandLogoFileName');
+      const size = document.getElementById('brandLogoFileSize');
+      if (img) img.src = e.target.result;
+      if (name) name.textContent = file.name;
+      if (size) size.textContent = (file.size / 1024).toFixed(1) + ' KB';
+      if (preview) preview.classList.remove('hidden');
+    };
+    reader.readAsDataURL(file);
+  },
+
+  removeBrandLogoPreview() {
+    const input = document.getElementById('brandLogoInput');
+    const preview = document.getElementById('brandLogoPreview');
+    if (input) input.value = '';
+    if (preview) preview.classList.add('hidden');
+  },
+
+  openCreateBrandModal() {
+    const existing = document.getElementById('createBrandModal');
+    if (existing) existing.remove();
+
+    const modal = document.createElement('div');
+    modal.className = 'fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center z-50 p-4';
+    modal.id = 'createBrandModal';
+    modal.innerHTML = `
+      <div class="bg-white rounded-2xl max-w-2xl w-full p-6 sm:p-8 max-h-[90vh] overflow-y-auto shadow-2xl border border-gray-100 relative">
+        <div class="flex justify-between items-start mb-6 pb-4 border-b border-gray-100">
+          <div class="flex items-center gap-3">
+            <div class="w-11 h-11 rounded-2xl bg-emerald-50 text-emerald-600 border border-emerald-100 flex items-center justify-center shadow-xs">
+              <span class="material-icons-outlined text-2xl">add_business</span>
+            </div>
+            <div>
+              <h2 class="text-xl font-black text-gray-900 tracking-tight">Onboard New Brand</h2>
+              <p class="text-xs text-gray-500 mt-0.5">Enter brand details to register & activate a new brand partner</p>
+            </div>
+          </div>
+          <button onclick="document.getElementById('createBrandModal').remove()" 
+            class="text-gray-400 hover:text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-full p-1.5 transition">
+            <span class="material-icons-outlined text-lg">close</span>
+          </button>
+        </div>
+        
+        <form id="createBrandForm" onsubmit="window.admin.submitCreateBrand(event)" class="space-y-5">
+          <!-- Account Credentials -->
+          <div>
+            <h3 class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3 flex items-center gap-1.5">
+              <span class="material-icons-outlined text-sm text-emerald-600">lock</span> Account Credentials
+            </h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                  Brand / Company Name <span class="text-rose-500">*</span>
+                </label>
+                <input type="text" name="company" required placeholder="e.g. Nike India, Sugar Cosmetics" 
+                  class="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 transition">
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                  Business Email <span class="text-rose-500">*</span>
+                </label>
+                <input type="email" name="email" required placeholder="partnerships@company.com" 
+                  class="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 transition">
+              </div>
+              <div>
+                <div class="flex justify-between items-center mb-1.5">
+                  <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider">
+                    Account Password <span class="text-rose-500">*</span>
+                  </label>
+                  <button type="button" onclick="window.admin.generateBrandPassword()" 
+                    class="text-[11px] font-bold text-emerald-600 hover:text-emerald-700 bg-emerald-50 hover:bg-emerald-100 px-2 py-0.5 rounded-md transition flex items-center gap-1">
+                    <span class="material-icons-outlined text-[12px]">auto_fix_high</span> Generate
+                  </button>
+                </div>
+                <div class="relative">
+                  <input type="password" id="brandPasswordInput" name="password" required placeholder="Minimum 6 characters" 
+                    class="w-full pl-3.5 pr-10 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 transition">
+                  <button type="button" onclick="window.admin.toggleBrandPasswordVisibility()" 
+                    class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600">
+                    <span id="brandPasswordToggleIcon" class="material-icons-outlined text-lg">visibility</span>
+                  </button>
+                </div>
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                  Contact Person / Representative <span class="text-rose-500">*</span>
+                </label>
+                <input type="text" name="contactPerson" required placeholder="e.g. Rohan Verma (Brand Lead)" 
+                  class="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 transition">
+              </div>
+            </div>
+          </div>
+
+          <!-- Business Profile & Classification -->
+          <div class="pt-2 border-t border-gray-100">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3 flex items-center gap-1.5">
+              <span class="material-icons-outlined text-sm text-emerald-600">business</span> Profile & Classification
+            </h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                  Industry / Category <span class="text-rose-500">*</span>
+                </label>
+                <select name="industry" required 
+                  class="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 transition">
+                  <option value="">Select Industry</option>
+                  <option value="Fashion & Apparel">👗 Fashion & Apparel</option>
+                  <option value="Beauty & Cosmetics">💄 Beauty & Cosmetics</option>
+                  <option value="Food & Beverages">🍔 Food & Beverages</option>
+                  <option value="Health & Fitness">💪 Health & Fitness</option>
+                  <option value="Tech & Electronics">💻 Tech & Electronics</option>
+                  <option value="Travel & Hospitality">✈️ Travel & Hospitality</option>
+                  <option value="Lifestyle & Living">☕ Lifestyle & Living</option>
+                  <option value="E-Commerce & Retail">🛍️ E-Commerce & Retail</option>
+                  <option value="Entertainment & Gaming">🎮 Entertainment & Gaming</option>
+                  <option value="Education & EdTech">📚 Education & EdTech</option>
+                  <option value="Automotive">🚗 Automotive</option>
+                  <option value="Finance & FinTech">💳 Finance & FinTech</option>
+                  <option value="Other">✨ Other</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                  Initial Escrow Budget (₹) <span class="text-rose-500">*</span>
+                </label>
+                <input type="number" name="budget" value="50000" min="0" required placeholder="50000" 
+                  class="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 transition">
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                  Contact Phone / WhatsApp <span class="text-rose-500">*</span>
+                </label>
+                <input type="tel" name="phone" required placeholder="+91 98765 43210" 
+                  class="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 transition">
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                  Headquarters / City Location
+                </label>
+                <input type="text" name="location" placeholder="e.g. Mumbai, Maharashtra" 
+                  class="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 transition">
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                  Official Website URL
+                </label>
+                <input type="url" name="website" placeholder="https://company.com" 
+                  class="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 transition">
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                  Official Instagram Handle
+                </label>
+                <input type="text" name="instagram" placeholder="@brandhandle" 
+                  class="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 transition">
+              </div>
+            </div>
+          </div>
+
+          <!-- Branding & Overview -->
+          <div class="pt-2 border-t border-gray-100">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3 flex items-center gap-1.5">
+              <span class="material-icons-outlined text-sm text-emerald-600">palette</span> Branding & Overview
+            </h3>
+            <div class="space-y-4">
+              <div>
+                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                  Brand Logo / Avatar (Optional)
+                </label>
+                <input type="file" id="brandLogoInput" name="logo" accept="image/*" onchange="window.admin.previewBrandLogo(event)"
+                  class="w-full px-3.5 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 transition file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100">
+                <p class="text-[11px] text-gray-400 mt-1">PNG, JPG, or SVG image file format.</p>
+
+                <!-- Live Image Preview Container -->
+                <div id="brandLogoPreview" class="hidden flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-200 mt-2">
+                  <div class="flex items-center gap-3">
+                    <img id="brandLogoImg" src="" class="w-12 h-12 rounded-xl object-cover border border-gray-200 shadow-xs bg-white" alt="Logo preview">
+                    <div>
+                      <div id="brandLogoFileName" class="text-xs font-bold text-gray-800 truncate max-w-[200px]">logo.png</div>
+                      <div id="brandLogoFileSize" class="text-[10px] text-gray-400">12 KB</div>
+                    </div>
+                  </div>
+                  <button type="button" onclick="window.admin.removeBrandLogoPreview()" class="text-xs text-rose-500 hover:text-rose-700 font-bold p-1 rounded-md hover:bg-rose-50 transition">
+                    Remove
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                  Brand Overview / Collaboration Guidelines
+                </label>
+                <textarea name="about" rows="3" placeholder="Tell creators what your brand does, key target audience, campaign expectations..." 
+                  class="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 transition"></textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- Form Actions -->
+          <div class="flex justify-end items-center gap-3 pt-4 border-t border-gray-100">
+            <button type="button" onclick="document.getElementById('createBrandModal').remove()" 
+              class="px-5 py-2.5 border border-gray-200 hover:border-gray-300 text-gray-700 rounded-xl text-sm font-semibold hover:bg-gray-50 transition">
+              Cancel
+            </button>
+            <button type="submit" 
+              class="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-bold shadow-md hover:shadow-lg transition flex items-center gap-2 active:scale-95">
+              <span class="material-icons-outlined text-[18px]">verified</span> Onboard Brand
+            </button>
+          </div>
+        </form>
+      </div>
+    `;
+    document.body.appendChild(modal);
+  },
+
+  async submitCreateBrand(e) {
+    e.preventDefault();
+    const form = e.target;
+    const btn = form.querySelector('button[type="submit"]');
+    const formData = new FormData(form);
+    
+    const company = (formData.get('company') || '').trim();
+    const email = (formData.get('email') || '').trim();
+    const password = (formData.get('password') || '').trim();
+
+    if (!company) {
+      window.ui.showToast('Please enter Brand / Company Name', 'error');
+      return;
+    }
+    if (!email) {
+      window.ui.showToast('Please enter Business Email', 'error');
+      return;
+    }
+    if (!password || password.length < 6) {
+      window.ui.showToast('Password must be at least 6 characters', 'error');
+      return;
+    }
+
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<span class="material-icons-outlined animate-spin text-[18px]">sync</span> Onboarding Brand...';
+    btn.disabled = true;
+    
+    try {
+      await window.api.createBrand(formData);
+      window.ui.showToast(`🎉 Brand "${company}" successfully onboarded!`, 'success');
+      const modal = document.getElementById('createBrandModal');
+      if (modal) modal.remove();
+      
+      // Re-fetch users & switch to brand filter
+      await this.renderUsers();
+      this.filterUsers('brand');
+    } catch (err) {
+      window.ui.showToast(err.message || 'Failed to onboard brand', 'error');
+      btn.innerHTML = originalText;
+      btn.disabled = false;
+    }
+  },
+
+  openEditBrandModal(id) {
+    const user = this.allUsers.find(u => u.id === id);
+    if (!user) return;
+    
+    const existing = document.getElementById('editBrandModal');
+    if (existing) existing.remove();
+
+    const p = user.profile || {};
+    const companyName = p.company || user.name || '';
+    const modal = document.createElement('div');
+    modal.className = 'fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center z-50 p-4';
+    modal.id = 'editBrandModal';
+    modal.innerHTML = `
+      <div class="bg-white rounded-2xl max-w-2xl w-full p-6 sm:p-8 max-h-[90vh] overflow-y-auto shadow-2xl border border-gray-100 relative">
+        <div class="flex justify-between items-start mb-6 pb-4 border-b border-gray-100">
+          <div class="flex items-center gap-3">
+            <div class="w-11 h-11 rounded-2xl bg-indigo-50 text-indigo-600 border border-indigo-100 flex items-center justify-center shadow-xs">
+              <span class="material-icons-outlined text-2xl">business</span>
+            </div>
+            <div>
+              <h2 class="text-xl font-black text-gray-900 tracking-tight">Edit Brand Details</h2>
+              <p class="text-xs text-gray-500 mt-0.5">Update profile and business info for ${companyName}</p>
+            </div>
+          </div>
+          <button onclick="document.getElementById('editBrandModal').remove()" 
+            class="text-gray-400 hover:text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-full p-1.5 transition">
+            <span class="material-icons-outlined text-lg">close</span>
+          </button>
+        </div>
+        
+        <form id="editBrandForm" onsubmit="window.admin.submitEditBrand(event, '${id}')" class="space-y-5">
+          <!-- Account Credentials -->
+          <div>
+            <h3 class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3 flex items-center gap-1.5">
+              <span class="material-icons-outlined text-sm text-indigo-600">lock</span> Account Credentials
+            </h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                  Brand / Company Name <span class="text-rose-500">*</span>
+                </label>
+                <input type="text" name="company" value="${companyName}" required 
+                  class="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition">
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                  Business Email <span class="text-rose-500">*</span>
+                </label>
+                <input type="email" name="email" value="${user.email || ''}" required 
+                  class="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition">
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                  Reset Password (Leave blank to keep existing)
+                </label>
+                <input type="password" name="password" placeholder="••••••••" 
+                  class="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition">
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                  Contact Person / Representative
+                </label>
+                <input type="text" name="contactPerson" value="${p.contactPerson || p.name || ''}" placeholder="e.g. Rohan Verma" 
+                  class="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition">
+              </div>
+            </div>
+          </div>
+
+          <!-- Business Profile & Classification -->
+          <div class="pt-2 border-t border-gray-100">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3 flex items-center gap-1.5">
+              <span class="material-icons-outlined text-sm text-indigo-600">business</span> Profile & Classification
+            </h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                  Industry / Category <span class="text-rose-500">*</span>
+                </label>
+                <select name="industry" required 
+                  class="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition">
+                  <option value="${p.industry || ''}">${p.industry || 'Select Industry'}</option>
+                  <option value="Fashion & Apparel">👗 Fashion & Apparel</option>
+                  <option value="Beauty & Cosmetics">💄 Beauty & Cosmetics</option>
+                  <option value="Food & Beverages">🍔 Food & Beverages</option>
+                  <option value="Health & Fitness">💪 Health & Fitness</option>
+                  <option value="Tech & Electronics">💻 Tech & Electronics</option>
+                  <option value="Travel & Hospitality">✈️ Travel & Hospitality</option>
+                  <option value="Lifestyle & Living">☕ Lifestyle & Living</option>
+                  <option value="E-Commerce & Retail">🛍️ E-Commerce & Retail</option>
+                  <option value="Entertainment & Gaming">🎮 Entertainment & Gaming</option>
+                  <option value="Education & EdTech">📚 Education & EdTech</option>
+                  <option value="Automotive">🚗 Automotive</option>
+                  <option value="Finance & FinTech">💳 Finance & FinTech</option>
+                  <option value="Other">✨ Other</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                  Escrow Budget (₹)
+                </label>
+                <input type="number" name="budget" value="${p.budget || 50000}" min="0" required 
+                  class="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition">
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                  Contact Phone / WhatsApp
+                </label>
+                <input type="tel" name="phone" value="${p.phone || ''}" placeholder="+91 98765 43210" 
+                  class="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition">
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                  Headquarters Location
+                </label>
+                <input type="text" name="location" value="${p.location || ''}" placeholder="e.g. Mumbai, Maharashtra" 
+                  class="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition">
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                  Website URL
+                </label>
+                <input type="url" name="website" value="${p.website || ''}" placeholder="https://company.com" 
+                  class="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition">
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                  Instagram Handle
+                </label>
+                <input type="text" name="instagram" value="${p.instagram || ''}" placeholder="@brandhandle" 
+                  class="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition">
+              </div>
+            </div>
+          </div>
+
+          <!-- Branding & Overview -->
+          <div class="pt-2 border-t border-gray-100">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3 flex items-center gap-1.5">
+              <span class="material-icons-outlined text-sm text-indigo-600">palette</span> Branding & Overview
+            </h3>
+            <div class="space-y-4">
+              <div>
+                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                  Update Logo (Optional)
+                </label>
+                <input type="file" name="logo" accept="image/*" 
+                  class="w-full px-3.5 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
+                ${p.logo ? `<div class="mt-2 flex items-center gap-2"><img src="${p.logo}" class="w-8 h-8 rounded-lg object-cover border border-gray-200"> <span class="text-xs text-gray-500">Current Logo</span></div>` : ''}
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                  Overview / Guidelines
+                </label>
+                <textarea name="about" rows="3" class="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition">${p.about || ''}</textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- Form Actions -->
+          <div class="flex justify-end items-center gap-3 pt-4 border-t border-gray-100">
+            <button type="button" onclick="document.getElementById('editBrandModal').remove()" 
+              class="px-5 py-2.5 border border-gray-200 hover:border-gray-300 text-gray-700 rounded-xl text-sm font-semibold hover:bg-gray-50 transition">
+              Cancel
+            </button>
+            <button type="submit" 
+              class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-bold shadow-md hover:shadow-lg transition flex items-center gap-2 active:scale-95">
+              <span class="material-icons-outlined text-[18px]">save</span> Save Changes
+            </button>
+          </div>
+        </form>
+      </div>
+    `;
+    document.body.appendChild(modal);
+  },
+
+  async submitEditBrand(e, id) {
+    e.preventDefault();
+    const form = e.target;
+    const btn = form.querySelector('button[type="submit"]');
+    const formData = new FormData(form);
+    
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<span class="material-icons-outlined animate-spin text-[18px]">sync</span> Saving...';
+    btn.disabled = true;
+    
+    try {
+      await window.api.updateBrand(id, formData);
+      window.ui.showToast('Brand details updated successfully!', 'success');
+      const modal = document.getElementById('editBrandModal');
+      if (modal) modal.remove();
+      
+      await this.renderUsers();
+      this.filterUsers('brand');
+    } catch (err) {
+      window.ui.showToast(err.message || 'Failed to update brand', 'error');
+      btn.innerHTML = originalText;
+      btn.disabled = false;
+    }
+  },
+
+  async deleteBrand(id) {
+    const user = this.allUsers.find(u => u.id === id);
+    const name = user ? (user.profile?.company || user.name || 'this brand') : 'this brand';
+    
+    if (!confirm(`Are you sure you want to permanently delete "${name}"? This action cannot be undone.`)) {
+      return;
+    }
+
+    try {
+      await window.api.deleteBrand(id);
+      window.ui.showToast(`Brand "${name}" deleted successfully.`, 'success');
+      await this.renderUsers();
+      this.filterUsers('brand');
+    } catch (err) {
+      window.ui.showToast(err.message || 'Failed to delete brand', 'error');
+    }
+  },
+
   openCreateInfluencerModal() {
     const modal = document.createElement('div');
     modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
