@@ -528,7 +528,7 @@ class _DetailsScreenState extends State<DetailsScreen> with SingleTickerProvider
                                   });
                                 }
                               } catch (e) {
-                                if (!mounted) return;
+                                if (!mounted || !context.mounted) return;
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(content: Text('Failed to pick media: $e')),
                                 );

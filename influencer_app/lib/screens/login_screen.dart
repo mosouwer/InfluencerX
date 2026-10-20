@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../api_service.dart';
 import 'home_screen.dart';
+import 'influencer_campaigns_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -45,13 +46,28 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
     super.dispose();
   }
 
-  void _showLoginSheet() {
+  void _showLoginSheet({String initialRole = 'brand'}) {
+    String currentRole = initialRole;
+    if (currentRole == 'influencer') {
+      if (_emailController.text == 'ravi@store.com' || _emailController.text.isEmpty) {
+        _emailController.text = 'priya@demo.com';
+        _passwordController.text = 'demo123';
+      }
+    } else {
+      if (_emailController.text == 'priya@demo.com' || _emailController.text.isEmpty) {
+        _emailController.text = 'ravi@store.com';
+        _passwordController.text = 'demo123';
+      }
+    }
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) => StatefulBuilder(
         builder: (context, setSheetState) {
+          final isInfluencer = currentRole == 'influencer';
+
           return Container(
             padding: EdgeInsets.only(
               bottom: MediaQuery.of(context).viewInsets.bottom + 24,
@@ -81,13 +97,120 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                     child: Container(
                       width: 44,
                       height: 5,
-                      margin: const EdgeInsets.only(bottom: 20),
+                      margin: const EdgeInsets.only(bottom: 18),
                       decoration: BoxDecoration(
                         color: Colors.grey.shade300,
                         borderRadius: BorderRadius.circular(10),
                       ),
                     ),
                   ),
+
+                  // Role Segmented Tabs (Brand vs Influencer)
+                  Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF3F4F6),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: () {
+                              setSheetState(() {
+                                currentRole = 'brand';
+                                if (_emailController.text == 'priya@demo.com' || _emailController.text == 'arjun@demo.com') {
+                                  _emailController.text = 'ravi@store.com';
+                                  _passwordController.text = 'demo123';
+                                }
+                                _errorMessage = '';
+                              });
+                            },
+                            child: AnimatedContainer(
+                              duration: const Duration(milliseconds: 200),
+                              padding: const EdgeInsets.symmetric(vertical: 10),
+                              decoration: BoxDecoration(
+                                color: !isInfluencer ? Colors.white : Colors.transparent,
+                                borderRadius: BorderRadius.circular(12),
+                                boxShadow: !isInfluencer
+                                    ? [
+                                        BoxShadow(
+                                          color: Colors.black.withOpacity(0.06),
+                                          blurRadius: 8,
+                                          offset: const Offset(0, 2),
+                                        ),
+                                      ]
+                                    : [],
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Text('🏢', style: TextStyle(fontSize: 15)),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    'Brand Login',
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w800,
+                                      color: !isInfluencer ? const Color(0xFF804EE6) : const Color(0xFF6B7280),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: () {
+                              setSheetState(() {
+                                currentRole = 'influencer';
+                                if (_emailController.text == 'ravi@store.com' || _emailController.text == 'admin@influencex.com') {
+                                  _emailController.text = 'priya@demo.com';
+                                  _passwordController.text = 'demo123';
+                                }
+                                _errorMessage = '';
+                              });
+                            },
+                            child: AnimatedContainer(
+                              duration: const Duration(milliseconds: 200),
+                              padding: const EdgeInsets.symmetric(vertical: 10),
+                              decoration: BoxDecoration(
+                                color: isInfluencer ? Colors.white : Colors.transparent,
+                                borderRadius: BorderRadius.circular(12),
+                                boxShadow: isInfluencer
+                                    ? [
+                                        BoxShadow(
+                                          color: Colors.black.withOpacity(0.06),
+                                          blurRadius: 8,
+                                          offset: const Offset(0, 2),
+                                        ),
+                                      ]
+                                    : [],
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Text('✨', style: TextStyle(fontSize: 15)),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    'Influencer Login',
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w800,
+                                      color: isInfluencer ? const Color(0xFF804EE6) : const Color(0xFF6B7280),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 20),
 
                   // Header Row
                   Row(
@@ -96,10 +219,10 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            'Sign In 👋',
-                            style: TextStyle(
-                              fontSize: 26,
+                          Text(
+                            isInfluencer ? 'Influencer Sign In ✨' : 'Brand Sign In 🏢',
+                            style: const TextStyle(
+                              fontSize: 24,
                               fontWeight: FontWeight.w900,
                               color: Color(0xFF111827),
                               letterSpacing: -0.6,
@@ -107,10 +230,12 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            'Access your Brand / Creator portal',
+                            isInfluencer
+                                ? 'Access assigned campaigns & live deliverables'
+                                : 'Access brand dashboard & creator escrow',
                             style: TextStyle(
                               color: Colors.grey.shade500,
-                              fontSize: 13.5,
+                              fontSize: 13,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
@@ -123,111 +248,214 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                           color: const Color(0xFF804EE6).withOpacity(0.1),
                           shape: BoxShape.circle,
                         ),
-                        child: const Icon(Icons.lock_person_rounded, color: Color(0xFF804EE6), size: 22),
+                        child: Icon(
+                          isInfluencer ? Icons.auto_awesome_rounded : Icons.business_rounded,
+                          color: const Color(0xFF804EE6),
+                          size: 22,
+                        ),
                       ),
                     ],
                   ),
 
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 18),
 
                   // Demo Fast-Fill Account Selector
-                  Row(
-                    children: [
-                      Expanded(
-                        child: GestureDetector(
-                          onTap: () {
-                            setSheetState(() {
-                              _emailController.text = 'ravi@store.com';
-                              _passwordController.text = 'demo123';
-                              _errorMessage = '';
-                            });
-                          },
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                            decoration: BoxDecoration(
-                              color: _emailController.text == 'ravi@store.com'
-                                  ? const Color(0xFF804EE6).withOpacity(0.08)
-                                  : const Color(0xFFF9FAFB),
-                              borderRadius: BorderRadius.circular(14),
-                              border: Border.all(
+                  if (!isInfluencer)
+                    Row(
+                      children: [
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: () {
+                              setSheetState(() {
+                                _emailController.text = 'ravi@store.com';
+                                _passwordController.text = 'demo123';
+                                _errorMessage = '';
+                              });
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                              decoration: BoxDecoration(
                                 color: _emailController.text == 'ravi@store.com'
-                                    ? const Color(0xFF804EE6)
-                                    : const Color(0xFFE5E7EB),
-                                width: _emailController.text == 'ravi@store.com' ? 1.5 : 1.0,
+                                    ? const Color(0xFF804EE6).withOpacity(0.08)
+                                    : const Color(0xFFF9FAFB),
+                                borderRadius: BorderRadius.circular(14),
+                                border: Border.all(
+                                  color: _emailController.text == 'ravi@store.com'
+                                      ? const Color(0xFF804EE6)
+                                      : const Color(0xFFE5E7EB),
+                                  width: _emailController.text == 'ravi@store.com' ? 1.5 : 1.0,
+                                ),
                               ),
-                            ),
-                            child: const Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    Text('🏢', style: TextStyle(fontSize: 14)),
-                                    SizedBox(width: 6),
-                                    Text(
-                                      'Brand Demo',
-                                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF111827)),
-                                    ),
-                                  ],
-                                ),
-                                SizedBox(height: 2),
-                                Text(
-                                  'ravi@store.com',
-                                  style: TextStyle(fontSize: 10, color: Color(0xFF804EE6), fontWeight: FontWeight.w700),
-                                ),
-                              ],
+                              child: const Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Text('🏢', style: TextStyle(fontSize: 14)),
+                                      SizedBox(width: 6),
+                                      Text(
+                                        'Brand Demo',
+                                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF111827)),
+                                      ),
+                                    ],
+                                  ),
+                                  SizedBox(height: 2),
+                                  Text(
+                                    'ravi@store.com',
+                                    style: TextStyle(fontSize: 10, color: Color(0xFF804EE6), fontWeight: FontWeight.w700),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: GestureDetector(
-                          onTap: () {
-                            setSheetState(() {
-                              _emailController.text = 'admin@influencex.com';
-                              _passwordController.text = 'admin123';
-                              _errorMessage = '';
-                            });
-                          },
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                            decoration: BoxDecoration(
-                              color: _emailController.text == 'admin@influencex.com'
-                                  ? const Color(0xFF804EE6).withOpacity(0.08)
-                                  : const Color(0xFFF9FAFB),
-                              borderRadius: BorderRadius.circular(14),
-                              border: Border.all(
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: () {
+                              setSheetState(() {
+                                _emailController.text = 'admin@influencex.com';
+                                _passwordController.text = 'admin123';
+                                _errorMessage = '';
+                              });
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                              decoration: BoxDecoration(
                                 color: _emailController.text == 'admin@influencex.com'
-                                    ? const Color(0xFF804EE6)
-                                    : const Color(0xFFE5E7EB),
-                                width: _emailController.text == 'admin@influencex.com' ? 1.5 : 1.0,
+                                    ? const Color(0xFF804EE6).withOpacity(0.08)
+                                    : const Color(0xFFF9FAFB),
+                                borderRadius: BorderRadius.circular(14),
+                                border: Border.all(
+                                  color: _emailController.text == 'admin@influencex.com'
+                                      ? const Color(0xFF804EE6)
+                                      : const Color(0xFFE5E7EB),
+                                  width: _emailController.text == 'admin@influencex.com' ? 1.5 : 1.0,
+                                ),
                               ),
-                            ),
-                            child: const Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    Text('👑', style: TextStyle(fontSize: 14)),
-                                    SizedBox(width: 6),
-                                    Text(
-                                      'Admin Demo',
-                                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF111827)),
-                                    ),
-                                  ],
-                                ),
-                                SizedBox(height: 2),
-                                Text(
-                                  'admin@influencex',
-                                  style: TextStyle(fontSize: 10, color: Color(0xFF6B7280), fontWeight: FontWeight.w700),
-                                ),
-                              ],
+                              child: const Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Text('👑', style: TextStyle(fontSize: 14)),
+                                      SizedBox(width: 6),
+                                      Text(
+                                        'Admin Demo',
+                                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF111827)),
+                                      ),
+                                    ],
+                                  ),
+                                  SizedBox(height: 2),
+                                  Text(
+                                    'admin@influencex',
+                                    style: TextStyle(fontSize: 10, color: Color(0xFF6B7280), fontWeight: FontWeight.w700),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    ],
-                  ),
+                      ],
+                    )
+                  else
+                    Row(
+                      children: [
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: () {
+                              setSheetState(() {
+                                _emailController.text = 'priya@demo.com';
+                                _passwordController.text = 'demo123';
+                                _errorMessage = '';
+                              });
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                              decoration: BoxDecoration(
+                                color: _emailController.text == 'priya@demo.com'
+                                    ? const Color(0xFF804EE6).withOpacity(0.08)
+                                    : const Color(0xFFF9FAFB),
+                                borderRadius: BorderRadius.circular(14),
+                                border: Border.all(
+                                  color: _emailController.text == 'priya@demo.com'
+                                      ? const Color(0xFF804EE6)
+                                      : const Color(0xFFE5E7EB),
+                                  width: _emailController.text == 'priya@demo.com' ? 1.5 : 1.0,
+                                ),
+                              ),
+                              child: const Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Text('👗', style: TextStyle(fontSize: 14)),
+                                      SizedBox(width: 6),
+                                      Text(
+                                        'Priya (Fashion)',
+                                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF111827)),
+                                      ),
+                                    ],
+                                  ),
+                                  SizedBox(height: 2),
+                                  Text(
+                                    'priya@demo.com',
+                                    style: TextStyle(fontSize: 10, color: Color(0xFF804EE6), fontWeight: FontWeight.w700),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: () {
+                              setSheetState(() {
+                                _emailController.text = 'arjun@demo.com';
+                                _passwordController.text = 'demo123';
+                                _errorMessage = '';
+                              });
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                              decoration: BoxDecoration(
+                                color: _emailController.text == 'arjun@demo.com'
+                                    ? const Color(0xFF804EE6).withOpacity(0.08)
+                                    : const Color(0xFFF9FAFB),
+                                borderRadius: BorderRadius.circular(14),
+                                border: Border.all(
+                                  color: _emailController.text == 'arjun@demo.com'
+                                      ? const Color(0xFF804EE6)
+                                      : const Color(0xFFE5E7EB),
+                                  width: _emailController.text == 'arjun@demo.com' ? 1.5 : 1.0,
+                                ),
+                              ),
+                              child: const Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Text('⚡', style: TextStyle(fontSize: 14)),
+                                      SizedBox(width: 6),
+                                      Text(
+                                        'Arjun (Tech)',
+                                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF111827)),
+                                      ),
+                                    ],
+                                  ),
+                                  SizedBox(height: 2),
+                                  Text(
+                                    'arjun@demo.com',
+                                    style: TextStyle(fontSize: 10, color: Color(0xFF6B7280), fontWeight: FontWeight.w700),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
 
                   const SizedBox(height: 18),
 
@@ -357,12 +585,22 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                                     _emailController.text.trim(),
                                     _passwordController.text.trim(),
                                   );
-                                  if (!mounted) return;
+                                  if (!mounted || !context.mounted) return;
                                   HapticFeedback.mediumImpact();
-                                  Navigator.of(context, rootNavigator: true).pushAndRemoveUntil(
-                                    MaterialPageRoute(builder: (_) => const HomeScreen()),
-                                    (route) => false,
-                                  );
+
+                                  final role = (ApiService.currentUserRole ?? currentRole).toLowerCase();
+                                  final navigator = Navigator.of(context, rootNavigator: true);
+                                  if (role == 'influencer') {
+                                    navigator.pushAndRemoveUntil(
+                                      MaterialPageRoute(builder: (_) => const InfluencerCampaignsScreen()),
+                                      (route) => false,
+                                    );
+                                  } else {
+                                    navigator.pushAndRemoveUntil(
+                                      MaterialPageRoute(builder: (_) => const HomeScreen()),
+                                      (route) => false,
+                                    );
+                                  }
                                 } catch (e) {
                                   setSheetState(() {
                                     _errorMessage = e.toString().replaceAll('Exception: ', '');
@@ -658,7 +896,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                       ),
                       const SizedBox(height: 24),
 
-                      // Get Started Button
+                      // 1. Brands Login Option
                       Container(
                         height: 54,
                         decoration: BoxDecoration(
@@ -680,21 +918,24 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                           color: Colors.transparent,
                           child: InkWell(
                             borderRadius: BorderRadius.circular(16),
-                            onTap: _showLoginSheet,
+                            onTap: () => _showLoginSheet(initialRole: 'brand'),
                             child: const Center(
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
+                                  Text('🏢', style: TextStyle(fontSize: 18)),
+                                  SizedBox(width: 8),
                                   Text(
-                                    'Get Started',
+                                    'Brands Login',
                                     style: TextStyle(
                                       color: Colors.white,
                                       fontSize: 16,
                                       fontWeight: FontWeight.w800,
+                                      letterSpacing: -0.2,
                                     ),
                                   ),
                                   SizedBox(width: 8),
-                                  Icon(Icons.arrow_forward_rounded, color: Colors.white, size: 20),
+                                  Icon(Icons.arrow_forward_rounded, color: Colors.white, size: 18),
                                 ],
                               ),
                             ),
@@ -704,27 +945,44 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
 
                       const SizedBox(height: 12),
 
-                      // Secondary Sign In Button
+                      // 2. Influencers Login Option
                       Container(
-                        height: 52,
+                        height: 54,
                         decoration: BoxDecoration(
-                          color: const Color(0xFFF9FAFB),
+                          color: Colors.white,
                           borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: const Color(0xFFE5E7EB)),
+                          border: Border.all(color: const Color(0xFF804EE6), width: 1.8),
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(0xFF804EE6).withOpacity(0.12),
+                              blurRadius: 12,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
                         ),
                         child: Material(
                           color: Colors.transparent,
                           child: InkWell(
                             borderRadius: BorderRadius.circular(16),
-                            onTap: _showLoginSheet,
+                            onTap: () => _showLoginSheet(initialRole: 'influencer'),
                             child: const Center(
-                              child: Text(
-                                'I already have an account',
-                                style: TextStyle(
-                                  fontSize: 15,
-                                  color: Color(0xFF374151),
-                                  fontWeight: FontWeight.w700,
-                                ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text('✨', style: TextStyle(fontSize: 18)),
+                                  SizedBox(width: 8),
+                                  Text(
+                                    'Influencers Login',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      color: Color(0xFF804EE6),
+                                      fontWeight: FontWeight.w800,
+                                      letterSpacing: -0.2,
+                                    ),
+                                  ),
+                                  SizedBox(width: 8),
+                                  Icon(Icons.arrow_forward_rounded, color: Color(0xFF804EE6), size: 18),
+                                ],
                               ),
                             ),
                           ),

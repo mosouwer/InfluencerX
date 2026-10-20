@@ -2143,7 +2143,7 @@ window.admin = {
                 All Listings <span class="pill-count">${campaigns.length}</span>
               </button>
               <button onclick="window.admin.filterCampaigns('active')" id="campFilterActive" class="filter-pill">
-                ● Active <span class="pill-count">${campaigns.filter(c => c.status === 'active').length}</span>
+                ● Accepted / Active <span class="pill-count">${campaigns.filter(c => c.status === 'active' || c.status === 'accepted').length}</span>
               </button>
               <button onclick="window.admin.filterCampaigns('pending')" id="campFilterPending" class="filter-pill">
                 ● Pending <span class="pill-count">${campaigns.filter(c => c.status === 'pending').length}</span>
@@ -2153,6 +2153,9 @@ window.admin = {
               </button>
               <button onclick="window.admin.filterCampaigns('completed')" id="campFilterCompleted" class="filter-pill">
                 ● Completed <span class="pill-count">${campaigns.filter(c => c.status === 'completed').length}</span>
+              </button>
+              <button onclick="window.admin.filterCampaigns('rejected')" id="campFilterRejected" class="filter-pill">
+                ● Rejected <span class="pill-count">${campaigns.filter(c => c.status === 'rejected').length}</span>
               </button>
             </div>
           </div>
@@ -2214,15 +2217,28 @@ window.admin = {
     }
     
     return campaigns.map(campaign => {
-      const statusClass = campaign.status === 'active' ? 'badge-modern-active' :
-                          campaign.status === 'pending' ? 'badge-modern-pending' :
-                          campaign.status === 'review' ? 'badge-modern-review' :
-                          campaign.status === 'completed' ? 'badge-modern-completed' : 'badge-modern-suspended';
+      const isAcceptedOrActive = campaign.status === 'active' || campaign.status === 'accepted';
+      const isPending = campaign.status === 'pending';
+      const isReview = campaign.status === 'review';
+      const isCompleted = campaign.status === 'completed';
+      const isRejected = campaign.status === 'rejected';
 
-      const dotClass = campaign.status === 'active' ? 'status-dot-active' :
-                        campaign.status === 'pending' ? 'status-dot-pending' :
-                        campaign.status === 'review' ? 'status-dot-review' :
-                        campaign.status === 'completed' ? 'status-dot-completed' : 'status-dot-suspended';
+      const statusClass = isAcceptedOrActive ? 'badge-modern-active' :
+                          isPending ? 'badge-modern-pending' :
+                          isReview ? 'badge-modern-review' :
+                          isCompleted ? 'badge-modern-completed' :
+                          isRejected ? 'badge-modern-suspended' : 'badge-modern-suspended';
+
+      const dotClass = isAcceptedOrActive ? 'status-dot-active' :
+                        isPending ? 'status-dot-pending' :
+                        isReview ? 'status-dot-review' :
+                        isCompleted ? 'status-dot-completed' :
+                        isRejected ? 'status-dot-suspended' : 'status-dot-suspended';
+
+      const displayStatus = isAcceptedOrActive ? 'Accepted' :
+                            isCompleted ? 'Completed' :
+                            isRejected ? 'Rejected' :
+                            isReview ? 'In Review' : 'Pending';
 
       return `
         <tr>
@@ -2255,7 +2271,7 @@ window.admin = {
 
           <td>
             <div class="font-bold text-slate-800 text-xs">${campaign.influencerName || 'Creator'}</div>
-            <div class="text-[10px] text-slate-400 font-medium">Creator</div>
+            <div class="text-[10px] text-slate-400 font-medium">Assigned Influencer</div>
           </td>
 
           <td>
@@ -2264,9 +2280,9 @@ window.admin = {
           </td>
 
           <td>
-            <span class="badge-modern ${statusClass}">
+            <span class="badge-modern ${statusClass} capitalize">
               <span class="status-dot ${dotClass}"></span>
-              ${campaign.status}
+              ${displayStatus}
             </span>
           </td>
 
@@ -2278,10 +2294,11 @@ window.admin = {
             <div class="flex items-center justify-end gap-1.5">
               <select onchange="window.admin.updateUnifiedCampaignStatus('${campaign.id}', this.value, ${campaign.isDeal})" 
                 class="px-2.5 py-1.5 text-xs font-bold rounded-lg bg-white border border-slate-200 hover:border-slate-300 focus:ring-2 focus:ring-[#804ee6]/20 focus:border-[#804ee6] transition shadow-2xs">
-                <option value="pending" ${campaign.status === 'pending' ? 'selected' : ''}>Pending</option>
-                <option value="active" ${campaign.status === 'active' ? 'selected' : ''}>Active</option>
-                <option value="review" ${campaign.status === 'review' ? 'selected' : ''}>In Review</option>
-                <option value="completed" ${campaign.status === 'completed' ? 'selected' : ''}>Completed</option>
+                <option value="pending" ${isPending ? 'selected' : ''}>Pending</option>
+                <option value="accepted" ${isAcceptedOrActive ? 'selected' : ''}>Accepted</option>
+                <option value="review" ${isReview ? 'selected' : ''}>In Review</option>
+                <option value="completed" ${isCompleted ? 'selected' : ''}>Completed</option>
+                <option value="rejected" ${isRejected ? 'selected' : ''}>Rejected</option>
                 <option value="dispute" ${campaign.status === 'dispute' ? 'selected' : ''}>Dispute</option>
               </select>
               <button onclick="window.admin.deleteSingleCampaign('${campaign.id}', ${campaign.isDeal})" class="p-1.5 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded-lg transition" title="Delete Campaign">
@@ -2301,7 +2318,11 @@ window.admin = {
     let filtered = this.allCampaigns;
     
     if (status !== 'all') {
-      filtered = this.allCampaigns.filter(c => c.status === status);
+      if (status === 'active' || status === 'accepted') {
+        filtered = this.allCampaigns.filter(c => c.status === 'active' || c.status === 'accepted');
+      } else {
+        filtered = this.allCampaigns.filter(c => c.status === status);
+      }
     }
     
     const tableBody = document.getElementById('campaignTableBody');
@@ -2310,7 +2331,7 @@ window.admin = {
     }
     
     // Update active filter styling
-    const filters = ['all', 'active', 'pending', 'review', 'completed'];
+    const filters = ['all', 'active', 'pending', 'review', 'completed', 'rejected'];
     filters.forEach(f => {
       const btn = document.getElementById(`campFilter${f.charAt(0).toUpperCase() + f.slice(1)}`);
       if (btn) {

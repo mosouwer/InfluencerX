@@ -4,6 +4,16 @@ import 'package:http/http.dart' as http;
 class ApiService {
   static String? _userId = 'biz_1';
   static String? _userRole = 'brand';
+  static Map<String, dynamic>? currentUser;
+
+  static String? get currentUserId => _userId;
+  static String? get currentUserRole => _userRole;
+
+  static void logout() {
+    _userId = null;
+    _userRole = null;
+    currentUser = null;
+  }
   
   static String get baseUrl {
     return 'https://influencer-x-mocha.vercel.app/api';
@@ -32,6 +42,7 @@ class ApiService {
         final data = json.decode(response.body);
         _userId = data['user']['id'];
         _userRole = data['user']['role'];
+        currentUser = data['user'];
         return data;
       } else if (response.statusCode == 403) {
         final data = json.decode(response.body);
@@ -191,10 +202,27 @@ class ApiService {
         List<dynamic> deals = dealsResponse.statusCode == 200 ? json.decode(dealsResponse.body) : [];
         List<dynamic> campaigns = campaignsResponse.statusCode == 200 ? json.decode(campaignsResponse.body) : [];
         
-        for (var d in deals) { d['isDeal'] = true; }
-        for (var c in campaigns) { c['isDeal'] = false; }
-        
-        var combined = [...deals, ...campaigns];
+        final Map<String, dynamic> mergedMap = {};
+        for (var c in campaigns) {
+          final id = c['id']?.toString() ?? '';
+          mergedMap[id] = {...c, 'isDeal': false};
+        }
+        for (var d in deals) {
+          final cId = d['campaignId']?.toString();
+          if (cId != null && mergedMap.containsKey(cId)) {
+            mergedMap[cId] = {
+              ...d,
+              ...mergedMap[cId],
+              'dealId': d['id'],
+              'isDeal': false,
+              'status': d['status'] ?? mergedMap[cId]['status'],
+            };
+          } else {
+            final id = d['id']?.toString() ?? '';
+            mergedMap[id] = {...d, 'isDeal': true};
+          }
+        }
+        var combined = mergedMap.values.toList();
         combined.sort((a, b) {
           String dateA = a['createdAt'] ?? '';
           String dateB = b['createdAt'] ?? '';
@@ -271,5 +299,28 @@ class ApiService {
         body: jsonEncode({'status': status}),
       ).timeout(const Duration(seconds: 5));
     } catch (_) {}
+  }
+
+  static Future<bool> updateStatus(String id, String status, {bool isDeal = false}) async {
+    try {
+      final endpoint = isDeal ? '$baseUrl/deals/$id/status' : '$baseUrl/campaigns/$id/status';
+      final res = await http.put(
+        Uri.parse(endpoint),
+        headers: _headers,
+        body: jsonEncode({'status': status}),
+      ).timeout(const Duration(seconds: 8));
+
+      // Also update alternate endpoint to guarantee complete sync
+      final altEndpoint = isDeal ? '$baseUrl/campaigns/$id/status' : '$baseUrl/deals/$id/status';
+      await http.put(
+        Uri.parse(altEndpoint),
+        headers: _headers,
+        body: jsonEncode({'status': status}),
+      ).timeout(const Duration(seconds: 5));
+
+      return res.statusCode == 200;
+    } catch (_) {
+      return false;
+    }
   }
 }

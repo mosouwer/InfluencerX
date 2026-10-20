@@ -491,38 +491,139 @@ app.put(['/api/campaigns/:id/status', '/campaigns/:id/status'], async (req, res)
   const db = readDB();
   const reqId = String(req.params.id);
   
-  let campaignIndex = (db.campaigns || []).findIndex(c => String(c.id) === reqId);
+  let updatedItem = null;
+  let campaignIndex = (db.campaigns || []).findIndex(c => String(c.id) === reqId || String(c.dealId) === reqId);
   if (campaignIndex !== -1) {
     const campaign = db.campaigns[campaignIndex];
     if (status) campaign.status = status;
     if (progress !== undefined) campaign.progress = progress;
+    if (status === 'completed') campaign.progress = 100;
     db.campaigns[campaignIndex] = campaign;
+    updatedItem = campaign;
 
-    if (status) {
-      const targetUserId = user && user.role === 'influencer' ? campaign.brandId : campaign.influencerId;
+    // Sync corresponding deal if present
+    const linkedDealId = campaign.dealId || campaign.id;
+    let dIdx = (db.deals || []).findIndex(d => String(d.id) === String(linkedDealId) || String(d.campaignId) === String(campaign.id));
+    if (dIdx !== -1) {
+      db.deals[dIdx].status = status;
+    }
+  }
+
+  // Also check deals in case reqId is a deal id
+  let dealIndex = (db.deals || []).findIndex(d => String(d.id) === reqId || String(d.campaignId) === reqId);
+  if (dealIndex !== -1) {
+    const deal = db.deals[dealIndex];
+    if (status) deal.status = status;
+    db.deals[dealIndex] = deal;
+    if (!updatedItem) updatedItem = deal;
+
+    // Sync corresponding campaign if present
+    const linkedCampId = deal.campaignId || deal.id;
+    let cIdx = (db.campaigns || []).findIndex(c => String(c.id) === String(linkedCampId) || String(c.dealId) === String(deal.id));
+    if (cIdx !== -1) {
+      db.campaigns[cIdx].status = status;
+      if (status === 'completed') db.campaigns[cIdx].progress = 100;
+    }
+  }
+
+  if (updatedItem) {
+    const title = updatedItem.campaignName || 'Campaign';
+    const brandId = updatedItem.brandId;
+    const influencerId = updatedItem.influencerId;
+
+    // Notify brand
+    if (brandId) {
       notifyUser({
-        userId: targetUserId,
-        title: `Campaign Status: ${status.charAt(0).toUpperCase() + status.slice(1)}`,
-        message: `Campaign "${campaign.campaignName}" is now ${status}`,
+        userId: brandId,
+        title: `Campaign ${status.charAt(0).toUpperCase() + status.slice(1)}`,
+        message: `Creator updated status of "${title}" to ${status}`,
         type: 'campaign',
-        campaignId: campaign.id,
-        icon: status === 'completed' ? '🎉' : '📊'
+        campaignId: updatedItem.id,
+        icon: status === 'completed' ? '🎉' : (status === 'accepted' || status === 'active' ? '✅' : 'ℹ️')
       }, db);
     }
+
+    // Notify admin
+    notifyUser({
+      userId: 'admin_1',
+      forAdmin: true,
+      title: `Campaign Status: ${status.toUpperCase()}`,
+      message: `Status of "${title}" is now ${status}`,
+      type: 'campaign',
+      campaignId: updatedItem.id,
+      icon: status === 'completed' ? '🎉' : (status === 'accepted' || status === 'active' ? '✅' : '📊')
+    }, db);
 
     await writeDB(db);
     return res.json({ success: true, id: reqId, status });
   }
 
-  // Also check deals in case it was created as a deal
-  let dealIndex = (db.deals || []).findIndex(d => String(d.id) === reqId);
+  return res.status(404).json({ error: 'Campaign or Deal not found' });
+});
+
+app.put(['/api/deals/:id/status', '/deals/:id/status'], async (req, res) => {
+  const { status } = req.body;
+  const db = readDB();
+  const reqId = String(req.params.id);
+  
+  let updatedItem = null;
+  let dealIndex = (db.deals || []).findIndex(d => String(d.id) === reqId || String(d.campaignId) === reqId);
   if (dealIndex !== -1) {
     db.deals[dealIndex].status = status;
-    await writeDB(db);
-    return res.json({ success: true, id: reqId, status, isDeal: true });
+    updatedItem = db.deals[dealIndex];
+
+    // Sync corresponding campaign
+    const linkedCampId = db.deals[dealIndex].campaignId || db.deals[dealIndex].id;
+    let cIdx = (db.campaigns || []).findIndex(c => String(c.id) === String(linkedCampId) || String(c.dealId) === String(db.deals[dealIndex].id));
+    if (cIdx !== -1) {
+      db.campaigns[cIdx].status = status;
+      if (status === 'completed') db.campaigns[cIdx].progress = 100;
+    }
   }
 
-  return res.status(404).json({ error: 'Campaign or Deal not found' });
+  let campaignIndex = (db.campaigns || []).findIndex(c => String(c.id) === reqId || String(c.dealId) === reqId);
+  if (campaignIndex !== -1) {
+    db.campaigns[campaignIndex].status = status;
+    if (status === 'completed') db.campaigns[campaignIndex].progress = 100;
+    if (!updatedItem) updatedItem = db.campaigns[campaignIndex];
+
+    const linkedDealId = db.campaigns[campaignIndex].dealId || db.campaigns[campaignIndex].id;
+    let dIdx = (db.deals || []).findIndex(d => String(d.id) === String(linkedDealId) || String(d.campaignId) === String(db.campaigns[campaignIndex].id));
+    if (dIdx !== -1) {
+      db.deals[dIdx].status = status;
+    }
+  }
+
+  if (updatedItem) {
+    const title = updatedItem.campaignName || 'Campaign Deal';
+    const brandId = updatedItem.brandId;
+
+    if (brandId) {
+      notifyUser({
+        userId: brandId,
+        title: `Deal ${status.charAt(0).toUpperCase() + status.slice(1)}`,
+        message: `Creator updated "${title}" to ${status}`,
+        type: 'deal',
+        dealId: updatedItem.id,
+        icon: status === 'completed' ? '🎉' : '✅'
+      }, db);
+    }
+
+    notifyUser({
+      userId: 'admin_1',
+      forAdmin: true,
+      title: `Deal Status: ${status.toUpperCase()}`,
+      message: `Status of "${title}" updated to ${status}`,
+      type: 'deal',
+      dealId: updatedItem.id,
+      icon: status === 'completed' ? '🎉' : '📊'
+    }, db);
+
+    await writeDB(db);
+    return res.json({ success: true, id: reqId, status });
+  }
+  
+  return res.status(404).json({ error: 'Deal or Campaign not found' });
 });
 
 // ========== DEALS ROUTES ==========
@@ -589,28 +690,6 @@ app.get(['/api/deals', '/deals'], async (req, res) => {
     deals = deals.filter(d => d.influencerId === user.id);
   }
   res.json(deals.filter(d => !d.adminDeleted));
-});
-
-app.put(['/api/deals/:id/status', '/deals/:id/status'], async (req, res) => {
-  const { status } = req.body;
-  const db = readDB();
-  const reqId = String(req.params.id);
-  
-  let dealIndex = (db.deals || []).findIndex(d => String(d.id) === reqId);
-  if (dealIndex !== -1) {
-    db.deals[dealIndex].status = status;
-    await writeDB(db);
-    return res.json({ success: true, id: reqId, status, isDeal: true });
-  }
-
-  let campaignIndex = (db.campaigns || []).findIndex(c => String(c.id) === reqId);
-  if (campaignIndex !== -1) {
-    db.campaigns[campaignIndex].status = status;
-    await writeDB(db);
-    return res.json({ success: true, id: reqId, status });
-  }
-  
-  return res.status(404).json({ error: 'Deal or Campaign not found' });
 });
 
 // ========== NOTIFICATIONS ROUTES ==========

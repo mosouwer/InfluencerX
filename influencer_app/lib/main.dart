@@ -18,7 +18,7 @@ class InfluencerXApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final seedColor = Colors.deepPurple;
+    const seedColor = Colors.deepPurple;
     final colorScheme = ColorScheme.fromSeed(seedColor: seedColor, brightness: Brightness.light);
     
     return MaterialApp(
