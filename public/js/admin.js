@@ -75,6 +75,10 @@ window.admin = {
               
               <!-- Quick Actions with Modern Gradients -->
               <div class="relative z-10 flex flex-wrap items-center gap-2.5">
+                <button onclick="window.admin.openCreateCampaignModal()" 
+                  class="px-4 py-2.5 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:opacity-95 text-white rounded-xl text-xs font-bold transition shadow-lg shadow-indigo-600/30 flex items-center gap-2 active:scale-95">
+                  <span class="material-icons-outlined text-[18px]">add_circle</span> + Create Campaign
+                </button>
                 <button onclick="window.admin.openCreateBrandModal()" 
                   class="px-4 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white rounded-xl text-xs font-bold transition shadow-lg shadow-emerald-600/30 flex items-center gap-2 active:scale-95">
                   <span class="material-icons-outlined text-[18px]">add_business</span> + Add Brand
@@ -1634,6 +1638,438 @@ window.admin = {
     
     window.ui.showToast(`Exported ${this.filteredUsers.length} users to CSV`, 'success');
   },
+
+  async openCreateCampaignModal() {
+    const existing = document.getElementById('createAdminCampaignModal');
+    if (existing) existing.remove();
+
+    window.ui.showToast('Loading available brands & influencers...', 'info');
+
+    let users = [];
+    try {
+      users = await window.api.getUsers();
+    } catch (e) {
+      console.warn('Could not fetch users for campaign modal:', e);
+    }
+
+    const brands = (users || []).filter(u => u.role === 'brand');
+    const influencers = (users || []).filter(u => u.role === 'influencer');
+
+    if (brands.length === 0) {
+      window.ui.showConfirm({
+        title: 'No Brands Available',
+        message: 'You must onboard at least one brand partner before creating a campaign on their behalf.',
+        confirmText: '+ Onboard Brand Now',
+        icon: '!',
+        onConfirm: () => this.openCreateBrandModal()
+      });
+      return;
+    }
+
+    if (influencers.length === 0) {
+      window.ui.showConfirm({
+        title: 'No Influencers Available',
+        message: 'You have no registered influencers in your creator network yet. Onboard creators first.',
+        confirmText: '+ Onboard Influencer Now',
+        icon: '!',
+        onConfirm: () => this.openCreateInfluencerModal()
+      });
+      return;
+    }
+
+    this.modalInfluencers = influencers;
+
+    const modal = document.createElement('div');
+    modal.className = 'fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center z-50 p-4';
+    modal.id = 'createAdminCampaignModal';
+    modal.innerHTML = `
+      <div class="bg-white rounded-2xl max-w-3xl w-full p-6 sm:p-8 max-h-[92vh] overflow-y-auto shadow-2xl border border-gray-100 relative">
+        <!-- Modal Header -->
+        <div class="flex justify-between items-start mb-6 pb-4 border-b border-gray-100">
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#804ee6] to-indigo-600 text-white flex items-center justify-center shadow-md">
+              <span class="material-icons-outlined text-2xl">rocket_launch</span>
+            </div>
+            <div>
+              <h2 class="text-xl sm:text-2xl font-black text-gray-900 tracking-tight">Create Campaign on Behalf of Brand</h2>
+              <p class="text-xs sm:text-sm text-gray-500 mt-0.5">Configure deliverables, budget, and select all or specific available creators</p>
+            </div>
+          </div>
+          <button onclick="document.getElementById('createAdminCampaignModal').remove()" 
+            class="text-gray-400 hover:text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-full p-1.5 transition">
+            <span class="material-icons-outlined text-xl">close</span>
+          </button>
+        </div>
+
+        <form id="adminCreateCampaignForm" onsubmit="window.admin.submitCreateCampaignOnBehalf(event)" class="space-y-6">
+          
+          <!-- Step 1: Select Brand -->
+          <div class="p-4 rounded-2xl bg-gradient-to-r from-purple-50/60 to-indigo-50/40 border border-purple-100">
+            <label class="block text-xs font-bold text-gray-800 uppercase tracking-wider mb-2 flex items-center justify-between">
+              <span class="flex items-center gap-1.5 text-purple-700">
+                <span class="material-icons-outlined text-base">business</span> Target Brand Advertiser *
+              </span>
+              <span class="text-[11px] text-gray-500 font-normal">Choose brand partner</span>
+            </label>
+            <select name="brandId" required 
+              class="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-semibold text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#804ee6]/20 focus:border-[#804ee6] transition shadow-2xs">
+              <option value="" disabled selected>Select a brand partner...</option>
+              ${brands.map(b => `
+                <option value="${b.id}">
+                  ${b.profile?.company || b.name || b.email} (${b.email}) · ${b.profile?.category || 'Brand'}
+                </option>
+              `).join('')}
+            </select>
+          </div>
+
+          <!-- Step 2: Campaign Details -->
+          <div class="space-y-4">
+            <div>
+              <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                Campaign Name / Title *
+              </label>
+              <input type="text" name="campaignName" required placeholder="e.g. Nike Summer 2026 Sneaker Showcase" 
+                class="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#804ee6]/20 focus:border-[#804ee6] transition">
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                  Industry / Category
+                </label>
+                <select name="category" 
+                  class="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#804ee6]/20 focus:border-[#804ee6] transition">
+                  <option value="Fashion & Apparel">Fashion & Apparel</option>
+                  <option value="Beauty & Cosmetics">Beauty & Cosmetics</option>
+                  <option value="Tech & Electronics">Tech & Electronics</option>
+                  <option value="Fitness & Health">Fitness & Health</option>
+                  <option value="Food & Beverage">Food & Beverage</option>
+                  <option value="Travel & Lifestyle">Travel & Lifestyle</option>
+                  <option value="Gaming & Esports">Gaming & Esports</option>
+                  <option value="Finance & Business">Finance & Business</option>
+                  <option value="General & Entertainment">General & Entertainment</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                  Deliverable Package *
+                </label>
+                <select name="type" required 
+                  class="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#804ee6]/20 focus:border-[#804ee6] transition">
+                  <option value="Instagram Reel">Instagram Reel (30-60s)</option>
+                  <option value="Reel + Story Set">Reel + Story Set (3 Stories)</option>
+                  <option value="Dedicated YouTube Video">Dedicated YouTube Video</option>
+                  <option value="YouTube Integration">YouTube Integration (60-90s mid-roll)</option>
+                  <option value="TikTok Viral Post">TikTok Viral Video</option>
+                  <option value="Multi-Platform Bundle">Multi-Platform Bundle (IG + YT + TikTok)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5 flex items-center justify-between">
+                  <span>Payout per Influencer (₹) *</span>
+                  <span class="text-[10px] text-emerald-600 font-bold">Escrow protected</span>
+                </label>
+                <input type="number" id="adminCampaignPayoutInput" name="amount" required min="100" step="100" placeholder="e.g. 25000" oninput="window.admin.updateCampaignModalBudget()"
+                  class="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-bold text-purple-700 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#804ee6]/20 focus:border-[#804ee6] transition">
+              </div>
+
+              <div>
+                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                  Content Deadline / Due Date
+                </label>
+                <input type="date" name="deadline" value="${new Date(Date.now() + 14 * 86400000).toISOString().split('T')[0]}"
+                  class="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#804ee6]/20 focus:border-[#804ee6] transition">
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                Campaign Brief & Deliverable Guidelines
+              </label>
+              <textarea name="description" rows="3" placeholder="Specify content brief, product features, tags/hashtags to include, talking points, and brand aesthetic guidelines..."
+                class="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#804ee6]/20 focus:border-[#804ee6] transition"></textarea>
+            </div>
+          </div>
+
+          <!-- Step 3: Select Influencers ("inside campaign i should be able to select all my available influencers") -->
+          <div class="pt-4 border-t border-gray-100">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-3">
+              <div>
+                <h3 class="text-xs font-bold uppercase tracking-wider text-gray-800 flex items-center gap-2">
+                  <span class="material-icons-outlined text-base text-[#804ee6]">group</span> 
+                  Select Target Influencers 
+                  <span id="adminCampSelectedCountBadge" class="px-2 py-0.5 rounded-full text-[10px] font-black bg-purple-100 text-purple-800">
+                    0 of ${influencers.length} selected
+                  </span>
+                </h3>
+                <p class="text-[11px] text-gray-400 mt-0.5">Pick specific creators or click Select All to engage your entire creator network</p>
+              </div>
+
+              <!-- Quick Selection Controls -->
+              <div class="flex items-center gap-2">
+                <button type="button" onclick="window.admin.toggleAllCampaignInfluencers(true)" 
+                  class="px-3 py-1.5 bg-purple-50 hover:bg-purple-100 text-[#804ee6] rounded-xl text-xs font-bold transition flex items-center gap-1 active:scale-95 border border-purple-200/50">
+                  <span class="material-icons-outlined text-sm">select_all</span> Select All (${influencers.length})
+                </button>
+                <button type="button" onclick="window.admin.toggleAllCampaignInfluencers(false)" 
+                  class="px-2.5 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-xl text-xs font-semibold transition active:scale-95">
+                  Clear
+                </button>
+              </div>
+            </div>
+
+            <!-- Influencer Search & Category Filter -->
+            <div class="flex gap-2 mb-3">
+              <div class="relative flex-1">
+                <span class="material-icons-outlined absolute left-3 top-2.5 text-gray-400 text-sm">search</span>
+                <input type="text" id="adminCampInfSearch" placeholder="Search influencers by name or handle..." oninput="window.admin.filterCampaignInfluencersModal()"
+                  class="w-full pl-8 pr-3 py-1.5 bg-gray-50 border border-gray-200 rounded-xl text-xs focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#804ee6]">
+              </div>
+              <select id="adminCampInfCategoryFilter" onchange="window.admin.filterCampaignInfluencersModal()"
+                class="px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-xl text-xs text-gray-700 focus:bg-white focus:outline-none">
+                <option value="all">All Niches</option>
+                ${Array.from(new Set(influencers.map(i => i.profile?.category || i.category || 'General').filter(Boolean))).map(cat => `
+                  <option value="${cat}">${cat}</option>
+                `).join('')}
+              </select>
+            </div>
+
+            <!-- Scrollable Influencer List -->
+            <div id="adminCampInfluencersList" class="max-h-64 overflow-y-auto space-y-2 p-2 border border-gray-200 rounded-2xl bg-gray-50/50">
+              ${influencers.map(inf => {
+                const name = inf.profile?.name || inf.name || inf.email.split('@')[0];
+                const followers = inf.profile?.followers || inf.followers || 50000;
+                const cat = inf.profile?.category || inf.category || 'Creator';
+                const avatar = inf.profile?.avatar || inf.avatar;
+                const initial = name.charAt(0).toUpperCase();
+
+                return `
+                  <div class="admin-camp-inf-card p-3 rounded-xl bg-white border border-gray-200/80 hover:border-purple-300 transition-all flex items-center justify-between cursor-pointer shadow-2xs" 
+                    data-id="${inf.id}" data-name="${name.toLowerCase()}" data-category="${cat.toLowerCase()}"
+                    onclick="window.admin.toggleInfluencerRowClick(event, '${inf.id}')">
+                    <div class="flex items-center gap-3">
+                      <input type="checkbox" name="influencerIds" value="${inf.id}" 
+                        class="admin-campaign-inf-cb w-4 h-4 rounded border-gray-300 text-[#804ee6] focus:ring-[#804ee6] cursor-pointer"
+                        onchange="window.admin.updateCampaignModalBudget()">
+                      
+                      ${avatar ? `
+                        <img src="${avatar}" class="w-10 h-10 rounded-xl object-cover border border-gray-100" alt="${name}">
+                      ` : `
+                        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-purple-500 to-indigo-500 text-white font-bold flex items-center justify-center text-sm shadow-xs">
+                          ${initial}
+                        </div>
+                      `}
+
+                      <div>
+                        <div class="font-bold text-xs sm:text-sm text-gray-900 flex items-center gap-1.5">
+                          ${name}
+                          ${inf.verified ? '<span class="material-icons-outlined text-[13px] text-amber-500">verified</span>' : ''}
+                        </div>
+                        <div class="text-[11px] text-gray-400 mt-0.5 flex items-center gap-1.5">
+                          <span>${inf.email}</span>
+                          <span>•</span>
+                          <span class="text-purple-600 font-semibold">${cat}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="text-right">
+                      <span class="px-2.5 py-1 rounded-full text-[10px] font-black bg-purple-50 text-[#804ee6] border border-purple-100">
+                        ${window.utils.formatNumber(followers)} followers
+                      </span>
+                    </div>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+
+            <!-- Live Financial Overview Banner -->
+            <div class="mt-4 p-4 rounded-2xl bg-gradient-to-r from-purple-900 to-indigo-900 text-white flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 shadow-md">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-white/10 text-white flex items-center justify-center backdrop-blur-md">
+                  <span class="material-icons-outlined text-xl">account_balance_wallet</span>
+                </div>
+                <div>
+                  <div class="text-[10px] uppercase tracking-wider text-purple-200 font-bold">Estimated Platform Escrow</div>
+                  <div id="adminCampTotalBudgetDisplay" class="text-xl font-black text-white tracking-tight">₹0</div>
+                </div>
+              </div>
+
+              <div class="text-right text-xs text-purple-200">
+                <span id="adminCampCreatorCountDisplay" class="font-bold text-white">0 creators</span> selected · <span id="adminCampPerCreatorDisplay">₹0</span> each
+              </div>
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="flex justify-end items-center gap-3 pt-4 border-t border-gray-100">
+            <button type="button" onclick="document.getElementById('createAdminCampaignModal').remove()" 
+              class="px-5 py-2.5 border border-gray-200 hover:border-gray-300 text-gray-700 rounded-xl text-sm font-semibold hover:bg-gray-50 transition">
+              Cancel
+            </button>
+            <button type="submit" id="adminCreateCampSubmitBtn"
+              class="px-6 py-2.5 bg-gradient-to-r from-[#804ee6] via-purple-600 to-indigo-600 hover:opacity-95 text-white rounded-xl text-sm font-bold shadow-md hover:shadow-lg transition flex items-center gap-2 active:scale-95">
+              <span class="material-icons-outlined text-[18px]">rocket_launch</span> Launch Campaign
+            </button>
+          </div>
+
+        </form>
+      </div>
+    `;
+
+    document.body.appendChild(modal);
+
+    // Initial calculation
+    this.updateCampaignModalBudget();
+  },
+
+  toggleInfluencerRowClick(e, infId) {
+    if (e.target && e.target.type === 'checkbox') return;
+    const card = document.querySelector(`.admin-camp-inf-card[data-id="${infId}"]`);
+    if (!card) return;
+    const cb = card.querySelector('.admin-campaign-inf-cb');
+    if (cb) {
+      cb.checked = !cb.checked;
+      this.updateCampaignModalBudget();
+    }
+  },
+
+  toggleAllCampaignInfluencers(selectAll) {
+    const checkboxes = document.querySelectorAll('.admin-campaign-inf-cb');
+    checkboxes.forEach(cb => {
+      const card = cb.closest('.admin-camp-inf-card');
+      if (!card || card.style.display !== 'none') {
+        cb.checked = selectAll;
+      }
+    });
+    this.updateCampaignModalBudget();
+  },
+
+  filterCampaignInfluencersModal() {
+    const searchInput = document.getElementById('adminCampInfSearch');
+    const categorySelect = document.getElementById('adminCampInfCategoryFilter');
+    const query = (searchInput?.value || '').toLowerCase().trim();
+    const category = (categorySelect?.value || 'all').toLowerCase();
+
+    const cards = document.querySelectorAll('.admin-camp-inf-card');
+    cards.forEach(card => {
+      const name = card.getAttribute('data-name') || '';
+      const cat = card.getAttribute('data-category') || '';
+
+      const matchesSearch = !query || name.includes(query);
+      const matchesCat = category === 'all' || cat === category;
+
+      if (matchesSearch && matchesCat) {
+        card.style.display = 'flex';
+      } else {
+        card.style.display = 'none';
+      }
+    });
+  },
+
+  updateCampaignModalBudget() {
+    const checkboxes = document.querySelectorAll('.admin-campaign-inf-cb:checked');
+    const totalCount = document.querySelectorAll('.admin-campaign-inf-cb').length;
+    const selectedCount = checkboxes.length;
+
+    const payoutInput = document.getElementById('adminCampaignPayoutInput');
+    const payout = Number(payoutInput?.value || 0);
+    const totalEscrow = selectedCount * payout;
+
+    const countBadge = document.getElementById('adminCampSelectedCountBadge');
+    if (countBadge) {
+      countBadge.textContent = `${selectedCount} of ${totalCount} selected`;
+      if (selectedCount > 0) {
+        countBadge.className = 'px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-100 text-emerald-800';
+      } else {
+        countBadge.className = 'px-2 py-0.5 rounded-full text-[10px] font-black bg-purple-100 text-purple-800';
+      }
+    }
+
+    const budgetDisplay = document.getElementById('adminCampTotalBudgetDisplay');
+    if (budgetDisplay) budgetDisplay.textContent = window.utils.formatCurrency(totalEscrow);
+
+    const countDisplay = document.getElementById('adminCampCreatorCountDisplay');
+    if (countDisplay) countDisplay.textContent = `${selectedCount} creator${selectedCount === 1 ? '' : 's'}`;
+
+    const perDisplay = document.getElementById('adminCampPerCreatorDisplay');
+    if (perDisplay) perDisplay.textContent = window.utils.formatCurrency(payout);
+  },
+
+  async submitCreateCampaignOnBehalf(e) {
+    e.preventDefault();
+    const form = e.target;
+    const btn = document.getElementById('adminCreateCampSubmitBtn');
+    const formData = new FormData(form);
+
+    const brandId = formData.get('brandId');
+    const campaignName = (formData.get('campaignName') || '').trim();
+    const type = formData.get('type') || 'Post';
+    const category = formData.get('category') || 'General';
+    const amount = Number(formData.get('amount') || 0);
+    const deadline = formData.get('deadline');
+    const description = (formData.get('description') || '').trim();
+
+    const selectedCheckboxes = document.querySelectorAll('.admin-campaign-inf-cb:checked');
+    const influencerIds = Array.from(selectedCheckboxes).map(cb => cb.value);
+
+    if (!brandId) {
+      window.ui.showToast('Please select a target brand partner', 'error');
+      return;
+    }
+    if (!campaignName) {
+      window.ui.showToast('Please enter a campaign name', 'error');
+      return;
+    }
+    if (influencerIds.length === 0) {
+      window.ui.showToast('Please select at least one influencer for this campaign', 'error');
+      return;
+    }
+    if (amount <= 0) {
+      window.ui.showToast('Please enter a valid payout amount per creator', 'error');
+      return;
+    }
+
+    const originalBtnHTML = btn.innerHTML;
+    btn.innerHTML = '<span class="material-icons-outlined animate-spin text-[18px]">sync</span> Launching Campaign...';
+    btn.disabled = true;
+
+    try {
+      const payload = {
+        brandId,
+        campaignName,
+        type,
+        category,
+        amount,
+        deadline,
+        description,
+        influencerIds
+      };
+
+      const result = await window.api.createAdminCampaign(payload);
+      const count = result.count || influencerIds.length;
+
+      window.ui.showToast(`🎉 Campaign "${campaignName}" launched for ${count} creator(s)!`, 'success');
+
+      const modal = document.getElementById('createAdminCampaignModal');
+      if (modal) modal.remove();
+
+      // Refresh campaigns view or dashboard
+      if (document.getElementById('campaignTableBody')) {
+        await this.renderCampaigns();
+      } else {
+        await this.renderDashboard();
+      }
+    } catch (err) {
+      window.ui.showToast(err.message || 'Failed to create campaign', 'error');
+      btn.innerHTML = originalBtnHTML;
+      btn.disabled = false;
+    }
+  },
   
   async renderCampaigns() {
     try {
@@ -1679,10 +2115,16 @@ window.admin = {
               <p class="text-slate-500 text-xs sm:text-sm mt-0.5">Monitor and control brand-creator deliverables, milestones, and escrow status</p>
             </div>
             
-            <button id="campaignBulkDeleteBtn" onclick="window.admin.deleteSelectedCampaigns()" 
-              class="hidden px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold shadow-sm transition active:scale-95 flex items-center gap-1.5">
-              <span class="material-icons-outlined text-[16px]">delete</span> Delete Selected (<span id="campaignSelectedCount">0</span>)
-            </button>
+            <div class="flex flex-wrap items-center gap-2">
+              <button onclick="window.admin.openCreateCampaignModal()" 
+                class="px-4 py-2 bg-gradient-to-r from-[#804ee6] via-purple-600 to-indigo-600 hover:opacity-95 text-white rounded-xl text-xs font-bold shadow-md shadow-purple-600/20 transition flex items-center gap-1.5 active:scale-95">
+                <span class="material-icons-outlined text-[16px]">add_circle</span> + Create Campaign (Brand Behalf)
+              </button>
+              <button id="campaignBulkDeleteBtn" onclick="window.admin.deleteSelectedCampaigns()" 
+                class="hidden px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold shadow-sm transition active:scale-95 flex items-center gap-1.5">
+                <span class="material-icons-outlined text-[16px]">delete</span> Delete Selected (<span id="campaignSelectedCount">0</span>)
+              </button>
+            </div>
           </div>
           
           <!-- Status Filter Tabs -->

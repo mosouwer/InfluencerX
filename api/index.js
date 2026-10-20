@@ -320,52 +320,169 @@ app.get(['/api/campaigns', '/campaigns'], async (req, res) => {
   res.json(campaigns.filter(c => !c.adminDeleted));
 });
 
-app.post(['/api/campaigns', '/campaigns'], async (req, res) => {
-  const brand = getUser(req);
-  if (!brand || brand.role !== 'brand') return res.status(403).json({ error: 'Only brands can create campaigns' });
-  const { influencerId, campaignName, type, amount, deadline } = req.body;
-  const db = readDB();
-  const influencer = (db.users || []).find(u => u.id === influencerId);
-  if (!influencer) return res.status(404).json({ error: 'Influencer not found' });
-  
-  const campaign = {
-    id: 'c_' + Date.now().toString(),
-    brandId: brand.id,
-    brandName: brand.profile?.company || brand.email,
-    influencerId,
-    influencerName: influencer.profile?.name || influencer.email,
-    campaignName: campaignName || 'New Campaign',
-    type: type || 'Post',
-    amount: Number(amount) || 0,
-    status: 'pending',
-    progress: 0,
-    deadline,
-    createdAt: new Date().toISOString()
-  };
-  db.campaigns = db.campaigns || [];
-  db.campaigns.push(campaign);
-  
-  notifyUser({
-    userId: influencerId,
-    title: 'New Campaign Offer',
-    message: `${brand.profile?.company || brand.email} invited you to "${campaignName}"`,
-    type: 'campaign',
-    campaignId: campaign.id,
-    icon: '🎯'
-  }, db);
+app.post(['/api/campaigns', '/campaigns', '/api/admin/campaigns', '/admin/campaigns'], async (req, res) => {
+  const requestingUser = getUser(req);
+  if (!requestingUser) return res.status(401).json({ error: 'Unauthorized' });
 
+  const db = readDB();
+  let brand = null;
+
+  if (requestingUser.role === 'brand') {
+    brand = requestingUser;
+  } else if (requestingUser.role === 'admin') {
+    const { brandId } = req.body;
+    if (!brandId) {
+      return res.status(400).json({ error: 'Please select a brand on whose behalf this campaign is being created' });
+    }
+    brand = (db.users || []).find(u => (String(u.id) === String(brandId) || String(u.email).toLowerCase() === String(brandId).toLowerCase()) && u.role === 'brand');
+    if (!brand) {
+      return res.status(404).json({ error: 'Selected brand not found' });
+    }
+  } else {
+    return res.status(403).json({ error: 'Only brands or administrators can create campaigns' });
+  }
+
+  const {
+    campaignName,
+    type,
+    packageType,
+    amount,
+    deadline,
+    description,
+    deliverables,
+    category,
+    influencerId,
+    influencerIds,
+    selectAllInfluencers
+  } = req.body;
+
+  // Resolve target influencer IDs
+  let targetIds = [];
+  if (selectAllInfluencers || influencerIds === 'all') {
+    targetIds = (db.users || []).filter(u => u.role === 'influencer').map(u => u.id);
+  } else if (Array.isArray(influencerIds) && influencerIds.length > 0) {
+    targetIds = influencerIds;
+  } else if (influencerId) {
+    targetIds = [influencerId];
+  }
+
+  if (targetIds.length === 0) {
+    return res.status(400).json({ error: 'Please select at least one influencer for this campaign' });
+  }
+
+  db.campaigns = db.campaigns || [];
+  db.deals = db.deals || [];
+
+  const createdCampaigns = [];
+  const createdDeals = [];
+
+  for (const infId of targetIds) {
+    const influencer = (db.users || []).find(u => (String(u.id) === String(infId) || String(u.email).toLowerCase() === String(infId).toLowerCase()) && u.role === 'influencer');
+    if (!influencer) continue;
+
+    const timestamp = Date.now();
+    const randSuffix = Math.random().toString(36).substring(2, 7);
+    const cId = 'c_' + timestamp + '_' + randSuffix;
+    const dId = 'deal_' + timestamp + '_' + randSuffix;
+
+    const brandDisplayName = brand.profile?.company || brand.profile?.name || brand.email;
+    const influencerDisplayName = influencer.profile?.name || influencer.email;
+    const resolvedType = type || packageType || 'Post';
+    const resolvedAmount = Number(amount) || 0;
+    const resolvedDeadline = deadline || 'Soon';
+    const resolvedDeliverables = description || deliverables || `${resolvedType} deliverable for ${brandDisplayName}`;
+
+    const campaign = {
+      id: cId,
+      dealId: dId,
+      brandId: brand.id,
+      brandName: brandDisplayName,
+      influencerId: influencer.id,
+      influencerName: influencerDisplayName,
+      campaignName: campaignName || 'New Campaign',
+      category: category || brand.profile?.category || 'General',
+      type: resolvedType,
+      amount: resolvedAmount,
+      status: 'pending',
+      progress: 0,
+      deadline: resolvedDeadline,
+      description: resolvedDeliverables,
+      createdBy: requestingUser.role === 'admin' ? 'admin' : 'brand',
+      createdAt: new Date().toISOString()
+    };
+
+    const deal = {
+      id: dId,
+      campaignId: cId,
+      campaignName: campaignName || 'New Campaign',
+      brandId: brand.id,
+      brandName: brandDisplayName,
+      influencerId: influencer.id,
+      influencerName: influencerDisplayName,
+      packageType: resolvedType,
+      amount: resolvedAmount,
+      deliverables: resolvedDeliverables,
+      deadline: resolvedDeadline,
+      terms: req.body.terms || 'Standard InfluencerX Escrow Collaboration Terms',
+      status: 'pending',
+      hasMedia: 'false',
+      createdBy: requestingUser.role === 'admin' ? 'admin' : 'brand',
+      createdAt: new Date().toISOString()
+    };
+
+    db.campaigns.push(campaign);
+    db.deals.push(deal);
+    createdCampaigns.push(campaign);
+    createdDeals.push(deal);
+
+    // Notify influencer
+    notifyUser({
+      userId: influencer.id,
+      title: 'New Campaign Offer',
+      message: `${brandDisplayName} invited you to "${campaign.campaignName}" (₹${resolvedAmount})`,
+      type: 'campaign',
+      campaignId: cId,
+      dealId: dId,
+      icon: '🎯'
+    }, db);
+  }
+
+  if (createdCampaigns.length === 0) {
+    return res.status(404).json({ error: 'No matching influencer accounts found' });
+  }
+
+  const brandDisplayName = brand.profile?.company || brand.profile?.name || brand.email;
+
+  // If admin created on behalf of brand, notify brand
+  if (requestingUser.role === 'admin') {
+    notifyUser({
+      userId: brand.id,
+      title: 'Campaign Created by Administrator',
+      message: `Admin launched campaign "${campaignName}" on your behalf with ${createdCampaigns.length} creator(s)`,
+      type: 'campaign',
+      icon: '🚀'
+    }, db);
+  }
+
+  // Notify admin
   notifyUser({
     userId: 'admin_1',
     forAdmin: true,
-    title: 'New Campaign Created',
-    message: `Brand "${brand.profile?.company || brand.email}" created campaign "${campaignName}" (₹${amount})`,
+    title: 'New Campaign Launched',
+    message: `${requestingUser.role === 'admin' ? 'Admin' : 'Brand "' + brandDisplayName + '"'} created campaign "${campaignName}" for ${createdCampaigns.length} creator(s)`,
     type: 'campaign',
-    campaignId: campaign.id,
     icon: '🚀'
   }, db);
-  
+
   await writeDB(db);
-  res.json({ success: true, campaign });
+
+  res.json({
+    success: true,
+    count: createdCampaigns.length,
+    campaign: createdCampaigns[0],
+    campaigns: createdCampaigns,
+    deals: createdDeals
+  });
 });
 
 app.put(['/api/campaigns/:id/status', '/campaigns/:id/status'], async (req, res) => {

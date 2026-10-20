@@ -160,6 +160,9 @@ window.api = {
   createCampaign(campaign) {
     return this.request('/campaigns', { method: 'POST', body: JSON.stringify(campaign) });
   },
+  createAdminCampaign(campaign) {
+    return this.request('/admin/campaigns', { method: 'POST', body: JSON.stringify(campaign) });
+  },
   updateCampaignStatus(id, status) {
     return this.request(`/campaigns/${id}/status`, { method: 'PUT', body: JSON.stringify({ status }) });
   },
