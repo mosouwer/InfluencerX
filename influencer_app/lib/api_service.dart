@@ -187,14 +187,15 @@ class ApiService {
   static Future<List<dynamic>> getCampaigns() async {
     try {
       final timestamp = DateTime.now().millisecondsSinceEpoch;
+      final queryExtra = '${_userId != null ? '&userId=$_userId' : ''}${_userRole != null ? '&userRole=$_userRole' : ''}';
       
       final dealsResponse = await http.get(
-        Uri.parse('$baseUrl/deals?_t=$timestamp'),
+        Uri.parse('$baseUrl/deals?_t=$timestamp$queryExtra'),
         headers: _headers,
       ).timeout(const Duration(seconds: 10));
       
       final campaignsResponse = await http.get(
-        Uri.parse('$baseUrl/campaigns?_t=$timestamp'),
+        Uri.parse('$baseUrl/campaigns?_t=$timestamp$queryExtra'),
         headers: _headers,
       ).timeout(const Duration(seconds: 10));
       

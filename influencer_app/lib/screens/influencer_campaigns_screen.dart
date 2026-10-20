@@ -418,7 +418,8 @@ class _InfluencerCampaignsScreenState extends State<InfluencerCampaignsScreen> {
                   final allCampaigns = snapshot.data ?? [];
                   
                   // Filter by selected tab and search
-                  final filtered = allCampaigns.filter((item) {
+                  final filtered = allCampaigns.where((item) {
+                    if (item is! Map) return false;
                     final status = (item['status'] ?? 'pending').toString().toLowerCase();
                     final title = (item['campaignName'] ?? item['title'] ?? item['packageType'] ?? '').toString().toLowerCase();
                     final brand = (item['brandName'] ?? item['brand'] ?? '').toString().toLowerCase();

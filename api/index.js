@@ -322,9 +322,13 @@ app.get(['/api/campaigns', '/campaigns'], async (req, res) => {
   const db = readDB();
   let campaigns = db.campaigns || [];
   if (user.role === 'brand') {
-    campaigns = campaigns.filter(c => c.brandId === user.id);
+    campaigns = campaigns.filter(c => String(c.brandId) === String(user.id) || (user.email && String(c.brandEmail || '').toLowerCase() === String(user.email).toLowerCase()));
   } else if (user.role === 'influencer') {
-    campaigns = campaigns.filter(c => c.influencerId === user.id);
+    campaigns = campaigns.filter(c => 
+      String(c.influencerId) === String(user.id) ||
+      (user.email && String(c.influencerEmail || '').toLowerCase() === String(user.email).toLowerCase()) ||
+      (c.influencerName && user.profile?.name && String(c.influencerName).toLowerCase() === String(user.profile.name).toLowerCase())
+    );
   }
   res.json(campaigns.filter(c => !c.adminDeleted));
 });
@@ -406,8 +410,10 @@ app.post(['/api/campaigns', '/campaigns', '/api/admin/campaigns', '/admin/campai
       dealId: dId,
       brandId: brand.id,
       brandName: brandDisplayName,
+      brandEmail: brand.email,
       influencerId: influencer.id,
       influencerName: influencerDisplayName,
+      influencerEmail: influencer.email,
       campaignName: campaignName || 'New Campaign',
       category: category || brand.profile?.category || 'General',
       type: resolvedType,
@@ -426,8 +432,10 @@ app.post(['/api/campaigns', '/campaigns', '/api/admin/campaigns', '/admin/campai
       campaignName: campaignName || 'New Campaign',
       brandId: brand.id,
       brandName: brandDisplayName,
+      brandEmail: brand.email,
       influencerId: influencer.id,
       influencerName: influencerDisplayName,
+      influencerEmail: influencer.email,
       packageType: resolvedType,
       amount: resolvedAmount,
       deliverables: resolvedDeliverables,
@@ -694,9 +702,13 @@ app.get(['/api/deals', '/deals'], async (req, res) => {
   const db = readDB();
   let deals = db.deals || [];
   if (user.role === 'brand') {
-    deals = deals.filter(d => d.brandId === user.id);
+    deals = deals.filter(d => String(d.brandId) === String(user.id) || (user.email && String(d.brandEmail || '').toLowerCase() === String(user.email).toLowerCase()));
   } else if (user.role === 'influencer') {
-    deals = deals.filter(d => d.influencerId === user.id);
+    deals = deals.filter(d => 
+      String(d.influencerId) === String(user.id) ||
+      (user.email && String(d.influencerEmail || '').toLowerCase() === String(user.email).toLowerCase()) ||
+      (d.influencerName && user.profile?.name && String(d.influencerName).toLowerCase() === String(user.profile.name).toLowerCase())
+    );
   }
   res.json(deals.filter(d => !d.adminDeleted));
 });
