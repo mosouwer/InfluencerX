@@ -204,6 +204,9 @@ window.api = {
   getAdminStats() {
     return this.request('/admin/stats');
   },
+  getUsers() {
+    return this.request('/admin/users');
+  },
   getAdminUsers() {
     return this.request('/admin/users');
   },

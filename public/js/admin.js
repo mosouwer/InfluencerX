@@ -1647,13 +1647,22 @@ window.admin = {
 
     let users = [];
     try {
-      users = await window.api.getUsers();
+      users = await window.api.getAdminUsers();
+      if (Array.isArray(users) && users.length > 0) {
+        this.allUsers = users;
+      }
     } catch (e) {
-      console.warn('Could not fetch users for campaign modal:', e);
+      console.warn('Could not fetch users via getAdminUsers:', e);
     }
 
-    const brands = (users || []).filter(u => u.role === 'brand');
-    const influencers = (users || []).filter(u => u.role === 'influencer');
+    if (!Array.isArray(users) || users.length === 0) {
+      if (Array.isArray(this.allUsers) && this.allUsers.length > 0) {
+        users = this.allUsers;
+      }
+    }
+
+    const brands = (users || []).filter(u => u.role === 'brand' || String(u.role).toLowerCase() === 'brand');
+    const influencers = (users || []).filter(u => u.role === 'influencer' || String(u.role).toLowerCase() === 'influencer');
 
     if (brands.length === 0) {
       window.ui.showConfirm({
