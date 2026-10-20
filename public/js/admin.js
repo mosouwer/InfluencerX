@@ -60,10 +60,13 @@ window.admin = {
               <button onclick="window.admin.openCreateBrandModal()" class="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition shadow-md flex items-center gap-2 active:scale-95">
                 <span class="material-icons-outlined text-[16px]">add_business</span> + Add Brand
               </button>
+              <button onclick="window.admin.openCreateInfluencerModal()" class="px-4 py-2.5 bg-[#804ee6] hover:bg-[#6c2bd9] text-white rounded-xl text-xs font-bold transition shadow-md flex items-center gap-2 active:scale-95">
+                <span class="material-icons-outlined text-[16px]">person_add</span> + Add Influencer
+              </button>
               <button onclick="window.admin.renderUsers()" class="px-4 py-2.5 bg-white/10 hover:bg-white/20 text-white rounded-xl text-xs font-bold transition border border-white/10 backdrop-blur-sm flex items-center gap-2 shadow-sm active:scale-95">
                 <span class="material-icons-outlined text-[16px]">people</span> Manage Users
               </button>
-              <button onclick="window.admin.renderCampaigns()" class="px-4 py-2.5 bg-[#804ee6] hover:bg-[#6c2bd9] text-white rounded-xl text-xs font-bold transition shadow-lg shadow-purple-500/25 flex items-center gap-2 active:scale-95">
+              <button onclick="window.admin.renderCampaigns()" class="px-4 py-2.5 bg-white/10 hover:bg-white/20 text-white rounded-xl text-xs font-bold transition border border-white/10 backdrop-blur-sm flex items-center gap-2 shadow-sm active:scale-95">
                 <span class="material-icons-outlined text-[16px]">campaign</span> View Campaigns
               </button>
             </div>
@@ -435,11 +438,11 @@ window.admin = {
           <div class="flex flex-wrap items-center gap-2">
             <button id="createBrandBtn" onclick="window.admin.openCreateBrandModal()" 
               class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-xs hover:shadow transition flex items-center gap-1.5 active:scale-95">
-              <span class="material-icons-outlined text-[16px]">add_business</span> + Add New Brand
+              <span class="material-icons-outlined text-[16px]">add_business</span> + Add Brand
             </button>
             <button id="createInfluencerBtn" onclick="window.admin.openCreateInfluencerModal()" 
-              class="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold shadow-xs transition flex items-center gap-1.5 active:scale-95">
-              <span class="material-icons-outlined text-[16px]">person_add</span> Create Influencer
+              class="px-4 py-2 bg-[#804ee6] hover:bg-[#6c2bd9] text-white rounded-xl text-xs font-bold shadow-xs hover:shadow transition flex items-center gap-1.5 active:scale-95">
+              <span class="material-icons-outlined text-[16px]">person_add</span> + Add Influencer
             </button>
             <button onclick="window.admin.exportUsers()" 
               class="px-4 py-2 bg-white border border-slate-200 hover:border-slate-300 text-slate-700 rounded-xl text-xs font-bold shadow-2xs hover:bg-slate-50 transition active:scale-95 flex items-center gap-1.5">
@@ -527,7 +530,15 @@ window.admin = {
           <td colspan="7" class="px-6 py-12 text-center text-slate-400">
             <span class="material-icons-outlined text-4xl text-slate-300 mb-2 block">person_off</span>
             <p class="font-bold text-slate-700 text-sm">No users found</p>
-            <p class="text-xs text-slate-400 mt-0.5">Try refining your search query or filter criteria.</p>
+            <p class="text-xs text-slate-400 mt-0.5">Try refining your search query or onboard a new user.</p>
+            <div class="mt-4 flex flex-wrap items-center justify-center gap-2">
+              <button onclick="window.admin.openCreateBrandModal()" class="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold transition flex items-center gap-1.5 active:scale-95 shadow-xs">
+                <span class="material-icons-outlined text-sm">add_business</span> + Add Brand
+              </button>
+              <button onclick="window.admin.openCreateInfluencerModal()" class="px-3.5 py-1.5 bg-[#804ee6] hover:bg-[#6c2bd9] text-white rounded-lg text-xs font-bold transition flex items-center gap-1.5 active:scale-95 shadow-xs">
+                <span class="material-icons-outlined text-sm">person_add</span> + Add Influencer
+              </button>
+            </div>
           </td>
         </tr>
       `;
@@ -653,17 +664,6 @@ window.admin = {
     this.filteredUsers = filteredUsers;
     this.updateUserTableDisplay();
     this.setActiveFilter(type);
-    
-    const brandBtn = document.getElementById('createBrandBtn');
-    const infBtn = document.getElementById('createInfluencerBtn');
-    if (brandBtn) {
-      if (type === 'influencer' || type === 'admin' || type === 'verified') brandBtn.classList.add('hidden');
-      else brandBtn.classList.remove('hidden');
-    }
-    if (infBtn) {
-      if (type === 'brand' || type === 'admin') infBtn.classList.add('hidden');
-      else infBtn.classList.remove('hidden');
-    }
   },
   
   filterUsersBySearch(searchTerm) {
@@ -1231,86 +1231,261 @@ window.admin = {
     }
   },
 
+  // ========== INFLUENCER ONBOARDING HELPERS ==========
+  generateInfluencerPassword() {
+    const chars = 'abcdefghijkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789!@#$%&*';
+    let pass = '';
+    for (let i = 0; i < 10; i++) {
+      pass += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    const input = document.getElementById('influencerPasswordInput');
+    if (input) {
+      input.value = pass;
+      input.type = 'text';
+      const icon = document.getElementById('influencerPasswordToggleIcon');
+      if (icon) icon.textContent = 'visibility_off';
+    }
+  },
+
+  toggleInfluencerPasswordVisibility() {
+    const input = document.getElementById('influencerPasswordInput');
+    const icon = document.getElementById('influencerPasswordToggleIcon');
+    if (input && icon) {
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.textContent = 'visibility_off';
+      } else {
+        input.type = 'password';
+        icon.textContent = 'visibility';
+      }
+    }
+  },
+
+  previewInfluencerAvatar(event) {
+    const file = event.target.files && event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const preview = document.getElementById('influencerAvatarPreview');
+      const img = document.getElementById('influencerAvatarImg');
+      const name = document.getElementById('influencerAvatarFileName');
+      const size = document.getElementById('influencerAvatarFileSize');
+      if (img) img.src = e.target.result;
+      if (name) name.textContent = file.name;
+      if (size) size.textContent = (file.size / 1024).toFixed(1) + ' KB';
+      if (preview) preview.classList.remove('hidden');
+    };
+    reader.readAsDataURL(file);
+  },
+
+  removeInfluencerAvatarPreview() {
+    const input = document.getElementById('influencerAvatarInput');
+    const preview = document.getElementById('influencerAvatarPreview');
+    if (input) input.value = '';
+    if (preview) preview.classList.add('hidden');
+  },
+
   openCreateInfluencerModal() {
+    const existing = document.getElementById('createInfluencerModal');
+    if (existing) existing.remove();
+
     const modal = document.createElement('div');
-    modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+    modal.className = 'fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center z-50 p-4';
     modal.id = 'createInfluencerModal';
     modal.innerHTML = `
-      <div class="bg-white rounded-sm max-w-2xl w-full p-6 m-4 max-h-[90vh] overflow-y-auto shadow-2xl relative">
-        <div class="flex justify-between items-start mb-6">
-          <h2 class="text-xl font-bold text-gray-900 flex items-center gap-2">
-            <span class="material-icons-outlined">person_add</span> Create New Influencer
-          </h2>
-          <button onclick="document.getElementById('createInfluencerModal').remove()" class="text-gray-400 hover:text-gray-600 bg-gray-100 rounded-full p-1.5">&times;</button>
+      <div class="bg-white rounded-2xl max-w-2xl w-full p-6 sm:p-8 max-h-[90vh] overflow-y-auto shadow-2xl border border-gray-100 relative">
+        <div class="flex justify-between items-start mb-6 pb-4 border-b border-gray-100">
+          <div class="flex items-center gap-3">
+            <div class="w-11 h-11 rounded-2xl bg-purple-50 text-[#804ee6] border border-purple-100 flex items-center justify-center shadow-xs">
+              <span class="material-icons-outlined text-2xl">person_add</span>
+            </div>
+            <div>
+              <h2 class="text-xl font-black text-gray-900 tracking-tight">Onboard New Influencer</h2>
+              <p class="text-xs text-gray-500 mt-0.5">Register a verified creator with audience metrics and collaboration rates</p>
+            </div>
+          </div>
+          <button onclick="document.getElementById('createInfluencerModal').remove()" 
+            class="text-gray-400 hover:text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-full p-1.5 transition">
+            <span class="material-icons-outlined text-lg">close</span>
+          </button>
         </div>
         
-        <form id="createInfluencerForm" onsubmit="window.admin.submitCreateInfluencer(event)" class="space-y-4">
-          <div class="grid grid-cols-2 gap-4">
-            <div>
-              <label class="block text-sm font-semibold text-gray-700 mb-1">Full Name</label>
-              <input type="text" name="name" required class="w-full px-3 py-2 border rounded-sm focus:ring-2 focus:ring-black">
-            </div>
-            <div>
-              <label class="block text-sm font-semibold text-gray-700 mb-1">Email Address</label>
-              <input type="email" name="email" required class="w-full px-3 py-2 border rounded-sm focus:ring-2 focus:ring-black">
-            </div>
-            <div>
-              <label class="block text-sm font-semibold text-gray-700 mb-1">Password</label>
-              <input type="password" name="password" required class="w-full px-3 py-2 border rounded-sm focus:ring-2 focus:ring-black">
-            </div>
-            <div>
-              <label class="block text-sm font-semibold text-gray-700 mb-1">Instagram User ID</label>
-              <input type="text" name="instagramId" placeholder="@username" required class="w-full px-3 py-2 border rounded-sm focus:ring-2 focus:ring-black">
-            </div>
-            <div>
-              <label class="block text-sm font-semibold text-gray-700 mb-1">Instagram Followers</label>
-              <input type="number" name="instagramFollowers" placeholder="e.g. 500000" required class="w-full px-3 py-2 border rounded-sm focus:ring-2 focus:ring-black">
-            </div>
-            <div>
-              <label class="block text-sm font-semibold text-gray-700 mb-1">Influencer Category</label>
-              <select name="niche" required class="w-full px-3 py-2 border rounded-sm focus:ring-2 focus:ring-black">
-                <option value="">Select Category</option>
-                <option value="Fashion">Fashion</option>
-                <option value="Food">Food</option>
-                <option value="Travel">Travel</option>
-                <option value="Fitness">Fitness</option>
-                <option value="Tech">Tech</option>
-                <option value="Lifestyle">Lifestyle</option>
-                <option value="Beauty">Beauty</option>
-              </select>
-            </div>
-            <div class="col-span-2">
-              <label class="block text-sm font-semibold text-gray-700 mb-1">Profile Picture</label>
-              <input type="file" name="profilePic" accept="image/*" class="w-full px-3 py-1.5 border rounded-sm focus:ring-2 focus:ring-black text-sm">
-            </div>
-          </div>
-          
+        <form id="createInfluencerForm" onsubmit="window.admin.submitCreateInfluencer(event)" class="space-y-5">
+          <!-- Account Credentials -->
           <div>
-            <label class="block text-sm font-semibold text-gray-700 mb-1">About Section</label>
-            <textarea name="about" rows="3" required placeholder="Tell brands about this influencer..." class="w-full px-3 py-2 border rounded-sm focus:ring-2 focus:ring-black"></textarea>
-          </div>
-          
-          <div class="bg-gray-50 p-4 rounded-sm border border-gray-200">
-            <h3 class="font-bold text-sm mb-3">Package Rates (₹)</h3>
-            <div class="grid grid-cols-3 gap-4">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3 flex items-center gap-1.5">
+              <span class="material-icons-outlined text-sm text-[#804ee6]">lock</span> Account Credentials
+            </h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label class="block text-xs font-semibold text-gray-700 mb-1">Instagram Story</label>
-                <input type="number" name="storyRate" required class="w-full px-3 py-2 border rounded-sm text-sm">
+                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                  Full Creator Name <span class="text-rose-500">*</span>
+                </label>
+                <input type="text" name="name" required placeholder="e.g. Priya Sharma" 
+                  class="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#804ee6]/20 focus:border-[#804ee6] transition">
               </div>
               <div>
-                <label class="block text-xs font-semibold text-gray-700 mb-1">Dedicated Post</label>
-                <input type="number" name="postRate" required class="w-full px-3 py-2 border rounded-sm text-sm">
+                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                  Email Address <span class="text-rose-500">*</span>
+                </label>
+                <input type="email" name="email" required placeholder="creator@example.com" 
+                  class="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#804ee6]/20 focus:border-[#804ee6] transition">
               </div>
               <div>
-                <label class="block text-xs font-semibold text-gray-700 mb-1">Instagram Reel</label>
-                <input type="number" name="reelRate" required class="w-full px-3 py-2 border rounded-sm text-sm">
+                <div class="flex justify-between items-center mb-1.5">
+                  <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider">
+                    Account Password <span class="text-rose-500">*</span>
+                  </label>
+                  <button type="button" onclick="window.admin.generateInfluencerPassword()" 
+                    class="text-[11px] font-bold text-[#804ee6] hover:text-[#6c2bd9] bg-purple-50 hover:bg-purple-100 px-2 py-0.5 rounded-md transition flex items-center gap-1">
+                    <span class="material-icons-outlined text-[12px]">auto_fix_high</span> Generate
+                  </button>
+                </div>
+                <div class="relative">
+                  <input type="password" id="influencerPasswordInput" name="password" required placeholder="Minimum 6 characters" 
+                    class="w-full pl-3.5 pr-10 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#804ee6]/20 focus:border-[#804ee6] transition">
+                  <button type="button" onclick="window.admin.toggleInfluencerPasswordVisibility()" 
+                    class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600">
+                    <span id="influencerPasswordToggleIcon" class="material-icons-outlined text-lg">visibility</span>
+                  </button>
+                </div>
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                  City / Location
+                </label>
+                <input type="text" name="location" placeholder="e.g. Mumbai, Maharashtra" 
+                  class="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#804ee6]/20 focus:border-[#804ee6] transition">
               </div>
             </div>
           </div>
-          
-          <div class="mt-6 flex justify-end">
-            <button type="submit" class="px-6 py-2.5 bg-black text-white font-bold rounded-sm shadow-md hover:-translate-y-0.5 hover:shadow-lg transition flex items-center gap-2">
-              <span class="material-icons-outlined text-[18px]">save</span> Save Influencer
+
+          <!-- Reach & Classification -->
+          <div class="pt-2 border-t border-gray-100">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3 flex items-center gap-1.5">
+              <span class="material-icons-outlined text-sm text-[#804ee6]">insights</span> Reach & Classification
+            </h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                  Instagram Handle <span class="text-rose-500">*</span>
+                </label>
+                <input type="text" name="instagramId" required placeholder="@priyasharma" 
+                  class="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#804ee6]/20 focus:border-[#804ee6] transition">
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                  Total Followers Count <span class="text-rose-500">*</span>
+                </label>
+                <input type="number" name="instagramFollowers" required placeholder="e.g. 250000" min="0" 
+                  class="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#804ee6]/20 focus:border-[#804ee6] transition">
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                  Niche / Category <span class="text-rose-500">*</span>
+                </label>
+                <select name="niche" required 
+                  class="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#804ee6]/20 focus:border-[#804ee6] transition">
+                  <option value="">Select Niche</option>
+                  <option value="Fashion">👗 Fashion & Style</option>
+                  <option value="Beauty">💄 Beauty & Cosmetics</option>
+                  <option value="Food">🍔 Food & Dining</option>
+                  <option value="Fitness">💪 Health & Fitness</option>
+                  <option value="Tech">💻 Tech & Gadgets</option>
+                  <option value="Travel">✈️ Travel & Hospitality</option>
+                  <option value="Lifestyle">☕ Lifestyle & Daily</option>
+                  <option value="Gaming">🎮 Gaming & Esports</option>
+                  <option value="Entertainment">🎬 Entertainment</option>
+                  <option value="Other">✨ Other</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                  Engagement Rate (%)
+                </label>
+                <input type="number" step="0.1" name="engagement" placeholder="e.g. 5.2" 
+                  class="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#804ee6]/20 focus:border-[#804ee6] transition">
+              </div>
+            </div>
+          </div>
+
+          <!-- Collaboration Rates -->
+          <div class="pt-2 border-t border-gray-100">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3 flex items-center gap-1.5">
+              <span class="material-icons-outlined text-sm text-[#804ee6]">sell</span> Deliverable Rates (₹)
+            </h3>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div>
+                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                  Instagram Story
+                </label>
+                <input type="number" name="storyRate" placeholder="e.g. 4000" min="0" 
+                  class="w-full px-3.5 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#804ee6]/20 focus:border-[#804ee6] transition">
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                  Dedicated Post
+                </label>
+                <input type="number" name="postRate" placeholder="e.g. 10000" min="0" 
+                  class="w-full px-3.5 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#804ee6]/20 focus:border-[#804ee6] transition">
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                  Instagram Reel
+                </label>
+                <input type="number" name="reelRate" placeholder="e.g. 18000" min="0" 
+                  class="w-full px-3.5 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#804ee6]/20 focus:border-[#804ee6] transition">
+              </div>
+            </div>
+          </div>
+
+          <!-- Avatar & Bio -->
+          <div class="pt-2 border-t border-gray-100">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3 flex items-center gap-1.5">
+              <span class="material-icons-outlined text-sm text-[#804ee6]">face</span> Avatar & Bio
+            </h3>
+            <div class="space-y-4">
+              <div>
+                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                  Profile Picture (Optional)
+                </label>
+                <input type="file" id="influencerAvatarInput" name="profilePic" accept="image/*" onchange="window.admin.previewInfluencerAvatar(event)"
+                  class="w-full px-3.5 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#804ee6]/20 focus:border-[#804ee6] transition file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-purple-50 file:text-[#804ee6] hover:file:bg-purple-100">
+                
+                <!-- Live Avatar Preview Container -->
+                <div id="influencerAvatarPreview" class="hidden flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-200 mt-2">
+                  <div class="flex items-center gap-3">
+                    <img id="influencerAvatarImg" src="" class="w-12 h-12 rounded-xl object-cover border border-gray-200 shadow-xs bg-white" alt="Avatar preview">
+                    <div>
+                      <div id="influencerAvatarFileName" class="text-xs font-bold text-gray-800 truncate max-w-[200px]">avatar.jpg</div>
+                      <div id="influencerAvatarFileSize" class="text-[10px] text-gray-400">12 KB</div>
+                    </div>
+                  </div>
+                  <button type="button" onclick="window.admin.removeInfluencerAvatarPreview()" class="text-xs text-rose-500 hover:text-rose-700 font-bold p-1 rounded-md hover:bg-rose-50 transition">
+                    Remove
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                  Creator Bio / Overview
+                </label>
+                <textarea name="about" rows="3" placeholder="Tell brands about this creator's style, audience demographics, and previous partnerships..." 
+                  class="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#804ee6]/20 focus:border-[#804ee6] transition"></textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- Form Actions -->
+          <div class="flex justify-end items-center gap-3 pt-4 border-t border-gray-100">
+            <button type="button" onclick="document.getElementById('createInfluencerModal').remove()" 
+              class="px-5 py-2.5 border border-gray-200 hover:border-gray-300 text-gray-700 rounded-xl text-sm font-semibold hover:bg-gray-50 transition">
+              Cancel
+            </button>
+            <button type="submit" 
+              class="px-6 py-2.5 bg-[#804ee6] hover:bg-[#6c2bd9] text-white rounded-xl text-sm font-bold shadow-md hover:shadow-lg transition flex items-center gap-2 active:scale-95">
+              <span class="material-icons-outlined text-[18px]">verified</span> Onboard Influencer
             </button>
           </div>
         </form>
@@ -1323,24 +1498,40 @@ window.admin = {
     e.preventDefault();
     const form = e.target;
     const btn = form.querySelector('button[type="submit"]');
-    
-    // Convert form to FormData
     const formData = new FormData(form);
     
+    const name = (formData.get('name') || '').trim();
+    const email = (formData.get('email') || '').trim();
+    const password = (formData.get('password') || '').trim();
+
+    if (!name) {
+      window.ui.showToast('Please enter Creator Name', 'error');
+      return;
+    }
+    if (!email) {
+      window.ui.showToast('Please enter Email Address', 'error');
+      return;
+    }
+    if (!password || password.length < 6) {
+      window.ui.showToast('Password must be at least 6 characters', 'error');
+      return;
+    }
+
     const originalText = btn.innerHTML;
-    btn.innerHTML = '<span class="material-icons-outlined animate-spin">sync</span> Saving...';
+    btn.innerHTML = '<span class="material-icons-outlined animate-spin text-[18px]">sync</span> Onboarding Influencer...';
     btn.disabled = true;
     
     try {
       await window.api.createInfluencer(formData);
-      window.ui.showToast('Influencer created successfully!', 'success');
-      document.getElementById('createInfluencerModal').remove();
-      // Re-fetch users
+      window.ui.showToast(`🎉 Influencer "${name}" successfully onboarded!`, 'success');
+      const modal = document.getElementById('createInfluencerModal');
+      if (modal) modal.remove();
+      
+      // Re-fetch users & switch to influencer filter
       await this.renderUsers();
-      // Force filter back to influencer
       this.filterUsers('influencer');
     } catch (err) {
-      window.ui.showToast(err.message, 'error');
+      window.ui.showToast(err.message || 'Failed to onboard influencer', 'error');
       btn.innerHTML = originalText;
       btn.disabled = false;
     }
