@@ -436,10 +436,10 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                                 children: [
                                   Row(
                                     children: [
-                                      Text('⚡', style: TextStyle(fontSize: 14)),
+                                      Text('🍕', style: TextStyle(fontSize: 14)),
                                       SizedBox(width: 6),
                                       Text(
-                                        'Arjun (Tech)',
+                                        'Arjun (Food)',
                                         style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF111827)),
                                       ),
                                     ],

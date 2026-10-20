@@ -158,10 +158,12 @@ async function writeDB(data) {
 }
 
 // Background sync on request if cache is older than 20 seconds
-app.use((req, res, next) => {
+app.use(async (req, res, next) => {
   if (!cachedDB) {
     readDB();
-    syncFromS3().catch(() => {});
+    try {
+      await syncFromS3();
+    } catch (_) {}
   } else if (Date.now() - lastS3Fetch > 20000 && !isSyncing) {
     syncFromS3().catch(() => {});
   }
@@ -218,7 +220,14 @@ app.post(['/api/login', '/login'], async (req, res) => {
     return res.status(401).json({ error: 'Invalid credentials' });
   }
   
-  const match = await bcrypt.compare(password || '', user.password);
+  let match = false;
+  try {
+    if (user.password) {
+      match = await bcrypt.compare(password || '', user.password);
+    }
+  } catch (err) {
+    match = false;
+  }
   if (!match && password !== 'admin123' && password !== 'demo123') {
     return res.status(401).json({ error: 'Invalid credentials' });
   }
