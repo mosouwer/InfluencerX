@@ -39,245 +39,314 @@ window.admin = {
         .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
 
       document.getElementById('mainContent').innerHTML = `
-        <div class="page-transition space-y-6 max-w-7xl mx-auto">
+        <div class="page-transition space-y-8 max-w-7xl mx-auto pb-12">
           
-          <!-- Modern Header Banner -->
-          <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-gradient-to-r from-slate-900 via-indigo-950 to-purple-950 p-6 sm:p-8 rounded-2xl text-white shadow-xl relative overflow-hidden">
-            <div class="absolute -right-10 -bottom-10 w-48 h-48 bg-purple-500/10 rounded-full blur-2xl"></div>
-            <div class="absolute right-40 -top-10 w-36 h-36 bg-indigo-500/10 rounded-full blur-2xl"></div>
-            <div class="relative z-10">
-              <div class="flex items-center gap-2 mb-2">
-                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center gap-1">
-                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Production Active
-                </span>
-                <span class="text-xs text-slate-400 font-medium">${new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}</span>
+          <!-- Modern Hero Banner with Gradient Mesh & Ambient Glows -->
+          <div class="relative bg-gradient-to-br from-slate-950 via-[#130d2a] to-[#1c1236] p-7 sm:p-9 rounded-3xl text-white shadow-2xl border border-white/10 overflow-hidden">
+            <!-- Ambient Glowing Gradient Orbs -->
+            <div class="ambient-orb absolute -right-12 -top-12 w-80 h-80 bg-purple-600/30 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="ambient-orb absolute right-1/3 -bottom-16 w-72 h-72 bg-indigo-600/25 rounded-full blur-3xl pointer-events-none" style="animation-delay: -3s;"></div>
+            <div class="ambient-orb absolute -left-10 bottom-0 w-60 h-60 bg-pink-600/15 rounded-full blur-3xl pointer-events-none" style="animation-delay: -5s;"></div>
+
+            <div class="relative z-10 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
+              <div>
+                <!-- Status & Date Badges Row -->
+                <div class="flex flex-wrap items-center gap-2.5 mb-3.5">
+                  <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center gap-1.5 backdrop-blur-md shadow-xs">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Production Online
+                  </span>
+                  <span class="px-3 py-1 rounded-full text-[10px] font-bold bg-white/10 text-slate-300 border border-white/10 flex items-center gap-1.5 backdrop-blur-md">
+                    <span class="material-icons-outlined text-[13px]">calendar_today</span>
+                    ${new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}
+                  </span>
+                  <span class="px-2.5 py-1 rounded-full text-[10px] font-black bg-gradient-to-r from-purple-500/30 to-pink-500/30 text-purple-200 border border-purple-400/30 flex items-center gap-1 backdrop-blur-md">
+                    <span class="material-icons-outlined text-[13px] text-amber-300">verified</span> Super Admin
+                  </span>
+                </div>
+
+                <!-- Main Greeting & Heading -->
+                <h1 class="text-3xl sm:text-4xl font-black tracking-tight text-white leading-tight">
+                  Influence<span class="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-400 to-indigo-300">X</span> Command Center
+                </h1>
+                <p class="text-slate-300 text-xs sm:text-sm mt-2 max-w-2xl font-light leading-relaxed">
+                  Real-time escrow vault telemetry, creator collaborations, and multi-platform platform analytics.
+                </p>
               </div>
-              <h1 class="text-2xl sm:text-3xl font-black tracking-tight text-white">Platform Administration</h1>
-              <p class="text-slate-300 text-xs sm:text-sm mt-1 max-w-xl font-light leading-relaxed">Real-time overview of creator network transactions, active campaigns, and escrow fund settlements.</p>
-            </div>
-            
-            <div class="relative z-10 flex flex-wrap items-center gap-2.5">
-              <button onclick="window.admin.openCreateBrandModal()" class="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition shadow-md flex items-center gap-2 active:scale-95">
-                <span class="material-icons-outlined text-[16px]">add_business</span> + Add Brand
-              </button>
-              <button onclick="window.admin.openCreateInfluencerModal()" class="px-4 py-2.5 bg-[#804ee6] hover:bg-[#6c2bd9] text-white rounded-xl text-xs font-bold transition shadow-md flex items-center gap-2 active:scale-95">
-                <span class="material-icons-outlined text-[16px]">person_add</span> + Add Influencer
-              </button>
-              <button onclick="window.admin.renderUsers()" class="px-4 py-2.5 bg-white/10 hover:bg-white/20 text-white rounded-xl text-xs font-bold transition border border-white/10 backdrop-blur-sm flex items-center gap-2 shadow-sm active:scale-95">
-                <span class="material-icons-outlined text-[16px]">people</span> Manage Users
-              </button>
-              <button onclick="window.admin.renderCampaigns()" class="px-4 py-2.5 bg-white/10 hover:bg-white/20 text-white rounded-xl text-xs font-bold transition border border-white/10 backdrop-blur-sm flex items-center gap-2 shadow-sm active:scale-95">
-                <span class="material-icons-outlined text-[16px]">campaign</span> View Campaigns
-              </button>
+              
+              <!-- Quick Actions with Modern Gradients -->
+              <div class="relative z-10 flex flex-wrap items-center gap-2.5">
+                <button onclick="window.admin.openCreateBrandModal()" 
+                  class="px-4 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white rounded-xl text-xs font-bold transition shadow-lg shadow-emerald-600/30 flex items-center gap-2 active:scale-95">
+                  <span class="material-icons-outlined text-[18px]">add_business</span> + Add Brand
+                </button>
+                <button onclick="window.admin.openCreateInfluencerModal()" 
+                  class="px-4 py-2.5 bg-gradient-to-r from-[#804ee6] via-purple-600 to-indigo-600 hover:opacity-95 text-white rounded-xl text-xs font-bold transition shadow-lg shadow-purple-600/30 flex items-center gap-2 active:scale-95">
+                  <span class="material-icons-outlined text-[18px]">person_add</span> + Add Influencer
+                </button>
+                <button onclick="window.admin.renderUsers()" 
+                  class="glass-pill px-4 py-2.5 text-white rounded-xl text-xs font-bold transition flex items-center gap-2 active:scale-95">
+                  <span class="material-icons-outlined text-[18px]">people</span> Users
+                </button>
+                <button onclick="window.admin.renderCampaigns()" 
+                  class="glass-pill px-4 py-2.5 text-white rounded-xl text-xs font-bold transition flex items-center gap-2 active:scale-95">
+                  <span class="material-icons-outlined text-[18px]">campaign</span> Campaigns
+                </button>
+              </div>
             </div>
           </div>
           
-          <!-- Row 1: 4 High-Impact KPI Stat Cards -->
+          <!-- Row 1: 4 High-Impact KPI Stat Cards with Gradient Glass Effects -->
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
             
-            <!-- Card 1: Gross Volume -->
+            <!-- Card 1: Gross Platform Escrow Value -->
             <div onclick="window.admin.showRevenueDetails()" 
-              class="admin-card admin-card-hover p-5 cursor-pointer relative overflow-hidden group">
+              class="dashboard-mesh-card p-6 cursor-pointer relative overflow-hidden group bg-gradient-to-b from-purple-50/50 via-white to-white border-purple-100">
+              <div class="absolute -right-4 -bottom-4 w-28 h-28 bg-gradient-to-br from-[#804ee6]/10 to-pink-500/10 rounded-full blur-xl group-hover:scale-125 transition-transform duration-500 pointer-events-none"></div>
+              
               <div class="flex justify-between items-start">
-                <div class="w-10 h-10 rounded-xl bg-purple-50 text-[#804ee6] flex items-center justify-center font-bold">
-                  <span class="material-icons-outlined text-[22px]">payments</span>
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#804ee6] to-purple-500 text-white flex items-center justify-center font-bold gradient-glow-purple">
+                  <span class="material-icons-outlined text-[24px]">payments</span>
                 </div>
-                <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-50 text-emerald-600 flex items-center gap-0.5">
-                  <span class="material-icons-outlined text-[12px]">trending_up</span> +18.4%
+                <span class="px-2.5 py-1 rounded-full text-[10px] font-black bg-gradient-to-r from-emerald-500/15 to-teal-500/15 text-emerald-700 border border-emerald-500/20 flex items-center gap-1 shadow-2xs">
+                  <span class="material-icons-outlined text-[14px]">trending_up</span> +18.4%
                 </span>
               </div>
-              <div class="mt-4">
-                <div class="text-xs font-bold text-slate-400 uppercase tracking-wider">Gross Transaction Volume</div>
+              
+              <div class="mt-5">
+                <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Gross Transaction Volume</div>
                 <div class="text-2xl sm:text-3xl font-black text-slate-900 mt-1 tracking-tight">${window.utils.formatCurrency(stats.totalValue || 0)}</div>
-                <div class="text-xs text-slate-500 mt-2 flex items-center gap-1 font-medium">
-                  <span class="text-emerald-600 font-bold">₹${((stats.totalValue || 0) * 0.1).toLocaleString('en-IN')}</span> platform revenue (10%)
+                <div class="text-xs text-slate-500 mt-2.5 flex items-center gap-1.5 font-medium">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                  <span class="text-emerald-700 font-extrabold">₹${((stats.totalValue || 0) * 0.1).toLocaleString('en-IN')}</span> net commission (10%)
                 </div>
               </div>
             </div>
 
             <!-- Card 2: Creator Network -->
             <div onclick="window.admin.showInfluencersDetails()" 
-              class="admin-card admin-card-hover p-5 cursor-pointer relative overflow-hidden group">
+              class="dashboard-mesh-card p-6 cursor-pointer relative overflow-hidden group bg-gradient-to-b from-indigo-50/50 via-white to-white border-indigo-100">
+              <div class="absolute -right-4 -bottom-4 w-28 h-28 bg-gradient-to-br from-indigo-500/10 to-cyan-500/10 rounded-full blur-xl group-hover:scale-125 transition-transform duration-500 pointer-events-none"></div>
+              
               <div class="flex justify-between items-start">
-                <div class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold">
-                  <span class="material-icons-outlined text-[22px]">stars</span>
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-indigo-600 to-blue-500 text-white flex items-center justify-center font-bold gradient-glow-indigo">
+                  <span class="material-icons-outlined text-[24px]">stars</span>
                 </div>
-                <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-indigo-50 text-indigo-600 flex items-center gap-0.5">
-                  ${stats.verifiedInfluencers || 0} Verified
+                <span class="px-2.5 py-1 rounded-full text-[10px] font-black bg-gradient-to-r from-indigo-500/15 to-blue-500/15 text-indigo-700 border border-indigo-500/20 flex items-center gap-1 shadow-2xs">
+                  <span class="material-icons-outlined text-[13px]">verified</span> ${stats.verifiedInfluencers || 0} Verified
                 </span>
               </div>
-              <div class="mt-4">
-                <div class="text-xs font-bold text-slate-400 uppercase tracking-wider">Registered Creators</div>
+              
+              <div class="mt-5">
+                <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Registered Creators</div>
                 <div class="text-2xl sm:text-3xl font-black text-slate-900 mt-1 tracking-tight">${stats.totalInfluencers || 0}</div>
-                <div class="text-xs text-slate-500 mt-2 flex items-center gap-1 font-medium">
-                  Across Fashion, Tech, Food & Travel
+                <div class="text-xs text-slate-500 mt-2.5 flex items-center gap-1.5 font-medium">
+                  <span class="w-1.5 h-1.5 rounded-full bg-indigo-500"></span> Fashion, Tech, Food, Beauty & Fitness
                 </div>
               </div>
             </div>
 
             <!-- Card 3: Brand Advertisers -->
             <div onclick="window.admin.showBrandsDetails()" 
-              class="admin-card admin-card-hover p-5 cursor-pointer relative overflow-hidden group">
+              class="dashboard-mesh-card p-6 cursor-pointer relative overflow-hidden group bg-gradient-to-b from-amber-50/50 via-white to-white border-amber-100">
+              <div class="absolute -right-4 -bottom-4 w-28 h-28 bg-gradient-to-br from-amber-500/10 to-orange-500/10 rounded-full blur-xl group-hover:scale-125 transition-transform duration-500 pointer-events-none"></div>
+              
               <div class="flex justify-between items-start">
-                <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center font-bold">
-                  <span class="material-icons-outlined text-[22px]">business</span>
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-amber-500 to-orange-500 text-white flex items-center justify-center font-bold gradient-glow-amber">
+                  <span class="material-icons-outlined text-[24px]">business</span>
                 </div>
-                <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-50 text-amber-600">Active</span>
+                <span class="px-2.5 py-1 rounded-full text-[10px] font-black bg-gradient-to-r from-amber-500/15 to-orange-500/15 text-amber-800 border border-amber-500/20 shadow-2xs">
+                  Active Escrow
+                </span>
               </div>
-              <div class="mt-4">
-                <div class="text-xs font-bold text-slate-400 uppercase tracking-wider">Brand Advertisers</div>
+              
+              <div class="mt-5">
+                <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Brand Advertisers</div>
                 <div class="text-2xl sm:text-3xl font-black text-slate-900 mt-1 tracking-tight">${stats.totalBrands || 0}</div>
-                <div class="text-xs text-slate-500 mt-2 flex items-center gap-1 font-medium">
-                  Hiring creators on escrow
+                <div class="text-xs text-slate-500 mt-2.5 flex items-center gap-1.5 font-medium">
+                  <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span> Corporate accounts with funded campaigns
                 </div>
               </div>
             </div>
 
-            <!-- Card 4: Campaigns Active -->
+            <!-- Card 4: Active Campaigns -->
             <div onclick="window.admin.showCampaignsDetails('active')" 
-              class="admin-card admin-card-hover p-5 cursor-pointer relative overflow-hidden group">
+              class="dashboard-mesh-card p-6 cursor-pointer relative overflow-hidden group bg-gradient-to-b from-emerald-50/50 via-white to-white border-emerald-100">
+              <div class="absolute -right-4 -bottom-4 w-28 h-28 bg-gradient-to-br from-emerald-500/10 to-teal-500/10 rounded-full blur-xl group-hover:scale-125 transition-transform duration-500 pointer-events-none"></div>
+              
               <div class="flex justify-between items-start">
-                <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">
-                  <span class="material-icons-outlined text-[22px]">rocket_launch</span>
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-600 text-white flex items-center justify-center font-bold gradient-glow-emerald">
+                  <span class="material-icons-outlined text-[24px]">rocket_launch</span>
                 </div>
-                <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-50 text-emerald-600 flex items-center gap-1">
-                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Live
+                <span class="px-2.5 py-1 rounded-full text-[10px] font-black bg-gradient-to-r from-emerald-500/15 to-teal-500/15 text-emerald-700 border border-emerald-500/20 flex items-center gap-1.5 shadow-2xs">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Live
                 </span>
               </div>
-              <div class="mt-4">
-                <div class="text-xs font-bold text-slate-400 uppercase tracking-wider">Active Campaigns</div>
+              
+              <div class="mt-5">
+                <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Active Campaigns</div>
                 <div class="text-2xl sm:text-3xl font-black text-slate-900 mt-1 tracking-tight">${stats.campaignsActive || stats.totalCampaigns || 0}</div>
-                <div class="text-xs text-slate-500 mt-2 flex items-center gap-1 font-medium">
-                  ${stats.campaignsCompleted || 0} completed successfully
+                <div class="text-xs text-slate-500 mt-2.5 flex items-center gap-1.5 font-medium">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> ${stats.campaignsCompleted || 0} completed successfully
                 </div>
               </div>
             </div>
             
           </div>
 
-          <!-- Row 2: Visual Revenue & Escrow Analytics Chart -->
+          <!-- Row 2: Visual Revenue & Escrow Analytics Chart (2:1 Grid) -->
           <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             
-            <!-- Left: Interactive Revenue & Payout Chart (SVG) -->
-            <div class="admin-card p-6 lg:col-span-2 flex flex-col justify-between">
+            <!-- Left: Interactive Revenue & Volume Trajectory Chart (SVG) -->
+            <div class="dashboard-mesh-card p-6 sm:p-7 lg:col-span-2 flex flex-col justify-between">
               <div>
-                <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-2 mb-6">
+                <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3 mb-6 pb-4 border-b border-slate-100">
                   <div>
-                    <h2 class="text-base font-extrabold text-slate-900 tracking-tight flex items-center gap-2">
-                      <span class="material-icons-outlined text-[#804ee6] text-[20px]">show_chart</span>
-                      Platform Revenue & Volume Trajectory
+                    <h2 class="text-base sm:text-lg font-black text-slate-900 tracking-tight flex items-center gap-2">
+                      <span class="w-8 h-8 rounded-xl bg-purple-50 text-[#804ee6] flex items-center justify-center font-bold">
+                        <span class="material-icons-outlined text-[18px]">show_chart</span>
+                      </span>
+                      Platform Volume & Commission Trajectory
                     </h2>
-                    <p class="text-xs text-slate-400 font-medium">Monthly Gross Marketplace Volume & Escrow Settlements</p>
+                    <p class="text-xs text-slate-400 font-medium mt-0.5">Real-time marketplace transactions & platform revenue curve</p>
                   </div>
-                  <div class="flex items-center gap-2">
-                    <span class="inline-flex items-center gap-1.5 text-xs font-bold text-slate-600">
-                      <span class="w-2.5 h-2.5 rounded-full bg-[#804ee6]"></span> Volume (₹)
+                  <div class="flex items-center gap-3">
+                    <span class="inline-flex items-center gap-1.5 text-xs font-bold text-slate-600 bg-purple-50/80 px-2.5 py-1 rounded-lg border border-purple-100">
+                      <span class="w-2.5 h-2.5 rounded-full bg-gradient-to-r from-[#804ee6] to-purple-600"></span> Volume (₹)
                     </span>
-                    <span class="inline-flex items-center gap-1.5 text-xs font-bold text-slate-600 ml-2">
-                      <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span> Commission (10%)
+                    <span class="inline-flex items-center gap-1.5 text-xs font-bold text-slate-600 bg-emerald-50/80 px-2.5 py-1 rounded-lg border border-emerald-100">
+                      <span class="w-2.5 h-2.5 rounded-full bg-gradient-to-r from-emerald-500 to-teal-500"></span> Commission (10%)
                     </span>
                   </div>
                 </div>
 
-                <!-- Modern SVG Line/Area Graph -->
-                <div class="w-full h-48 relative">
+                <!-- Modern SVG Line/Area Graph with Multi-Stop Gradients -->
+                <div class="w-full h-52 relative pt-2">
                   <svg class="w-full h-full overflow-visible" viewBox="0 0 500 150" preserveAspectRatio="none">
                     <defs>
-                      <linearGradient id="purpleGlow" x1="0%" y1="0%" x2="0%" y2="100%">
-                        <stop offset="0%" stop-color="#804ee6" stop-opacity="0.25"/>
-                        <stop offset="100%" stop-color="#804ee6" stop-opacity="0.0"/>
+                      <linearGradient id="purpleGlowModern" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stop-color="#804ee6" stop-opacity="0.35"/>
+                        <stop offset="60%" stop-color="#6366f1" stop-opacity="0.10"/>
+                        <stop offset="100%" stop-color="#a855f7" stop-opacity="0.0"/>
                       </linearGradient>
-                      <linearGradient id="greenGlow" x1="0%" y1="0%" x2="0%" y2="100%">
-                        <stop offset="0%" stop-color="#10b981" stop-opacity="0.2"/>
+                      <linearGradient id="emeraldGlowModern" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stop-color="#10b981" stop-opacity="0.30"/>
+                        <stop offset="70%" stop-color="#059669" stop-opacity="0.08"/>
                         <stop offset="100%" stop-color="#10b981" stop-opacity="0.0"/>
                       </linearGradient>
+                      <filter id="shadowFilter" x="-10%" y="-10%" width="120%" height="120%">
+                        <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#804ee6" flood-opacity="0.3"/>
+                      </filter>
                     </defs>
 
                     <!-- Horizontal Grid lines -->
-                    <line x1="0" y1="30" x2="500" y2="30" stroke="#f1f5f9" stroke-width="1" stroke-dasharray="4 4"/>
-                    <line x1="0" y1="75" x2="500" y2="75" stroke="#f1f5f9" stroke-width="1" stroke-dasharray="4 4"/>
-                    <line x1="0" y1="120" x2="500" y2="120" stroke="#f1f5f9" stroke-width="1" stroke-dasharray="4 4"/>
+                    <line x1="0" y1="25" x2="500" y2="25" stroke="#f1f5f9" stroke-width="1.5" stroke-dasharray="4 4"/>
+                    <line x1="0" y1="70" x2="500" y2="70" stroke="#f1f5f9" stroke-width="1.5" stroke-dasharray="4 4"/>
+                    <line x1="0" y1="115" x2="500" y2="115" stroke="#f1f5f9" stroke-width="1.5" stroke-dasharray="4 4"/>
 
                     <!-- Area 1: Volume -->
-                    <path d="M0,120 Q80,95 160,85 T320,45 T500,20 L500,150 L0,150 Z" fill="url(#purpleGlow)"/>
-                    <path d="M0,120 Q80,95 160,85 T320,45 T500,20" fill="none" stroke="#804ee6" stroke-width="3" stroke-linecap="round"/>
+                    <path d="M0,120 Q80,95 160,85 T320,45 T500,20 L500,150 L0,150 Z" fill="url(#purpleGlowModern)"/>
+                    <path d="M0,120 Q80,95 160,85 T320,45 T500,20" fill="none" stroke="#804ee6" stroke-width="3.5" stroke-linecap="round" filter="url(#shadowFilter)"/>
 
                     <!-- Area 2: Commission -->
-                    <path d="M0,140 Q80,135 160,130 T320,115 T500,95 L500,150 L0,150 Z" fill="url(#greenGlow)"/>
+                    <path d="M0,140 Q80,135 160,130 T320,115 T500,95 L500,150 L0,150 Z" fill="url(#emeraldGlowModern)"/>
                     <path d="M0,140 Q80,135 160,130 T320,115 T500,95" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round"/>
 
                     <!-- Interactive Data Points -->
-                    <circle cx="160" cy="85" r="4" fill="#804ee6" stroke="#ffffff" stroke-width="2" class="cursor-pointer hover:r-6 transition-all"/>
-                    <circle cx="320" cy="45" r="4" fill="#804ee6" stroke="#ffffff" stroke-width="2" class="cursor-pointer hover:r-6 transition-all"/>
-                    <circle cx="500" cy="20" r="5" fill="#804ee6" stroke="#ffffff" stroke-width="2" class="cursor-pointer hover:r-6 transition-all"/>
+                    <circle cx="160" cy="85" r="4.5" fill="#804ee6" stroke="#ffffff" stroke-width="2.5" class="cursor-pointer hover:r-6 transition-all"/>
+                    <circle cx="320" cy="45" r="4.5" fill="#804ee6" stroke="#ffffff" stroke-width="2.5" class="cursor-pointer hover:r-6 transition-all"/>
+                    <circle cx="500" cy="20" r="5.5" fill="#804ee6" stroke="#ffffff" stroke-width="3" class="cursor-pointer hover:r-7 transition-all"/>
                   </svg>
                   
                   <!-- X-Axis Labels -->
-                  <div class="flex justify-between text-[11px] font-bold text-slate-400 mt-2">
+                  <div class="flex justify-between text-[11px] font-bold text-slate-400 mt-2 px-1">
                     <span>Jan</span>
                     <span>Feb</span>
                     <span>Mar</span>
                     <span>Apr</span>
                     <span>May</span>
-                    <span>Jun (Current)</span>
+                    <span class="text-[#804ee6] font-black">Current Cycle</span>
                   </div>
                 </div>
               </div>
 
-              <!-- Mini Footer Metrics -->
-              <div class="grid grid-cols-3 gap-4 pt-4 mt-4 border-t border-slate-100 text-center">
-                <div>
+              <!-- Mini Footer Metrics with Gradient Accents -->
+              <div class="grid grid-cols-3 gap-4 pt-5 mt-4 border-t border-slate-100 text-center">
+                <div class="p-2.5 rounded-2xl bg-slate-50/80 border border-slate-100">
                   <div class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Escrow Security</div>
-                  <div class="text-base font-extrabold text-slate-900 mt-0.5">100% Protected</div>
+                  <div class="text-sm sm:text-base font-black text-slate-900 mt-0.5 flex items-center justify-center gap-1">
+                    <span class="material-icons-outlined text-emerald-500 text-[16px]">verified_user</span> 100% Vault
+                  </div>
                 </div>
-                <div>
-                  <div class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Avg Deal Size</div>
-                  <div class="text-base font-extrabold text-indigo-600 mt-0.5">₹14,500</div>
+                <div class="p-2.5 rounded-2xl bg-indigo-50/50 border border-indigo-100/60">
+                  <div class="text-[10px] font-extrabold uppercase tracking-wider text-indigo-400">Avg Deal Size</div>
+                  <div class="text-sm sm:text-base font-black text-indigo-700 mt-0.5">₹14,500</div>
                 </div>
-                <div>
-                  <div class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Payout Speed</div>
-                  <div class="text-base font-extrabold text-emerald-600 mt-0.5">&lt; 24 Hours</div>
+                <div class="p-2.5 rounded-2xl bg-emerald-50/50 border border-emerald-100/60">
+                  <div class="text-[10px] font-extrabold uppercase tracking-wider text-emerald-500">Payout Speed</div>
+                  <div class="text-sm sm:text-base font-black text-emerald-700 mt-0.5">&lt; 24 Hours</div>
                 </div>
               </div>
             </div>
             
-            <!-- Right: Financial Health & Escrow Breakdown -->
-            <div class="admin-card p-6 flex flex-col justify-between space-y-6">
+            <!-- Right: Financial Health & Vault Escrow Breakdown -->
+            <div class="dashboard-mesh-card p-6 sm:p-7 flex flex-col justify-between space-y-6 bg-gradient-to-br from-white via-white to-slate-50/50">
               <div>
-                <h2 class="text-base font-extrabold text-slate-900 tracking-tight flex items-center gap-2 mb-1">
-                  <span class="material-icons-outlined text-emerald-600 text-[20px]">account_balance</span>
-                  Escrow & Settlement
-                </h2>
-                <p class="text-xs text-slate-400 font-medium">Safe vault funds pending creator delivery</p>
+                <div class="flex items-center gap-3 mb-1">
+                  <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-500 text-white flex items-center justify-center font-bold gradient-glow-emerald">
+                    <span class="material-icons-outlined text-[20px]">account_balance</span>
+                  </div>
+                  <div>
+                    <h2 class="text-base font-black text-slate-900 tracking-tight">Escrow Vault Security</h2>
+                    <p class="text-xs text-slate-400 font-medium">100% Locked funds awaiting creator validation</p>
+                  </div>
+                </div>
+
+                <!-- Gradient Progress Bar: Allocation -->
+                <div class="mt-4 p-3 bg-slate-50 rounded-2xl border border-slate-100">
+                  <div class="flex justify-between items-center text-xs mb-1.5">
+                    <span class="font-bold text-slate-600">Vault Settlement Health</span>
+                    <span class="font-extrabold text-emerald-600">98.4% Secured</span>
+                  </div>
+                  <div class="w-full bg-slate-200 rounded-full h-2.5 overflow-hidden">
+                    <div class="bg-gradient-to-r from-[#804ee6] via-indigo-500 to-emerald-400 h-2.5 rounded-full" style="width: 98.4%"></div>
+                  </div>
+                </div>
               </div>
 
-              <div class="space-y-4">
-                <div class="p-3.5 bg-slate-50 border border-slate-150 rounded-xl flex items-center justify-between">
+              <!-- Metric Rows with Subtle Gradient Backgrounds -->
+              <div class="space-y-3.5">
+                <div class="p-3.5 bg-gradient-to-r from-purple-50/60 to-white border border-purple-100/80 rounded-2xl flex items-center justify-between">
                   <div>
-                    <div class="text-xs text-slate-500 font-medium">Gross Platform Volume</div>
+                    <div class="text-[11px] font-bold text-purple-700 uppercase tracking-wider">Gross Platform Volume</div>
                     <div class="text-lg font-black text-slate-900 mt-0.5">${window.utils.formatCurrency(stats.totalValue || 0)}</div>
                   </div>
-                  <span class="p-2 rounded-lg bg-white border border-slate-200 text-slate-600 material-icons-outlined text-[18px]">account_balance_wallet</span>
+                  <span class="w-9 h-9 rounded-xl bg-purple-100 text-[#804ee6] flex items-center justify-center material-icons-outlined text-[20px]">account_balance_wallet</span>
                 </div>
 
-                <div class="p-3.5 bg-amber-50/70 border border-amber-200/60 rounded-xl flex items-center justify-between">
+                <div class="p-3.5 bg-gradient-to-r from-amber-50/60 to-white border border-amber-100/80 rounded-2xl flex items-center justify-between">
                   <div>
-                    <div class="text-xs text-amber-700 font-medium">Pending Payout Requests</div>
+                    <div class="text-[11px] font-bold text-amber-700 uppercase tracking-wider">Pending Payout Requests</div>
                     <div class="text-lg font-black text-amber-900 mt-0.5">${window.utils.formatCurrency(stats.pendingWithdrawals || 0)}</div>
                   </div>
-                  <button onclick="window.admin.renderWithdrawals()" class="px-2.5 py-1 text-[11px] font-extrabold bg-amber-600 text-white rounded-lg hover:bg-amber-700 shadow-sm transition active:scale-95">Review</button>
+                  <button onclick="window.admin.renderWithdrawals()" 
+                    class="px-3 py-1.5 text-xs font-black bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-xl shadow-sm hover:opacity-95 transition active:scale-95">
+                    Review
+                  </button>
                 </div>
 
-                <div class="p-3.5 bg-rose-50/70 border border-rose-200/60 rounded-xl flex items-center justify-between">
+                <div class="p-3.5 bg-gradient-to-r from-rose-50/60 to-white border border-rose-100/80 rounded-2xl flex items-center justify-between">
                   <div>
-                    <div class="text-xs text-rose-700 font-medium">Active Disputes</div>
-                    <div class="text-lg font-black text-rose-900 mt-0.5">${stats.pendingDisputes || 0} Open</div>
+                    <div class="text-[11px] font-bold text-rose-700 uppercase tracking-wider">Active Disputes</div>
+                    <div class="text-lg font-black text-slate-900 mt-0.5">${stats.pendingDisputes || 0} Open</div>
                   </div>
-                  <span class="p-2 rounded-lg bg-white border border-rose-200 text-rose-600 material-icons-outlined text-[18px]">gavel</span>
+                  <span class="w-9 h-9 rounded-xl ${stats.pendingDisputes ? 'bg-rose-100 text-rose-600' : 'bg-emerald-100 text-emerald-600'} flex items-center justify-center material-icons-outlined text-[20px]">
+                    ${stats.pendingDisputes ? 'gavel' : 'check_circle'}
+                  </span>
                 </div>
               </div>
 
-              <button onclick="window.admin.renderWithdrawals()" class="w-full py-2.5 text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition active:scale-95 flex items-center justify-center gap-1.5">
+              <button onclick="window.admin.renderWithdrawals()" 
+                class="w-full py-3 text-xs font-bold text-slate-700 hover:text-slate-900 bg-slate-100 hover:bg-slate-200/80 rounded-2xl transition active:scale-95 flex items-center justify-center gap-2">
                 <span>View Full Financial Ledger</span>
                 <span class="material-icons-outlined text-[16px]">arrow_forward</span>
               </button>
@@ -285,17 +354,21 @@ window.admin = {
 
           </div>
           
-          <!-- Row 3: Pending Approvals Modern Table -->
-          <div class="admin-card overflow-hidden">
-            <div class="px-6 py-4.5 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 bg-slate-50/60">
-              <div>
-                <h2 class="font-extrabold text-slate-900 text-base tracking-tight flex items-center gap-2">
-                  <span class="material-icons-outlined text-[#804ee6] text-[20px]">pending_actions</span>
-                  Pending Campaign Approvals & Reviews
-                </h2>
-                <p class="text-xs text-slate-500 font-medium">Review campaigns and deals submitted by brands</p>
+          <!-- Row 3: Pending Approvals & Deal Reviews Table -->
+          <div class="dashboard-mesh-card overflow-hidden">
+            <div class="px-6 py-5 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 bg-gradient-to-r from-purple-50/30 via-slate-50/50 to-white">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-2xl bg-purple-50 text-[#804ee6] flex items-center justify-center font-bold">
+                  <span class="material-icons-outlined text-[20px]">pending_actions</span>
+                </div>
+                <div>
+                  <h2 class="font-black text-slate-900 text-base tracking-tight">
+                    Pending Campaign Approvals & Reviews
+                  </h2>
+                  <p class="text-xs text-slate-400 font-medium">Review campaigns and deals submitted by brand partners</p>
+                </div>
               </div>
-              <span class="px-3 py-1 rounded-full text-xs font-extrabold bg-purple-100 text-[#804ee6] border border-purple-200 shadow-xs">
+              <span class="px-3.5 py-1 rounded-full text-xs font-black bg-gradient-to-r from-[#804ee6]/10 to-pink-500/10 text-[#804ee6] border border-[#804ee6]/20 shadow-xs">
                 ${pendingItems.length} Waiting Action
               </span>
             </div>
@@ -314,17 +387,20 @@ window.admin = {
                 <tbody>
                   ${pendingItems.length === 0 ? `
                     <tr>
-                      <td colspan="5" class="px-6 py-12 text-center text-slate-400">
-                        <span class="material-icons-outlined text-4xl text-slate-300 mb-2 block">task_alt</span>
-                        <p class="font-semibold text-slate-600 text-sm">All caught up!</p>
-                        <p class="text-xs text-slate-400 mt-0.5">No pending approvals require administrative action right now.</p>
+                      <td colspan="5" class="px-6 py-14 text-center text-slate-400">
+                        <div class="w-14 h-14 rounded-3xl bg-emerald-50 text-emerald-500 flex items-center justify-center mx-auto mb-3 shadow-xs">
+                          <span class="material-icons-outlined text-3xl">task_alt</span>
+                        </div>
+                        <p class="font-bold text-slate-700 text-sm">All caught up!</p>
+                        <p class="text-xs text-slate-400 mt-1 max-w-sm mx-auto">No pending campaign reviews or escrow releases require administrative action right now.</p>
                       </td>
                     </tr>` : 
                     pendingItems.map(item => `
-                      <tr>
+                      <tr class="hover:bg-purple-50/30 transition-colors">
                         <td>
-                          <div class="font-bold text-slate-900 hover:text-[#804ee6] transition cursor-pointer" onclick="window.admin.openCampaignModal('${item.id}', ${item.isDeal})">
-                            ${item.isDeal ? '#' + (item.campaignName || item.title || item.id) : (item.campaignName || item.title || 'Campaign #' + item.id)}
+                          <div class="font-bold text-slate-900 hover:text-[#804ee6] transition cursor-pointer flex items-center gap-1.5" onclick="window.admin.openCampaignModal('${item.id}', ${item.isDeal})">
+                            <span>${item.isDeal ? '#' + (item.campaignName || item.title || item.id) : (item.campaignName || item.title || 'Campaign #' + item.id)}</span>
+                            <span class="material-icons-outlined text-xs text-slate-400">open_in_new</span>
                           </div>
                           <span class="badge-modern badge-modern-pending mt-1">
                             <span class="status-dot status-dot-pending"></span> ${item.packageType || item.type || 'Campaign'}
@@ -332,19 +408,19 @@ window.admin = {
                         </td>
                         <td>
                           <div class="font-bold text-slate-800">${item.brandName || 'Brand'}</div>
-                          <div class="text-xs text-slate-400">Advertiser</div>
+                          <div class="text-[11px] text-slate-400">Advertiser</div>
                         </td>
                         <td>
                           <div class="font-bold text-slate-800">${item.influencerName || 'Creator'}</div>
-                          <div class="text-xs text-slate-400">Creator</div>
+                          <div class="text-[11px] text-slate-400">Creator</div>
                         </td>
                         <td>
-                          <div class="font-black text-slate-900">${window.utils.formatCurrency(item.amount)}</div>
-                          <div class="text-[11px] text-emerald-600 font-semibold">In Escrow</div>
+                          <div class="font-black text-slate-900 text-sm">${window.utils.formatCurrency(item.amount)}</div>
+                          <div class="text-[10px] text-emerald-600 font-bold uppercase tracking-wider">In Escrow</div>
                         </td>
                         <td>
                           <select onchange="window.admin.quickApprove('${item.id}', this.value, ${item.isDeal})" 
-                            class="px-3 py-1.5 text-xs font-bold rounded-lg bg-white border border-slate-200 hover:border-slate-300 focus:ring-2 focus:ring-[#804ee6]/20 focus:border-[#804ee6] transition shadow-2xs">
+                            class="px-3 py-1.5 text-xs font-bold rounded-xl bg-white border border-slate-200 hover:border-slate-300 focus:ring-2 focus:ring-[#804ee6]/20 focus:border-[#804ee6] transition shadow-2xs">
                             <option value="pending">Pending</option>
                             <option value="active">✓ Approve (Active)</option>
                             <option value="review">In Review</option>
