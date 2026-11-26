@@ -1,0 +1,10 @@
+import 'dotenv/config';
+import pg from 'pg';
+import {createTokenVerifier} from './auth.js';
+import {createApp} from './app.js';
+for(const key of ['DATABASE_URL','AUTH_ISSUER','AUTH_JWKS_URL','SUPABASE_PUBLISHABLE_KEY']) if(!process.env[key])throw new Error(`Missing ${key}`);
+const pool=new pg.Pool({connectionString:process.env.DATABASE_URL,max:5,connectionTimeoutMillis:10000,idleTimeoutMillis:30000,query_timeout:15000});
+const app=createApp({pool,authConfig:{issuer:process.env.AUTH_ISSUER,publishableKey:process.env.SUPABASE_PUBLISHABLE_KEY},verifyToken:createTokenVerifier({issuer:process.env.AUTH_ISSUER,jwksUrl:process.env.AUTH_JWKS_URL})});
+pool.on('error',()=>console.error('Unexpected idle database connection error'));
+const server=app.listen(process.env.PORT || 3001);
+for(const signal of ['SIGINT','SIGTERM'])process.on(signal,()=>server.close(()=>pool.end()));

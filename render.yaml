@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: influencex
+    runtime: node
+    plan: free
+    rootDir: backend
+    buildCommand: npm ci --include=dev && npm test
+    startCommand: npm run migrate && npm start
+    healthCheckPath: /ready
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NODE_VERSION
+        value: 24.13.0
+      - key: AUTH_ISSUER
+        value: https://gbzvmrjivtghwvvmxhqz.supabase.co/auth/v1
+      - key: AUTH_JWKS_URL
+        value: https://gbzvmrjivtghwvvmxhqz.supabase.co/auth/v1/.well-known/jwks.json
+      - key: SUPABASE_PUBLISHABLE_KEY
+        sync: false
+      - key: DATABASE_URL
+        sync: false

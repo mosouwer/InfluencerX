@@ -1,0 +1,54 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {PGlite} from '@electric-sql/pglite';
+import {readFile} from 'node:fs/promises';
+import {createApp} from '../src/app.js';
+test('database migrations and authenticated collaboration lifecycle',async()=>{
+ const db=new PGlite();
+ for(const file of ['001_initial.sql','002_agreement.sql','003_api_access.sql'])await db.exec(await readFile(new URL('../migrations/'+file,import.meta.url),'utf8'));
+ const pool={query:async(sql,args)=>{const r=await db.query(sql,args);return {...r,rowCount:r.rows.length || r.affectedRows || 0};}};
+ pool.connect=async()=>({...pool,release(){}});
+ const ids={brand:'11111111-1111-4111-8111-111111111111',creator:'22222222-2222-4222-8222-222222222222',other:'33333333-3333-4333-8333-333333333333'};
+ const server=createApp({pool,verifyToken:async token=>{if(!ids[token])throw Error();return {sub:ids[token]};}}).listen(0,'127.0.0.1');
+ await new Promise(resolve=>server.once('listening',resolve));
+ const request=async(role,path,method='GET',body)=>{
+  const r=await fetch(`http://127.0.0.1:${server.address().port}/api/v2${path}`,{method,headers:{authorization:`Bearer ${role}`,'content-type':'application/json'},body:body?JSON.stringify(body):undefined});return {status:r.status,body:await r.json()};
+ };
+ try{
+  const ready=await fetch(`http://127.0.0.1:${server.address().port}/ready`);
+  assert.equal(ready.status,200);
+  assert.equal((await request('invalid','/me')).status,401);
+  assert.equal((await request('brand','/profile','PUT',{role:'admin',display_name:'Admin'})).status,400);
+  for(const [token,role] of [['brand','brand'],['creator','influencer'],['other','brand']])assert.equal((await request(token,'/profile','PUT',{role,display_name:token})).status,200);
+  assert.equal((await request('brand','/profile','PUT',{role:'influencer',display_name:'changed'})).status,409);
+  const discovery=await request('brand','/creators?search=creator');
+  assert.equal(discovery.status,200);
+  assert.deepEqual(discovery.body,[{id:ids.creator,display_name:'creator'}]);
+  assert.deepEqual((await request('brand','/creators?search=missing')).body,[]);
+  const booking=await request('brand','/collaborations','POST',{creator_id:ids.creator,title:'Launch',brief:'A reel',usage_rights:'30 days',amount_paise:1200000,deadline:'2099-01-01',revision_limit:1,deliverables:['One reel']});
+  assert.equal(booking.status,201);
+  const path='/collaborations/'+booking.body.id;
+  assert.equal((await request('other',path)).status,404);
+  const action=(actor,action)=>request(actor,path+'/actions','POST',{action});
+  assert.equal((await action('creator','accept')).body.status,'awaiting_payment');
+  assert.equal((await action('brand','fund')).status,409);
+  // Test fixture only: payment activation is not exposed by the application.
+  await db.query("UPDATE collaborations SET status='active' WHERE id=$1",[booking.body.id]);
+  assert.equal((await action('creator','submit')).status,409);
+  const detail=await request('brand',path);
+  const submit=()=>request('creator',path+'/deliverables/'+detail.body.deliverables[0].id,'PUT',{url:'https://example.com/reel'});
+  assert.equal((await submit()).status,200);
+  assert.equal((await action('creator','submit')).status,200);
+  assert.equal((await action('creator','approve')).status,409);
+  assert.equal((await action('brand','request_revision')).status,200);
+  assert.equal((await action('creator','resubmit')).status,409);
+  await submit();await action('creator','resubmit');
+  assert.equal((await action('brand','request_revision')).status,409);
+  assert.equal((await action('brand','approve')).body.status,'completed');
+  assert.equal((await action('brand','approve')).status,409);
+  const final=await request('brand',path);
+  assert.equal(final.body.submissions.length,2);
+  assert.equal(final.body.events.filter(e=>e.action==='approve').length,1);
+  assert.ok(final.body.deliverables[0].approved_at);
+ }catch(e){console.error(e);throw e;}finally{server.closeAllConnections();await new Promise(resolve=>server.close(resolve));await db.close();}
+});
