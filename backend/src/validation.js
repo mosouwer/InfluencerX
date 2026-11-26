@@ -13,3 +13,16 @@ export function submissionUrl(value) {
  if (url.protocol !== 'https:' || url.username || url.password || url.href.length > 4000) throw new Error('Invalid submission URL');
  return url.href;
 }
+export const niches=['Fashion','Food','Travel','Fitness','Tech','Lifestyle','Beauty','Other'];
+export function creatorProfile(body){
+ if(!body || !niches.includes(body.niche))throw new Error('Choose a valid niche');
+ for(const [key,max] of [['bio',2000],['location',120]])if(typeof body[key]!=='string' || body[key].length>max)throw new Error(`Invalid ${key}`);
+ if(typeof body.available!=='boolean')throw new Error('Invalid availability');
+ const rates={};
+ for(const key of ['story','reel','post','youtube']){
+  const value=body.rates?.[key];
+  if(value!==null && (!Number.isSafeInteger(value) || value<=0 || value>10000000000))throw new Error('Rates must be positive integer paise, or null for unavailable packages');
+  rates[key]=value;
+ }
+ return {niche:body.niche,bio:body.bio.trim(),location:body.location.trim(),available:body.available,rates};
+}

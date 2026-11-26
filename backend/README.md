@@ -70,3 +70,13 @@ tables; the server-only database connection performs authorized operations.
 settings endpoint. With an optional `AUTH_TEST_ACCESS_TOKEN` in the ignored local
 `.env`, it also verifies the real JWT signature and checks the live user session.
 It never prints tokens or creates accounts. Remove the temporary token after use.
+
+## Creator discovery
+
+Creators edit niche, biography, location, availability, and optional package rates
+through `GET/PUT /api/v2/creator-profile`. Rates are integer paise; null means the
+package is not offered. Only the authenticated creator can edit their own profile.
+`GET /api/v2/creators` accepts `search`, `niche`, and `max_budget_paise`. Budget
+filtering matches at least one offered package. Unavailable creators are hidden
+and cannot receive new proposals. Existing agreements keep their original prices
+when profile rates change.

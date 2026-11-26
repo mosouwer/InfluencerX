@@ -1,7 +1,7 @@
 import express from 'express';
 import {fileURLToPath} from 'node:url';
 import {transition} from './workflow.js';
-import {booking,submissionUrl} from './validation.js';
+import {booking,submissionUrl,creatorProfile,niches} from './validation.js';
 export function createApp({pool,verifyToken,authConfig}) {
 const app = express();
 app.disable('x-powered-by');
@@ -39,11 +39,31 @@ app.use(async(req,res,next)=>{
   req.actor=rows[0];next();
  }catch(e){next(e);}
 });
+app.get('/api/v2/creator-profile',async(req,res,next)=>{
+ if(req.actor.role!=='influencer')return res.status(403).json({error:'Creator account required'});
+ try{const {rows}=await pool.query('SELECT * FROM creator_profiles WHERE user_id=$1',[req.actor.id]);res.json(rows[0] || null);}catch(e){next(e);}
+});
+app.put('/api/v2/creator-profile',async(req,res,next)=>{
+ if(req.actor.role!=='influencer')return res.status(403).json({error:'Creator account required'});
+ let data;try{data=creatorProfile(req.body);}catch(e){return res.status(400).json({error:e.message});}
+ try{
+  const {rows}=await pool.query(`INSERT INTO creator_profiles(user_id,niche,bio,location,available,story_paise,reel_paise,post_paise,youtube_paise)
+   VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9) ON CONFLICT(user_id) DO UPDATE SET
+   niche=EXCLUDED.niche,bio=EXCLUDED.bio,location=EXCLUDED.location,available=EXCLUDED.available,
+   story_paise=EXCLUDED.story_paise,reel_paise=EXCLUDED.reel_paise,post_paise=EXCLUDED.post_paise,youtube_paise=EXCLUDED.youtube_paise,updated_at=now() RETURNING *`,
+   [req.actor.id,data.niche,data.bio,data.location,data.available,...['story','reel','post','youtube'].map(k=>data.rates[k])]);res.json(rows[0]);
+ }catch(e){next(e);}
+});
 app.get('/api/v2/creators',async(req,res,next)=>{
+ const {search='',niche='',max_budget_paise=''}=req.query;
+ if(typeof search!=='string' || typeof niche!=='string' || (niche && !niches.includes(niche)) || typeof max_budget_paise!=='string' || (max_budget_paise && (!/^\d+$/.test(max_budget_paise) || !Number.isSafeInteger(Number(max_budget_paise)))))return res.status(400).json({error:'Invalid discovery filters'});
  try {
-  const search=typeof req.query.search==='string'?req.query.search.slice(0,120):'';
-  const {rows}=await pool.query("SELECT id,display_name FROM profiles WHERE role='influencer' AND display_name ILIKE $1 ORDER BY display_name,id LIMIT 100",['%'+search+'%']);
-  res.json(rows);
+  const {rows}=await pool.query(`SELECT p.id,p.display_name,c.niche,c.bio,c.location,COALESCE(c.available,true) AS available,
+   c.story_paise,c.reel_paise,c.post_paise,c.youtube_paise FROM profiles p LEFT JOIN creator_profiles c ON c.user_id=p.id
+   WHERE p.role='influencer' AND COALESCE(c.available,true) AND p.display_name ILIKE $1
+   AND ($2='' OR c.niche=$2)
+   AND ($3::bigint IS NULL OR LEAST(c.story_paise,c.reel_paise,c.post_paise,c.youtube_paise)<=$3::bigint)
+   ORDER BY p.display_name,p.id LIMIT 100`,['%'+search.slice(0,120)+'%',niche,max_budget_paise || null]);res.json(rows);
  }catch(e){next(e);}
 });
 app.get('/api/v2/me',(req,res)=>res.json(req.actor));
@@ -68,7 +88,7 @@ app.post('/api/v2/collaborations',async(req,res,next)=>{
  let client;
  try {
   client=await pool.connect(); await client.query('BEGIN');
-  const creator=await client.query("SELECT id FROM profiles WHERE id=$1 AND role='influencer'",[data.creator_id]);
+  const creator=await client.query("SELECT p.id FROM profiles p LEFT JOIN creator_profiles c ON c.user_id=p.id WHERE p.id=$1 AND p.role='influencer' AND COALESCE(c.available,true)",[data.creator_id]);
   if(!creator.rowCount){await client.query('ROLLBACK');return res.status(400).json({error:'Creator not found'});}
   const {rows}=await client.query(`INSERT INTO collaborations(brand_id,creator_id,title,brief,amount_paise,deadline,usage_rights,revision_limit)
    VALUES($1,$2,$3,$4,$5,$6,$7,$8) RETURNING *`,[req.actor.id,data.creator_id,data.title,data.brief,data.amount_paise,data.deadline,data.usage_rights,data.revision_limit]);
