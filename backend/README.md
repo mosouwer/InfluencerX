@@ -80,3 +80,14 @@ package is not offered. Only the authenticated creator can edit their own profil
 filtering matches at least one offered package. Unavailable creators are hidden
 and cannot receive new proposals. Existing agreements keep their original prices
 when profile rates change.
+
+## Collaboration feedback
+
+Participants post plain-text messages with `POST /api/v2/collaborations/:id/comments`
+using `{ "body": "Feedback" }`. Collaboration details return the latest 100
+comments with author names and timestamps. Only the agreement's brand and creator
+can post or read its discussion; direct Data API access stays disabled.
+`request_revision` and `dispute` actions require a nonempty `note` (up to 4000
+characters), stored atomically with the status transition in the event history.
+Messages and feedback render as text. Refresh retrieves new replies; email
+notifications, attachments, and live messaging are not included in this release.

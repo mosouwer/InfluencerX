@@ -1,7 +1,7 @@
 import express from 'express';
 import {fileURLToPath} from 'node:url';
 import {transition} from './workflow.js';
-import {booking,submissionUrl,creatorProfile,niches} from './validation.js';
+import {booking,submissionUrl,creatorProfile,niches,feedback} from './validation.js';
 export function createApp({pool,verifyToken,authConfig}) {
 const app = express();
 app.disable('x-powered-by');
@@ -76,7 +76,8 @@ app.get('/api/v2/collaborations/:id',async(req,res,next)=>{
   const deliverables=await pool.query('SELECT * FROM deliverables WHERE collaboration_id=$1 ORDER BY id',[req.params.id]);
   const submissions=await pool.query('SELECT s.* FROM submissions s JOIN deliverables d ON d.id=s.deliverable_id WHERE d.collaboration_id=$1 ORDER BY s.created_at,s.id',[req.params.id]);
   const events=await pool.query('SELECT * FROM collaboration_events WHERE collaboration_id=$1 ORDER BY id',[req.params.id]);
-  res.json({...rows[0],deliverables:deliverables.rows,submissions:submissions.rows,events:events.rows});
+  const comments=await pool.query(`SELECT c.*,p.display_name AS author_name FROM collaboration_comments c JOIN profiles p ON p.id=c.author_id WHERE c.collaboration_id=$1 ORDER BY c.created_at DESC,c.id DESC LIMIT 100`,[req.params.id]);
+  res.json({...rows[0],deliverables:deliverables.rows,submissions:submissions.rows,events:events.rows,comments:comments.rows.reverse()});
  }catch(e){next(e);}
 });
 app.get('/api/v2/collaborations',async(req,res,next)=>{
@@ -112,6 +113,15 @@ app.put('/api/v2/collaborations/:id/deliverables/:deliverableId',async(req,res,n
   await client.query('COMMIT');res.json(result.rows[0]);
  }catch(e){if(client)await client.query('ROLLBACK');next(e);}finally{client?.release();}
 });
+app.post('/api/v2/collaborations/:id/comments',async(req,res,next)=>{
+ let body;try{body=feedback(req.body?.body);}catch(e){return res.status(400).json({error:e.message});}
+ try{
+  const {rows}=await pool.query(`INSERT INTO collaboration_comments(collaboration_id,author_id,body)
+   SELECT id,$2,$3 FROM collaborations WHERE id=$1 AND (brand_id=$2 OR creator_id=$2) RETURNING *`,[req.params.id,req.actor.id,body]);
+  if(!rows.length)return res.status(404).json({error:'Not found'});
+  res.status(201).json(rows[0]);
+ }catch(e){next(e);}
+});
 app.post('/api/v2/collaborations/:id/actions',async(req,res,next)=>{
  let client;
  try {
@@ -122,6 +132,8 @@ app.post('/api/v2/collaborations/:id/actions',async(req,res,next)=>{
   if (!row) {await client.query('ROLLBACK');return res.status(404).json({error:'Not found'});}
   let status;
   try {status=transition(row,req.actor,req.body?.action);}catch(e){await client.query('ROLLBACK');return res.status(e.message==='Forbidden'?403:409).json({error:e.message});}
+  let note=null;
+  if(['request_revision','dispute'].includes(req.body?.action)){try{note=feedback(req.body?.note);}catch(e){await client.query('ROLLBACK');return res.status(400).json({error:e.message});}}
   if (['submit','resubmit','approve'].includes(req.body?.action)) {
    const check=await client.query('SELECT count(*)::integer AS total,count(submission_url)::integer AS submitted FROM deliverables WHERE collaboration_id=$1',[row.id]);
    if(!check.rows[0].total || check.rows[0].total!==check.rows[0].submitted){await client.query('ROLLBACK');return res.status(409).json({error:'Submit every deliverable first'});}
@@ -133,7 +145,7 @@ app.post('/api/v2/collaborations/:id/actions',async(req,res,next)=>{
   }
   if(req.body?.action==='approve') await client.query('UPDATE deliverables SET approved_at=now() WHERE collaboration_id=$1',[row.id]);
   const result=await client.query('UPDATE collaborations SET status=$1,version=version+1 WHERE id=$2 RETURNING *',[status,row.id]);
-  await client.query('INSERT INTO collaboration_events(collaboration_id,actor_id,action) VALUES($1,$2,$3)',[row.id,req.actor.id,req.body?.action]);
+  await client.query('INSERT INTO collaboration_events(collaboration_id,actor_id,action,note) VALUES($1,$2,$3,$4)',[row.id,req.actor.id,req.body?.action,note]);
   await client.query('COMMIT');res.json(result.rows[0]);
  }catch(e){if(client)await client.query('ROLLBACK');next(e);}finally{client?.release();}
 });

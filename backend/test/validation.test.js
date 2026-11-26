@@ -10,3 +10,9 @@ test('submission links require HTTPS and exclude embedded credentials',()=>{
  assert.equal(submissionUrl('https://example.com/video'),'https://example.com/video');
  for(const value of ['javascript:alert(1)','http://example.com','https://user:password@example.com'])assert.throws(()=>submissionUrl(value));
 });
+
+test('feedback rejects empty and oversized text',async()=>{
+ const {feedback}=await import('../src/validation.js');
+ assert.equal(feedback(' Clear instructions '),'Clear instructions');
+ for(const value of ['', '  ',null,{},'x'.repeat(4001)])assert.throws(()=>feedback(value));
+});

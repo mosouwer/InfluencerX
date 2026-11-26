@@ -5,7 +5,7 @@ import {readFile} from 'node:fs/promises';
 import {createApp} from '../src/app.js';
 test('database migrations and authenticated collaboration lifecycle',async()=>{
  const db=new PGlite();
- for(const file of ['001_initial.sql','002_agreement.sql','003_api_access.sql','004_creator_profiles.sql'])await db.exec(await readFile(new URL('../migrations/'+file,import.meta.url),'utf8'));
+ for(const file of ['001_initial.sql','002_agreement.sql','003_api_access.sql','004_creator_profiles.sql','005_collaboration_feedback.sql'])await db.exec(await readFile(new URL('../migrations/'+file,import.meta.url),'utf8'));
  const pool={query:async(sql,args)=>{const r=await db.query(sql,args);return {...r,rowCount:r.rows.length || r.affectedRows || 0};}};
  pool.connect=async()=>({...pool,release(){}});
  const ids={brand:'11111111-1111-4111-8111-111111111111',creator:'22222222-2222-4222-8222-222222222222',other:'33333333-3333-4333-8333-333333333333'};
@@ -40,7 +40,14 @@ test('database migrations and authenticated collaboration lifecycle',async()=>{
   assert.equal(booking.status,201);
   const path='/collaborations/'+booking.body.id;
   assert.equal((await request('other',path)).status,404);
-  const action=(actor,action)=>request(actor,path+'/actions','POST',{action});
+  assert.equal((await request('other',path+'/comments','POST',{body:'Unrelated user'})).status,404);
+  assert.equal((await request('brand',path+'/comments','POST',{body:'  '})).status,400);
+  assert.equal((await request('brand',path+'/comments','POST',{body:'Please use the updated brief'})).status,201);
+  assert.equal((await request('creator',path+'/comments','POST',{body:'Brief received'})).status,201);
+  const discussion=await request('brand',path);
+  assert.equal(discussion.body.comments.length,2);
+  assert.equal(discussion.body.comments[0].author_name,'brand');
+  const action=(actor,action)=>request(actor,path+'/actions','POST',{action,note:'Please show the product more clearly'});
   assert.equal((await action('creator','accept')).body.status,'awaiting_payment');
   assert.equal((await action('brand','fund')).status,409);
   // Test fixture only: payment activation is not exposed by the application.
@@ -51,6 +58,7 @@ test('database migrations and authenticated collaboration lifecycle',async()=>{
   assert.equal((await submit()).status,200);
   assert.equal((await action('creator','submit')).status,200);
   assert.equal((await action('creator','approve')).status,409);
+  assert.equal((await request('brand',path+'/actions','POST',{action:'request_revision'})).status,400);
   assert.equal((await action('brand','request_revision')).status,200);
   assert.equal((await action('creator','resubmit')).status,409);
   await submit();await action('creator','resubmit');
@@ -61,5 +69,7 @@ test('database migrations and authenticated collaboration lifecycle',async()=>{
   assert.equal(final.body.submissions.length,2);
   assert.equal(final.body.events.filter(e=>e.action==='approve').length,1);
   assert.ok(final.body.deliverables[0].approved_at);
+  assert.equal(final.body.events.find(e=>e.action==='request_revision').note,'Please show the product more clearly');
+  assert.equal(final.body.revisions_used,1);
  }catch(e){console.error(e);throw e;}finally{server.closeAllConnections();await new Promise(resolve=>server.close(resolve));await db.close();}
 });

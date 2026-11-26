@@ -26,3 +26,7 @@ export function creatorProfile(body){
  }
  return {niche:body.niche,bio:body.bio.trim(),location:body.location.trim(),available:body.available,rates};
 }
+export function feedback(value){
+ if(typeof value!=='string' || !value.trim() || value.trim().length>4000)throw new Error('Enter feedback between 1 and 4000 characters');
+ return value.trim();
+}

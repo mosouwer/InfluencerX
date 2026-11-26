@@ -49,9 +49,24 @@ export function mountWorkspace({api,user}){
   const actions=el('div',undefined,'buttons');
   const available=user.role==='brand'?{proposed:['cancel'],review:['request_revision','approve']}:{proposed:['accept','decline'],active:['submit'],revision:['resubmit']};
   const options=[...(available[row.status] || [])];if(['active','review','revision'].includes(row.status))options.push('dispute');
-  for(const action of options){if(action==='request_revision'&&row.revisions_used>=row.revision_limit)continue;actions.append(button(label(action),async()=>{await api('/collaborations/'+id+'/actions','POST',{action});await list();await detail(id);}));}
+  for(const action of options){
+   if(action==='request_revision'&&row.revisions_used>=row.revision_limit)continue;
+   if(['request_revision','dispute'].includes(action)){
+    actions.append(button(label(action),async()=>{
+     const form=el('form',undefined,'card');const title=el('h3',action==='dispute'?'Explain the issue':'What needs to change?');const note=el('textarea');note.required=true;note.maxLength=4000;note.setAttribute('aria-label',title.textContent);const save=el('button',action==='dispute'?'Raise dispute':'Send revision request');
+     const cancel=button('Cancel',()=>detail(id));form.append(title,note,save,cancel);actions.replaceChildren(form);note.focus();
+     form.onsubmit=e=>{e.preventDefault();save.disabled=true;run(async()=>{await api('/collaborations/'+id+'/actions','POST',{action,note:note.value});await list();await detail(id);}).finally(()=>save.disabled=false);};
+    }));
+   }else actions.append(button(label(action),async()=>{await api('/collaborations/'+id+'/actions','POST',{action});await list();await detail(id);}));
+  }
   box.append(actions,el('h3','Activity'));const timeline=el('ol',undefined,'timeline');
-  for(const event of row.events){const item=el('li',label(event.action)+' · ');item.append(el('time',new Date(event.created_at).toLocaleString()));timeline.append(item);}box.append(timeline);
+  for(const event of row.events){const item=el('li',label(event.action)+' · ');item.append(el('time',new Date(event.created_at).toLocaleString()));if(event.note)item.append(el('p',event.note,'detail-copy'));timeline.append(item);}box.append(timeline);
+  box.append(el('h3','Discussion'),el('p','Feedback stays with this collaboration. Showing the latest 100 messages. Use Refresh to check for replies.'));
+  const thread=el('div',undefined,'discussion');
+  if(!row.comments.length)thread.append(el('p','Start the discussion with a question or update.'));
+  for(const comment of row.comments){const card=el('article',undefined,'card');card.append(el('strong',comment.author_name+(comment.author_id===user.id?' · You':'')),el('p',comment.body,'detail-copy'),el('time',new Date(comment.created_at).toLocaleString()));thread.append(card);}box.append(thread);
+  const reply=el('form');const text=el('textarea');text.required=true;text.maxLength=4000;text.placeholder='Ask a question or share an update';text.setAttribute('aria-label','Message to your collaborator');const send=el('button','Post message');reply.append(text,send);box.append(reply);
+  reply.onsubmit=e=>{e.preventDefault();send.disabled=true;run(async()=>{await api('/collaborations/'+id+'/comments','POST',{body:text.value});await detail(id);}).finally(()=>send.disabled=false);};
   if(row.submissions.length){box.append(el('h3','Submission history'));for(const s of row.submissions){const p=el('p');const a=el('a',new Date(s.created_at).toLocaleString());a.href=s.url;a.target='_blank';a.rel='noopener noreferrer';p.append(a);box.append(p);}}
  }
  $('booking').onsubmit=e=>{e.preventDefault();const submit=e.submitter;submit.disabled=true;run(async()=>{

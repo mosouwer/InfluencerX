@@ -11,7 +11,7 @@ test('PostgreSQL concurrent approvals commit exactly one event',{skip:!process.e
  const pool=new pg.Pool({connectionString:process.env.TEST_DATABASE_URL,options:`-c search_path=${schema},public`,max:5});
  let server;
  try{
-  for(const file of ['001_initial.sql','002_agreement.sql','003_api_access.sql','004_creator_profiles.sql'])await pool.query(await readFile(new URL('../migrations/'+file,import.meta.url),'utf8'));
+  for(const file of ['001_initial.sql','002_agreement.sql','003_api_access.sql','004_creator_profiles.sql','005_collaboration_feedback.sql'])await pool.query(await readFile(new URL('../migrations/'+file,import.meta.url),'utf8'));
   const brand=randomUUID(),creator=randomUUID();
   await pool.query("INSERT INTO profiles(id,role,display_name) VALUES($1,'brand','Brand'),($2,'influencer','Creator')",[brand,creator]);
   const {rows}=await pool.query("INSERT INTO collaborations(brand_id,creator_id,title,brief,amount_paise,deadline,status) VALUES($1,$2,'Test','Test',10000,'2099-01-01','review') RETURNING id",[brand,creator]);
